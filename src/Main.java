@@ -9,18 +9,18 @@ public class Main {
     static String doc1 = "Test space model example";
     static String doc2 = "Test model";
     static String[] doc = {doc1, doc2};
-    static HashMap<String, Float> rankingScores;
+    static HashMap<String, Integer> rankingScores;
 
     public static void main(String... args) throws IOException {
 
-        VectorSpaceModel vect = new VectorSpaceModel();
+        VectorSpaceModelBinaryVersion vect = new VectorSpaceModelBinaryVersion();
 
        rankingScores = vect.getRankingScores(query, doc);
 
-        for (String name: rankingScores.keySet()){
+        for (String Key: rankingScores.keySet()){
 
-            String key =name.toString();
-            String value = rankingScores.get(name).toString();
+            String key = Key.toString();
+            String value = rankingScores.get(Key).toString();
             System.out.println(key + " " + value);
 
 

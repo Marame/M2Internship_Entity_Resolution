@@ -19,7 +19,9 @@ public class VectorSpaceModel {
     ArrayList<Float> normalisedvectIndex = new ArrayList<>();
     HashMap<String, Float> dotProduct = new HashMap<String, Float>();
     ArrayList<Integer> indexVect = new ArrayList<>();
-    int idx ;
+     String doc1 = "Test space model example";
+     String doc2 = "Test model";
+     String[] docs = {doc1, doc2};
 
   // retrieving the tokens of a single document
     public ArrayList<String> bagOfWordsByDoc(String s) {
@@ -52,7 +54,7 @@ public class VectorSpaceModel {
         return listTF;
     }
     // computing the IDF of a document
-    public ArrayList<Float> getIDF(String document, String[] docs) throws IOException {
+    public ArrayList<Float> getIDF(String document) throws IOException {
 
         ArrayList<String> listOfWordsDoc = bagOfWordsByDoc(document);
         int nbdocs = 0;
@@ -71,10 +73,9 @@ public class VectorSpaceModel {
     }
 
     // computing TFxIDF scores
-    public ArrayList<Float> getTFxIDFScores(String document, String[] docs) throws IOException {
+    public ArrayList<Float> getTFxIDFScores(String document) throws IOException {
         ArrayList<Float> listTFs = getTF(document);
-        ArrayList<Float> listIDFs = getIDF(document, docs);
-        ArrayList<String> listOfWordsDoc = bagOfWordsByDoc(document);
+        ArrayList<Float> listIDFs = getIDF(document);
 
         for (int i = 0; i < listTFs.size(); i++) {
             Float p = listTFs.get(i) * listIDFs.get(i);
@@ -84,9 +85,12 @@ public class VectorSpaceModel {
     }
 
     //computing the binary vector of a document, indicating ifeach term is present in the bag of words
-    public ArrayList<Integer> indexVector(String document, String[] docs) {
+    public ArrayList<Integer> indexVector(String document) {
         ArrayList<String> listOfWords = bagOfWords(docs);
         ArrayList<String> listOfWordsDoc = bagOfWordsByDoc(document);
+        for (String val: listOfWordsDoc) {
+            System.out.println(val);
+        }
 
         for (String value : listOfWordsDoc) {
 
@@ -100,10 +104,10 @@ public class VectorSpaceModel {
     }
 
     // computing the normalised vector, which is the dot product between TFxIDF vector and the index vector
-    public ArrayList<Float> normalisedVector(String d, String[] ds) throws IOException {
+    public ArrayList<Float> normalisedVector(String d) throws IOException {
 
-        ArrayList<Integer> vectIndex = indexVector(d, ds);
-        ArrayList<Float> scores = getTFxIDFScores(d, ds);
+        ArrayList<Integer> vectIndex = indexVector(d);
+        ArrayList<Float> scores = getTFxIDFScores(d);
 
         for (int i = 0; i < vectIndex.size(); i++) {
             float value = vectIndex.get(i)* scores.get(i);
@@ -116,10 +120,10 @@ public class VectorSpaceModel {
     // computing ranking scores between the query and each one of the documents
     public HashMap<String, Float> getRankingScores(String query, String[] docs) throws IOException {
 
-        ArrayList<Float> vectquery = normalisedVector(query, docs);
+        ArrayList<Float> vectquery = normalisedVector(query);
 
         for (String doc : docs) {
-           ArrayList<Float> vectdoc = normalisedVector(doc, docs);
+           ArrayList<Float> vectdoc = normalisedVector(doc);
 
             float sum = 0;
             for (int i = 0; i < vectquery.size(); i++) {
