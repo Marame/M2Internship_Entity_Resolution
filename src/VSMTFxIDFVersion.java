@@ -8,7 +8,7 @@ import java.util.StringTokenizer;
 /**
  * Created by romdhane on 21/05/17.
  */
-public class VectorSpaceModel {
+public class VSMRawTFxIDF {
 
 
     ArrayList<String> listTokens = new ArrayList<>();
