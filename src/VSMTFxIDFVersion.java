@@ -9,9 +9,10 @@ public class VSMTFxIDFVersion {
     private Map<String, Float> dotProduct = new HashMap<String, Float>();
 
     String query = "news about presidential campaign";
-    String doc1 = "news about organic food campaign";
-    String doc2 = "news of presidential campaign ";
-    String doc3 = "news of presidential campaign presidential candidate";
+
+    String doc1 = "news about organic food campaign";                       //3
+    String doc2 = "news of presidential campaign ";                         //3
+    String doc3 = "news of presidential campaign presidential candidate";   //4
     String[] docs = {doc1, doc2, doc3};
 
 
@@ -56,13 +57,11 @@ public class VSMTFxIDFVersion {
         List<String> bow = bagOfWords();
 
         for (String value : bow) {
-            for (String valueDoc : listOfWordsDoc) {
 
-                if (bow.contains(valueDoc)) {
-                    vector.add(1);
-                } else {
-                    vector.add(0);
-                }
+            if (listOfWordsDoc.contains(value)) {
+                vector.add(1);
+            } else {
+                vector.add(0);
             }
         }
         return vector;
@@ -98,7 +97,6 @@ public class VSMTFxIDFVersion {
             }
 
             listIDF.add(new Float(Math.log((docs.length + 1 / nbdocs))));
-            //System.out.println(new Float(Math.log((docs.length + 2 / nbdocs))));
         }
 //        listOfWords.removeAll(listOfWords);
         return listIDF;
@@ -108,10 +106,14 @@ public class VSMTFxIDFVersion {
     // computing ranking scores between the query and each one of the documents
     public Map<String, Float> getRankingScores(String query, String[] docs) throws IOException {
 
+        for (String doc : docs) {
+            List<Integer> vectdoc = indexVector(doc);
+            System.out.println(doc + " -> " + Arrays.toString(vectdoc.toArray()));
+        }
+
         if ("VSM Binary".equals(version)) {
             for (String doc : docs) {
                 List<Integer> vectdoc = indexVector(doc);
-                System.out.println(doc + " \t" + Arrays.toString(vectdoc.toArray()));
                 int sum = 0;
 
                 for (int i = 0; i < vectdoc.size(); i++) {
