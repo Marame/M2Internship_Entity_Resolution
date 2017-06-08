@@ -1,5 +1,4 @@
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -8,13 +7,15 @@ import java.util.Map;
 public class Main {
 
     String query = "news about presidential campaign";
-    String doc1 = "news about organic food campaign";
-    String doc2 = "news of presidential campaign ";
-    String doc3 = "news of presidential campaign presidential candidate";
-    String[] docs = {doc1, doc2, doc3};
+    String doc1 = "news about";
+    String doc2 = "news about organic food campaign";
+    String doc3 = "news of presidential campaign";
+    String doc4 = "news of presidential campaign presidential candidate";
+    String doc5 = "news of organic food campaign campaign campaign campaign";
+    String[] docs = {doc1, doc2, doc3, doc4, doc5};
 
     // versions of VSM
-    String[] versions = {new String("VSM Binary"), "VSM with TF", "Improved VSM with IDF", "Solving problem Presidential vs About", "VSM with TFxIDF"};
+    String[] versions = {new String("Binary"), "TF", "TF/IDF"};
 
     public static void main(String... args) throws IOException {
 
@@ -24,9 +25,16 @@ public class Main {
 
     public void startTestingVSM() throws IOException {
 
+        System.out.println("query: " + query);
+        int i = 1;
+        for (String doc : docs) {
+            System.out.println("d" + i + ": " + doc);
+            i++;
+        }
+
         for (String version : versions) {
             VSMTFxIDFVersion vsm = new VSMTFxIDFVersion(version);
-            Map<String, Float> scores = vsm.getRankingScores(query, docs);
+            Map<String, Double> scores = vsm.getRankingScores(query, docs);
             System.out.println("***********Results for" + "\t" + version + "\t" + "version*********");
 
             for (String Key : scores.keySet()) {

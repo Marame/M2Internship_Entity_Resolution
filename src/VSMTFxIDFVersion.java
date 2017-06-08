@@ -6,15 +6,7 @@ import java.util.*;
  * Created by romdhane on 21/05/17.
  */
 public class VSMTFxIDFVersion {
-    private Map<String, Float> dotProduct = new HashMap<String, Float>();
-
-    String query = "news about presidential campaign";
-
-    String doc1 = "news about organic food campaign";                       //3
-    String doc2 = "news of presidential campaign ";                         //3
-    String doc3 = "news of presidential campaign presidential candidate";   //4
-    String[] docs = {doc1, doc2, doc3};
-
+    private Map<String, Double> dotProduct = new HashMap<>();
 
     public String version;
 
@@ -68,14 +60,14 @@ public class VSMTFxIDFVersion {
     }
 
     // computing the TF of a document
-    public List<Float> getTF(String document) throws IOException {
-        List<Float> listTF = new ArrayList<>();
+    public List<Double> getTF(String document) throws IOException {
+        List<Double> listTF = new ArrayList<>();
 
         List<String> listOfWordsDoc = bagOfWordsByDoc(document);
         List<String> listOfWords = bagOfWords();
 
         for (String value : listOfWords) {
-            float tf = (float) Collections.frequency(listOfWordsDoc, value);
+            double tf = (double) Collections.frequency(listOfWordsDoc, value);
             listTF.add(tf);
         }
         return listTF;
@@ -83,11 +75,11 @@ public class VSMTFxIDFVersion {
 
 
     // computing the IDF of a document
-    public List<Float> getIDF() throws IOException {
-        List<Float> listIDF = new ArrayList<>();
+    public List<Double> getIDF(String[] docs) throws IOException {
+        List<Double> listIDF = new ArrayList<>();
 
-        List<String> listOfWords = bagOfWords();
-        for (String word : listOfWords) {
+        List<String> bow = bagOfWords();
+        for (String word : bow) {
             int nbdocs = 0;
             int i = 0;
             while (i < docs.length) {
@@ -96,105 +88,62 @@ public class VSMTFxIDFVersion {
                 i++;
             }
 
-            listIDF.add(new Float(Math.log((docs.length + 1 )/ nbdocs)));
+            listIDF.add((double) (docs.length + 1) / nbdocs);
         }
-//        listOfWords.removeAll(listOfWords);
         return listIDF;
     }
 
 
     // computing ranking scores between the query and each one of the documents
-    public Map<String, Float> getRankingScores(String query, String[] docs) throws IOException {
-
-        for (String doc : docs) {
-            List<Integer> vectdoc = indexVector(doc);
-            System.out.println(doc + " -> " + Arrays.toString(vectdoc.toArray()));
-        }
+    public Map<String, Double> getRankingScores(String query, String[] docs) throws IOException {
 
         List<Integer> vectquery = indexVector(query);
-        if ("VSM Binary".equals(version)) {
+        if ("Binary".equals(version)) {
             for (String doc : docs) {
                 List<Integer> vectdoc = indexVector(doc);
-                int sum = 0;
+                double sum = 0;
 
                 for (int i = 0; i < vectdoc.size(); i++) {
-                    int value = vectdoc.get(i)*vectquery.get(i);
-                    sum += value;
+                    int value = vectdoc.get(i) * vectquery.get(i);
+                    sum = sum + value;
                 }
 
-                dotProduct.put(doc + "\n", (float) sum);
+                dotProduct.put(doc + "\n", sum);
             }
-        } else if (version.equals("VSM with TF")) {
-            List<Float> listvecTF = getTF(query);
+        } else if (version.equals("TF")) {
+            List<Double> listvecTF = getTF(query);
             //Transforming to vector
-            List<Float> vectTF = new Vector<Float>(listvecTF);
+            List<Double> vectTF = new Vector<>(listvecTF);
 
             for (String doc : docs) {
 
-                List<Float> listdocTF = getTF(doc);
-                List<Float> docTF = new Vector<Float>(listdocTF);
-                float sum = 0;
+                List<Double> listdocTF = getTF(doc);
+                List<Double> docTF = new Vector<>(listdocTF);
+                double sum = 0;
                 for (int i = 0; i < vectTF.size(); i++) {
-                    Float value = vectTF.get(i) * docTF.get(i);
+                    Double value = vectTF.get(i) * docTF.get(i);
                     sum += value;
                 }
                 dotProduct.put(doc, sum);
             }
-        } else if (version == "Improved VSM with IDF") {
-            List<Float> listqueryTF = getTF(query);
-            List<Float> queryTF = new Vector<Float>(listqueryTF);
-            List<Float> listdocIDF = getIDF();
-            List<Float> docIDF = new Vector<Float>(listdocIDF);
+        } else if (version == "TF/IDF") {
+            List<Double> listqueryTF = getTF(query);
+            List<Double> vectqueryTF = new Vector<>(listqueryTF);
+
+            List<Double> listIDF = getIDF(docs);
+            List<Double> vectIDF = new Vector<>(listIDF);
 
             for (String doc : docs) {
-                List<Float> listdocTF = getTF(doc);
-                List<Float> docTF = new Vector<Float>(listdocTF);
-                float sum = 0;
-                for (int i = 0; i < queryTF.size(); i++) {
-                    Float value = queryTF.get(i) * docIDF.get(i) * docTF.get(i);
-                    sum += value;
-                }
+                List<Double> listdocTF = getTF(doc);
+                List<Double> vectdocTF = new Vector<>(listdocTF);
 
-                dotProduct.put(doc + "\n", sum);
-            }
-        } else if (version == "Solving problem Presidential vs About") {
-            List<Integer> queryIndex = indexVector(query);
-            List<Integer> vectqueryIndex = new Vector<Integer>(queryIndex);
-
-            List<Float> listdocIDF = getIDF();
-            List<Float> vectdocIDF = new Vector<Float>(listdocIDF);
-
-
-            for (String doc : docs) {
-                List<Integer> docIndex = indexVector(doc);
-                List<Integer> vectdocIndex = new Vector<Integer>(docIndex);
-
-                float sum = 0;
-                for (int i = 0; i < vectqueryIndex.size(); i++) {
-                    Float value = vectqueryIndex.get(i) * vectdocIDF.get(i) * vectdocIndex.get(i);
-                    sum += value;
-                }
-
-                dotProduct.put(doc + "\n", sum);
-            }
-        } else if (version == "VSM with TFxIDF") {
-            List<Float> listqueryTF = getTF(query);
-            List<Float> vectqueryTF = new Vector<Float>(listqueryTF);
-
-            List<Float> listIDF = getIDF();
-            List<Float> vectIDF = new Vector<Float>(listIDF);
-
-            for (String doc : docs) {
-                List<Float> listdocTF = getTF(doc);
-                List<Float> vectdocTF = new Vector<Float>(listdocTF);
-
-                float sum = 0;
+                double sum = 0;
                 for (int i = 0; i < vectqueryTF.size(); i++) {
-                    Float value = vectqueryTF.get(i) * vectdocTF.get(i) * vectIDF.get(i);
+                    Double value = vectqueryTF.get(i) * vectdocTF.get(i) * vectIDF.get(i);
                     sum += value;
                 }
 
-                dotProduct.put(doc + "\n", sum);
+                dotProduct.put(doc + " -> ", sum);
             }
         }
         return dotProduct;
