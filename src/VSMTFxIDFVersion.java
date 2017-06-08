@@ -88,7 +88,7 @@ public class VSMTFxIDFVersion {
                 i++;
             }
 
-            listIDF.add((double) (docs.length + 1) / nbdocs);
+            listIDF.add(Math.log(((double) (docs.length + 1) / nbdocs)));
         }
         return listIDF;
     }
