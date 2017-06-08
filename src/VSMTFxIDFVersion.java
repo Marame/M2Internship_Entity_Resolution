@@ -96,7 +96,7 @@ public class VSMTFxIDFVersion {
                 i++;
             }
 
-            listIDF.add(new Float(Math.log((docs.length + 1 / nbdocs))));
+            listIDF.add(new Float(Math.log((docs.length + 1 )/ nbdocs)));
         }
 //        listOfWords.removeAll(listOfWords);
         return listIDF;
@@ -111,16 +111,17 @@ public class VSMTFxIDFVersion {
             System.out.println(doc + " -> " + Arrays.toString(vectdoc.toArray()));
         }
 
+        List<Integer> vectquery = indexVector(query);
         if ("VSM Binary".equals(version)) {
             for (String doc : docs) {
                 List<Integer> vectdoc = indexVector(doc);
                 int sum = 0;
 
                 for (int i = 0; i < vectdoc.size(); i++) {
-                    int value = vectdoc.get(i);
+                    int value = vectdoc.get(i)*vectquery.get(i);
                     sum += value;
                 }
-                vectdoc.removeAll(vectdoc);
+
                 dotProduct.put(doc + "\n", (float) sum);
             }
         } else if (version.equals("VSM with TF")) {
