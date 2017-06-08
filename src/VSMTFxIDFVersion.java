@@ -108,7 +108,7 @@ public class VSMTFxIDFVersion {
                     sum = sum + value;
                 }
 
-                dotProduct.put(doc + "\n", sum);
+                dotProduct.put(doc + " -> ", sum);
             }
         } else if (version.equals("TF")) {
             List<Double> listvecTF = getTF(query);
