@@ -15,7 +15,7 @@ public class Main {
     String[] docs = {doc1, doc2, doc3, doc4, doc5};
 
     // versions of VSM
-    String[] versions = {new String("Binary"), "TF", "TF/IDF"};
+    String[] versions = {new String("Binary"), "TF", "TF/IDF", "BM25"};
 
     public static void main(String... args) throws IOException {
 

@@ -29,13 +29,6 @@ public class VSMTFxIDFVersion {
 
     // retrieving the tokens of multiple documents
     public List<String> bagOfWords() {
-        /*listTokens.removeAll(listTokens);
-        for (int i = 0; i < s.length; i++) {
-            StringTokenizer st = new StringTokenizer(s[i]);
-            while (st.hasMoreTokens()) {
-                listTokens.add(st.nextToken());
-            }
-        }*/
 
         List<String> listTokens = Arrays.asList("news", "about", "presidential", "campaign", "food", "organic", "candidate");
         return listTokens;
@@ -60,15 +53,20 @@ public class VSMTFxIDFVersion {
     }
 
     // computing the TF of a document
-    public List<Double> getTF(String document) throws IOException {
+    public List<Double> getTF(String document, boolean normalised) throws IOException {
         List<Double> listTF = new ArrayList<>();
 
         List<String> listOfWordsDoc = bagOfWordsByDoc(document);
         List<String> listOfWords = bagOfWords();
 
         for (String value : listOfWords) {
-            double tf = (double) Collections.frequency(listOfWordsDoc, value);
-            listTF.add(tf);
+            double freq = (double) Collections.frequency(listOfWordsDoc, value);
+              if(normalised == false){
+            listTF.add(freq); }
+              else {
+                double k =0.4;
+                double tf = (double)((k+1)*freq)/ (k +freq);
+            listTF.add(tf);}
         }
         return listTF;
     }
@@ -111,13 +109,13 @@ public class VSMTFxIDFVersion {
                 dotProduct.put(doc + " -> ", sum);
             }
         } else if (version.equals("TF")) {
-            List<Double> listvecTF = getTF(query);
+            List<Double> listvecTF = getTF(query, false);
             //Transforming to vector
             List<Double> vectTF = new Vector<>(listvecTF);
 
             for (String doc : docs) {
 
-                List<Double> listdocTF = getTF(doc);
+                List<Double> listdocTF = getTF(doc, false);
                 List<Double> docTF = new Vector<>(listdocTF);
                 double sum = 0;
                 for (int i = 0; i < vectTF.size(); i++) {
@@ -127,14 +125,35 @@ public class VSMTFxIDFVersion {
                 dotProduct.put(doc, sum);
             }
         } else if (version == "TF/IDF") {
-            List<Double> listqueryTF = getTF(query);
+            List<Double> listqueryTF = getTF(query, false);
+            List<Double> vectqueryTF = new Vector<>(listqueryTF);
+
+            List<Double> listIDF = getIDF(docs);
+            List<Double> vectIDF = new Vector<>(listIDF);
+            System.out.println(listIDF);
+
+            for (String doc : docs) {
+                List<Double> listdocTF = getTF(doc, false);
+                List<Double> vectdocTF = new Vector<>(listdocTF);
+               
+                double sum = 0;
+                for (int i = 0; i < vectqueryTF.size(); i++) {
+                    Double value = vectqueryTF.get(i) * vectdocTF.get(i) * vectIDF.get(i);
+                    sum += value;
+                }
+
+                dotProduct.put(doc + " -> ", sum);
+            }
+        }
+        else if (version == "BM25") {
+            List<Double> listqueryTF = getTF(query, true);
             List<Double> vectqueryTF = new Vector<>(listqueryTF);
 
             List<Double> listIDF = getIDF(docs);
             List<Double> vectIDF = new Vector<>(listIDF);
 
             for (String doc : docs) {
-                List<Double> listdocTF = getTF(doc);
+                List<Double> listdocTF = getTF(doc, true);
                 List<Double> vectdocTF = new Vector<>(listdocTF);
 
                 double sum = 0;
