@@ -6,7 +6,7 @@ import java.util.*;
  * Created by romdhane on 21/05/17.
  */
 public class VSMTFxIDFVersion {
-    private Map<String, Double> dotProduct = new HashMap<>();
+    private List<Document> dotProduct = new ArrayList<>();
 
     public String version;
 
@@ -73,7 +73,7 @@ public class VSMTFxIDFVersion {
 
 
     // computing the IDF of a document
-    public List<Double> getIDF(String[] docs) throws IOException {
+    public List<Double> getIDF(Document[] docs) throws IOException {
         List<Double> listIDF = new ArrayList<>();
 
         List<String> bow = bagOfWords();
@@ -81,7 +81,7 @@ public class VSMTFxIDFVersion {
             int nbdocs = 0;
             int i = 0;
             while (i < docs.length) {
-                if (docs[i].toLowerCase().indexOf(word.toLowerCase()) != -1)
+                if (docs[i].getName().toLowerCase().indexOf(word.toLowerCase()) != -1)
                     nbdocs++;
                 i++;
             }
@@ -93,12 +93,20 @@ public class VSMTFxIDFVersion {
 
 
     // computing ranking scores between the query and each one of the documents
-    public Map<String, Double> getRankingScores(String query, String[] docs) throws IOException {
+    public List<Document> getRankingScores(Document query, Document[] docs) throws IOException {
 
-        List<Integer> vectquery = indexVector(query);
+        //System.out.println(resultdoc.getName());
+
+        List<Integer> vectquery = indexVector(query.getName());
+
         if ("Binary".equals(version)) {
-            for (String doc : docs) {
-                List<Integer> vectdoc = indexVector(doc);
+
+            for (Document doc : docs) {
+                Document resultdoc = new Document();
+                resultdoc.setName(doc.getName());
+
+
+                List<Integer> vectdoc = indexVector(doc.getName());
                 double sum = 0;
 
                 for (int i = 0; i < vectdoc.size(); i++) {
@@ -106,54 +114,67 @@ public class VSMTFxIDFVersion {
                     sum = sum + value;
                 }
 
-                dotProduct.put(doc + " -> ", sum);
+                resultdoc.setScore(sum);
+
+                dotProduct.add(resultdoc);
             }
         } else if (version.equals("TF")) {
-            List<Double> listvecTF = getTF(query, false);
+
+            List<Double> listvecTF = getTF(query.getName(), false);
             //Transforming to vector
             List<Double> vectTF = new Vector<>(listvecTF);
 
-            for (String doc : docs) {
-
-                List<Double> listdocTF = getTF(doc, false);
+            for (Document doc : docs) {
+                Document resultdoc = new Document();
+                resultdoc.setName(doc.getName());
+                List<Double> listdocTF = getTF(doc.getName(), false);
                 List<Double> docTF = new Vector<>(listdocTF);
                 double sum = 0;
                 for (int i = 0; i < vectTF.size(); i++) {
                     Double value = vectTF.get(i) * docTF.get(i);
                     sum += value;
                 }
-                dotProduct.put(doc, sum);
+
+                resultdoc.setScore(sum);
+
+                dotProduct.add(resultdoc);
             }
-        } else if (version == "TF/IDF") {
-            List<Double> listqueryTF = getTF(query, false);
+        } else if (version.equals("TF/IDF")) {
+
+            List<Double> listqueryTF = getTF(query.getName(), false);
             List<Double> vectqueryTF = new Vector<>(listqueryTF);
 
             List<Double> listIDF = getIDF(docs);
             List<Double> vectIDF = new Vector<>(listIDF);
-            System.out.println(listIDF);
 
-            for (String doc : docs) {
-                List<Double> listdocTF = getTF(doc, false);
+            for (Document doc : docs) {
+                Document resultdoc = new Document();
+                resultdoc.setName(doc.getName());
+                List<Double> listdocTF = getTF(doc.getName(), false);
                 List<Double> vectdocTF = new Vector<>(listdocTF);
-               
                 double sum = 0;
                 for (int i = 0; i < vectqueryTF.size(); i++) {
                     Double value = vectqueryTF.get(i) * vectdocTF.get(i) * vectIDF.get(i);
                     sum += value;
                 }
 
-                dotProduct.put(doc + " -> ", sum);
+                resultdoc.setScore(sum);
+
+                dotProduct.add(resultdoc);
             }
         }
-        else if (version == "BM25") {
-            List<Double> listqueryTF = getTF(query, true);
+        else if (version.equals("BM25")) {
+
+            List<Double> listqueryTF = getTF(query.getName(), true);
             List<Double> vectqueryTF = new Vector<>(listqueryTF);
 
             List<Double> listIDF = getIDF(docs);
             List<Double> vectIDF = new Vector<>(listIDF);
 
-            for (String doc : docs) {
-                List<Double> listdocTF = getTF(doc, true);
+            for (Document doc : docs) {
+                Document resultdoc = new Document();
+                resultdoc.setName(doc.getName());
+                List<Double> listdocTF = getTF(doc.getName(), true);
                 List<Double> vectdocTF = new Vector<>(listdocTF);
 
                 double sum = 0;
@@ -162,7 +183,9 @@ public class VSMTFxIDFVersion {
                     sum += value;
                 }
 
-                dotProduct.put(doc + " -> ", sum);
+                resultdoc.setScore(sum);
+
+                dotProduct.add(resultdoc);
             }
         }
         return dotProduct;
