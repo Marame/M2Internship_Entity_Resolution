@@ -7,10 +7,7 @@ import java.util.*;
  */
 public class VSMTFxIDFVersion {
     private List<Document> dotProduct = new ArrayList<>();
-    Document query1 = new Document("query1", "news about presidential campaign", 0.0d);
-    Document query2 = new Document("query2", "Test Vector space model", 0.0d);
-    Document[] queries = {query1, query2};
-
+    
     public String version;
 
     public VSMTFxIDFVersion() {
@@ -102,7 +99,7 @@ public class VSMTFxIDFVersion {
     // computing ranking scores between the query and each one of the documents
     public List<Document> getRankingScores(EvaluationEntity e) throws IOException {
 
-      
+
         List<Integer> vectquery = indexVector(e, e.getQuery());
 
         if ("Binary".equals(version)) {
