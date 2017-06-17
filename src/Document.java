@@ -3,7 +3,7 @@
  */
 public class Document {
 
-    private String id ;
+    private String id;
     private String name;
     private Double score;
 
@@ -19,7 +19,7 @@ public class Document {
     }
 
     public Document(String id, String name, Double score) {
-        this.id =id;
+        this.id = id;
 
         this.name = name;
         this.score = score;
