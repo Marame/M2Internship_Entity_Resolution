@@ -66,13 +66,16 @@ public class Main {
         }
 
         for (String version : versions) {
+
+                System.out.println("***********Results for" + "\t" + version + "\t" + "version*********");
+
+
+               // System.out.println("++++++++++++++++++" + " Evaluation for " + "\t" + version + "+++++++++++++++++++++");
             int idx_ent = 0;
             for (EvaluationEntity e : ee) {
                 VSMTFxIDFVersion vsm = new VSMTFxIDFVersion(version);
                 List<Document> results = vsm.getRankingScores(e);
-                System.out.println(results.size());
 
-                System.out.println("***********Results for" + "\t" + version + "\t" + "version*********");
 
                 Collections.sort(results, new Comparator<Document>() {
                     @Override
@@ -85,11 +88,10 @@ public class Main {
                 });
 
                 // ranked results
+                System.out.println("ranked results for query n" +"\t"+(idx_ent+1));
                 for (Document d : results) {
                     System.out.println(d.getName() + "->" + d.getScore());
                 }
-
-                System.out.println("++++++++++++++++++" + " Evaluation for " + "\t" + version + "+++++++++++++++++++++");
                 for (Integer n : N) {
                     int idx_N = n - 1;
                     Evaluation eval = new Evaluation();
@@ -102,7 +104,7 @@ public class Main {
                 idx_ent++;
             }
 
-
+            System.out.println("+++++++++Evaluation+++++++++");
             for (int i = 0; i < N.length; i++) {
                 double sum_precision = 0;
                 double sum_recall = 0;
