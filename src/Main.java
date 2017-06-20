@@ -1,7 +1,5 @@
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -36,11 +34,6 @@ public class Main {
     EvaluationEntity ee1 = new EvaluationEntity(query1, docs1, relevant_docs1, bow1);
     EvaluationEntity ee2 = new EvaluationEntity(query2, docs2, relevant_docs2, bow2);
     EvaluationEntity[] ee = {ee1, ee2};
-    Double[][] precision_matrix = new Double[10][10];
-    Double[][] recall_matrix = new Double[10][10];
-    Double[][] F1_matrix = new Double[10][10];
-
-    int[] N = {1, 2, 3, 4, 5};
 
 
     // versions of VSM
@@ -67,68 +60,16 @@ public class Main {
 
         for (String version : versions) {
 
-                System.out.println("***********Results for" + "\t" + version + "\t" + "version*********");
+            System.out.println("***********Results for" + "\t" + version + "\t" + "version*********");
 
 
-               // System.out.println("++++++++++++++++++" + " Evaluation for " + "\t" + version + "+++++++++++++++++++++");
-            int idx_ent = 0;
-            for (EvaluationEntity e : ee) {
-                VSMTFxIDFVersion vsm = new VSMTFxIDFVersion(version);
-                List<Document> results = vsm.getRankingScores(e);
-
-
-                Collections.sort(results, new Comparator<Document>() {
-                    @Override
-                    public int compare(Document o1, Document o2) {
-                        final double document1 = o1.getScore();
-                        final double document2 = o2.getScore();
-                        return document1 < document2 ? 1
-                                : document1 > document2 ? -1 : 0;
-                    }
-                });
-
-                // ranked results
-                System.out.println("ranked results for query n" +"\t"+(idx_ent+1));
-                for (Document d : results) {
-                    System.out.println(d.getName() + "->" + d.getScore());
-                }
-                for (Integer n : N) {
-                    int idx_N = n - 1;
-                    Evaluation eval = new Evaluation();
-                    List<Double> resultsAtn = eval.evaluateVSM(n, e.getRelevant_documents(), results);
-                    precision_matrix[idx_ent][idx_N] = resultsAtn.get(0);
-                    recall_matrix[idx_ent][idx_N] = resultsAtn.get(1);
-                    F1_matrix[idx_ent][idx_N] = resultsAtn.get(2);
-
-                }
-                idx_ent++;
-            }
-
-            System.out.println("+++++++++Evaluation+++++++++");
-            for (int i = 0; i < N.length; i++) {
-                double sum_precision = 0;
-                double sum_recall = 0;
-                double sum_F1 = 0;
-                for (int j = 0; j < ee.length; j++) {
-                    sum_precision += precision_matrix[j][i];
-                    sum_recall += recall_matrix[j][i];
-                    sum_F1 += F1_matrix[j][i];
-
-                }
-                double average_precision = sum_precision / ee.length;
-                double average_recall = sum_recall / ee.length;
-                double average_F1 = sum_F1 / ee.length;
-
-                System.out.println("Average precision for" + "\t" + (i + 1) + "\t" + ":" + "\t" + average_precision);
-                System.out.println("Average recall for" + "\t" + (i + 1) + "\t" + ":" + "\t" + average_recall);
-                System.out.println("Average F1 for" + "\t" + (i + 1) + "\t" + ":" + "\t" + average_F1);
-            }
-
+            // System.out.println("++++++++++++++++++" + " Evaluation for " + "\t" + version + "+++++++++++++++++++++");
+            Evaluation eval = new Evaluation();
+            eval.final_evaluationVSM(ee, version);
         }
-
-
     }
 }
+
 
 
 
