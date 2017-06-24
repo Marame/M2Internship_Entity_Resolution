@@ -19,6 +19,7 @@ public class Evaluation {
     Double[][] F1_matrix = new Double[10][10];
     Double[][] ret_rel_matrix = new Double[10][10];
     Double[][] notret_notrel_matrix = new Double[10][10];
+
     //Double[][] notret_rel_matrix = new Double[10][10];
 
 
@@ -74,11 +75,15 @@ public class Evaluation {
         return listresults;
     }
 
-    public void final_evaluationVSM(EvaluationEntity[] ee, String version) throws IOException {
+    public void final_evaluation(EvaluationEntity[] ee, String smoothing_version, String vsm_version) throws IOException {
+        List<Document> results = new ArrayList<>();
         int idx_ent = 0;
         for (EvaluationEntity e : ee) {
-            VSMTFxIDFVersion vsm = new VSMTFxIDFVersion(version);
-            List<Document> results = vsm.getRankingScores(e);
+            VSMTFxIDFVersion vsm = new VSMTFxIDFVersion(vsm_version);
+            LanguageModel lm = new LanguageModel(smoothing_version);
+            if (smoothing_version.equals(""))
+                results = vsm.getRankingScoresVSM(e);
+            else if (!smoothing_version.equals("")) results = lm.getRankingScoresLM(e, smoothing_version);
 
 
             Collections.sort(results, new Comparator<Document>() {
@@ -98,8 +103,7 @@ public class Evaluation {
             }
             for (Integer n : N) {
                 int idx_N = n - 1;
-                Evaluation eval = new Evaluation();
-                List<Double> resultsAtn = eval.evaluateVSM(n, e.getRelevant_documents(), results);
+                List<Double> resultsAtn = evaluateVSM(n, e.getRelevant_documents(), results);
                 precision_matrix[idx_ent][idx_N] = resultsAtn.get(0);
                 recall_matrix[idx_ent][idx_N] = resultsAtn.get(1);
                 F1_matrix[idx_ent][idx_N] = resultsAtn.get(2);
@@ -110,7 +114,6 @@ public class Evaluation {
             }
             idx_ent++;
         }
-
 
         System.out.println("+++++++++Evaluation+++++++++");
         for (int i = 0; i < N.length; i++) {

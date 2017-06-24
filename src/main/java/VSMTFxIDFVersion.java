@@ -97,7 +97,7 @@ public class VSMTFxIDFVersion {
 
 
     // computing ranking scores between the query and each one of the documents
-    public List<Document> getRankingScores(EvaluationEntity e) throws IOException {
+    public List<Document> getRankingScoresVSM(EvaluationEntity e) throws IOException {
 
 
         List<Integer> vectquery = indexVector(e, e.getQuery());

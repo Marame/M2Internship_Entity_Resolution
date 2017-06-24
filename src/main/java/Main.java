@@ -37,8 +37,10 @@ public class Main {
 
 
     // versions of VSM
-    String[] versions = {new String("Binary"), new String("TF"), new String("TF/IDF"), new String("BM25")};
-
+    String[] vsm_versions = {new String("Binary"), new String("TF"), new String("TF/IDF"), new String("BM25")};
+    //Versions of smoothing in Language Model
+    String[] smoothing_versions = {new String("jelinek-mercer"), new String("dirichlet-prior")};
+    double lambda = 0.4;
 
     public static void main(String... args) throws IOException {
 
@@ -58,14 +60,24 @@ public class Main {
             }
         }
 
-        for (String version : versions) {
+        System.out.println("$$$$$$$$$$$$ Results for Vector Space Model $$$$$$$$$$$$$");
+
+        for (String version : vsm_versions) {
 
             System.out.println("***********Results for" + "\t" + version + "\t" + "version*********");
 
-
-            // System.out.println("++++++++++++++++++" + " Evaluation for " + "\t" + version + "+++++++++++++++++++++");
             Evaluation eval = new Evaluation();
-            eval.final_evaluationVSM(ee, version);
+            eval.final_evaluation(ee, "", version);
+        }
+
+        System.out.println("$$$$$$$$$$$$ Results for Language Model $$$$$$$$$$$$$");
+
+        for (String version : smoothing_versions) {
+
+            System.out.println("***********Results for" + "\t" + version + "\t" + "version*********");
+
+            Evaluation eval = new Evaluation();
+            eval.final_evaluation(ee, version, "");
         }
     }
 }
