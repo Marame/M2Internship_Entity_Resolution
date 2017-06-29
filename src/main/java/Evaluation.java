@@ -23,7 +23,7 @@ public class Evaluation {
     //Double[][] notret_rel_matrix = new Double[10][10];
 
 
-    int[] N = {1, 2, 3, 4, 5};
+    int[] N = {1, 2, 3, 4, 5, 6};
 
 
     public List<Double> evaluateVSM(int n, Document[] relevant_docs, List<Document> results) {
@@ -45,33 +45,32 @@ public class Evaluation {
                 if (d.getName().equals(key)) ret_relevant++;
             }
         }
-        if (n != results.size()) {
-            List<Document> rest = results.subList(n, results.size() - 1);
 
-            for (Document l : rest) {
-                String key = l.getName();
-                for (Document d : relevant_docs) {
-                    if (d.getName().equals(key)) notret_relevant++;
-                }
+        List<Document> rest = results.subList(n, results.size());
+
+        for (Document l : rest) {
+            String key = l.getName();
+            for (Document d : relevant_docs) {
+                if (d.getName().equals(key)) notret_relevant++;
             }
 
+        }
 
-            ret_nonrelevant = firstN.size() - ret_relevant;
-            notret_nonrelevant = rest.size() - notret_relevant;
+        ret_nonrelevant = firstN.size() - ret_relevant;
+        notret_nonrelevant = rest.size() - notret_relevant;
 
-            precision = ret_relevant / ((double) (ret_relevant + ret_nonrelevant));
-            recall = ret_relevant / (double) (ret_relevant + notret_relevant);
-            F1 = 2 * precision * recall / (precision + recall);
+        precision = ret_relevant / ((double) (ret_relevant + ret_nonrelevant));
+        recall = ret_relevant / (double) (ret_relevant + notret_relevant);
+        F1 = 2 * precision * recall / (precision + recall);
            /* System.out.println("Precision :" + "\t" + precision);
             System.out.println("Recall :" + "\t" + recall);
             System.out.println("F1:" + "\t" + F1);*/
-            listresults.add(precision);
-            listresults.add(recall);
-            listresults.add(F1);
-            listresults.add((double) ret_relevant);
-            listresults.add((double) notret_nonrelevant);
+        listresults.add(precision);
+        listresults.add(recall);
+        listresults.add(F1);
+        listresults.add((double) ret_relevant);
+        listresults.add((double) notret_nonrelevant);
 
-        }
         return listresults;
     }
 
@@ -105,6 +104,8 @@ public class Evaluation {
                 int idx_N = n - 1;
                 List<Double> resultsAtn = evaluateVSM(n, e.getRelevant_documents(), results);
                 precision_matrix[idx_ent][idx_N] = resultsAtn.get(0);
+                //System.out.println(resultsAtn.get(0));
+
                 recall_matrix[idx_ent][idx_N] = resultsAtn.get(1);
                 F1_matrix[idx_ent][idx_N] = resultsAtn.get(2);
                 ret_rel_matrix[idx_ent][idx_N] = resultsAtn.get(3);
