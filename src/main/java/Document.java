@@ -10,6 +10,7 @@ public class Document {
     public Document() {
     }
 
+
     public void setName(String name) {
         this.name = name;
     }
@@ -46,8 +47,9 @@ public class Document {
         return super.hashCode();
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        return super.equals(obj);
+    public boolean equals(String s) {
+        if (this.name == s) return true;
+        else return false;
+
     }
 }

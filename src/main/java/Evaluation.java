@@ -42,7 +42,7 @@ public class Evaluation {
 
             String key = m.getName();
             for (Document d : relevant_docs) {
-                if (d.getName().equals(key)) ret_relevant++;
+                if (d.equals(key)) ret_relevant++;
             }
         }
 
@@ -51,7 +51,7 @@ public class Evaluation {
         for (Document l : rest) {
             String key = l.getName();
             for (Document d : relevant_docs) {
-                if (d.getName().equals(key)) notret_relevant++;
+                if (d.equals(key)) notret_relevant++;
             }
 
         }

@@ -6,12 +6,12 @@ import java.util.*;
  * Created by romdhane on 21/05/17.
  */
 public class VSMTFxIDFVersion {
-    private List<Document> dotProduct = new ArrayList<>();
-    
     public String version;
+    private List<Document> dotProduct = new ArrayList<>();
 
     public VSMTFxIDFVersion() {
     }
+
 
     public VSMTFxIDFVersion(String version) {
         this.version = version;
