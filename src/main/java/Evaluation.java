@@ -137,8 +137,8 @@ public class Evaluation {
             double macro_average_precision = sum_precision / ee.length;
             double macro_average_recall = sum_recall / ee.length;
             double macro_average_F1 = sum_F1 / ee.length;
-            double micro_average_precision = sum_precision / ((double) sum_retrel + sum_notretrel);
-            double micro_average_recall = sum_recall / ((double) sum_retrel + sum_notretrel);
+            double micro_average_precision = sum_retrel / ((double) sum_retrel + sum_notretrel);
+            double micro_average_recall = sum_retrel / ((double) sum_retrel + sum_notretnotrel);
             double micro_average_F1 = 2 * micro_average_precision * micro_average_recall / ((double) micro_average_precision + micro_average_recall);
 
 
