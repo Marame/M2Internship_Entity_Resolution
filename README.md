@@ -31,7 +31,7 @@ tend to make distributions more uniform, by adjusting low probabilities such as 
 the macro average precision/recall, mean average precision
 
 *****************Arguments in entry*******************:
--Queries file path : text file containing the queries, having id, query, relevant documents ids and bag of words as fields
+-Queries file path : text file containing the queries, having id, query, relevant documents ids
 -Documents file path : text file containing the documents, having id and document name as fields
 There's examples of such argument files in the resources directory: the examples exlicit the structure
 that these files should have
