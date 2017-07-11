@@ -1,5 +1,5 @@
 language: java
- sudo: false
+sudo: false
  dist: trusty
  deploy:
    provider: pages
