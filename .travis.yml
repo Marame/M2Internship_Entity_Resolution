@@ -1,6 +1,6 @@
 language: java
 sudo: false
- dist: trusty
+dist: trusty
  deploy:
    provider: pages
    skip_cleanup: true
