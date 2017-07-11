@@ -1,3 +1,5 @@
+import org.tartarus.snowball.ext.PorterStemmer;
+
 import java.io.IOException;
 import java.util.*;
 
@@ -22,24 +24,40 @@ public class VSMTFxIDFVersion {
         List<String> bagOfWord = new ArrayList<>();
         StringTokenizer st = new StringTokenizer(s.getName());
         while (st.hasMoreTokens()) {
-
-            bagOfWord.add(st.nextToken());
+            PorterStemmer stem = new PorterStemmer();
+            stem.setCurrent(st.nextToken());
+            stem.stem();
+            String result = stem.getCurrent();
+            bagOfWord.add(result);
         }
         return bagOfWord;
     }
 
     // retrieving the tokens of multiple documents
-    public List<String> bagOfWords(EvaluationEntity e) {
+    public List<String> bagOfWords(EvaluationEntity e) throws IOException{
+        List<String> bagOfWord = new ArrayList<>();
+        for(Document d: e.getDocuments()){
+            StringTokenizer st = new StringTokenizer(d.getName());
+            while (st.hasMoreTokens()) {
+                // Stem
+                PorterStemmer stem = new PorterStemmer();
+                stem.setCurrent(st.nextToken());
+                stem.stem();
+                String result = stem.getCurrent();
+                bagOfWord.add(result);
+            }
+        }
+        return bagOfWord;
 
-        return e.getBagOfWords();
     }
 
 
     //computing the binary vector of a document, indicating if each term is present in the bag of words
-    public List<Integer> indexVector(EvaluationEntity e, Document d) {
+    public List<Integer> indexVector(EvaluationEntity e, Document d)throws IOException {
         List<Integer> vector = new ArrayList<>();
 
         List<String> listOfWordsDoc = bagOfWordsByDoc(d);
+        System.out.println(Arrays.toString(listOfWordsDoc.toArray()));
         //System.out.println(listOfWordsDoc);
         List<String> bow = bagOfWords(e);
         //System.out.println(bow);
@@ -68,7 +86,7 @@ public class VSMTFxIDFVersion {
                 listTF.add(freq);
             } else {
                 double k = 0.4;
-                double tf =  ((k + 1) * freq) / (k + freq);
+                double tf = (double) ((k + 1) * freq) / (k + freq);
                 listTF.add(tf);
             }
         }

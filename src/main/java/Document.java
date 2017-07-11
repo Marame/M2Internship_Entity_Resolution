@@ -48,7 +48,7 @@ public class Document {
     }
 
     public boolean equals(String s) {
-        if (this.name == s) return true;
+        if (this.name.toLowerCase() == s.toLowerCase()) return true;
         else return false;
 
     }

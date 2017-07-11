@@ -38,7 +38,6 @@ public class Evaluation {
         int notret_nonrelevant = 0;
 
         for (Document m : firstN) {
-
             String key = m.getName();
             for (Document d : relevant_docs) {
                 if (d.equals(key)) ret_relevant++;
@@ -46,13 +45,11 @@ public class Evaluation {
         }
 
         List<Document> rest = results.subList(n, results.size());
-
         for (Document l : rest) {
             String key = l.getName();
             for (Document d : relevant_docs) {
                 if (d.equals(key)) notret_relevant++;
             }
-
         }
 
         ret_nonrelevant = firstN.size() - ret_relevant;
@@ -95,8 +92,8 @@ public class Evaluation {
             });
 
             // ranked results
-            /*System.out.println("ranked results for query n" + "\t" + (idx_ent + 1));
-            for (Document d : results) {
+            System.out.println("ranked results for query n" + "\t" + (idx_ent + 1));
+           /* for (Document d : results) {
                 System.out.println(d.getName() + "->" + d.getScore());
             }*/
             for (Integer n : N) {
@@ -138,36 +135,36 @@ public class Evaluation {
             double macro_average_F1 = sum_F1 / ee.size();
             double micro_average_precision = sum_retrel / ((double) sum_retrel + sum_notretrel);
             double micro_average_recall = sum_retrel / ((double) sum_retrel + sum_notretnotrel);
-            double micro_average_F1 = 2 * micro_average_precision * micro_average_recall / ((double) micro_average_precision + micro_average_recall);
+            double micro_average_F1 = 2 * micro_average_precision * micro_average_recall / (micro_average_precision + micro_average_recall);
 
             if (i == 4) {
-                System.out.println("Macro average precision for" + "\t" + (i + 1) + "\t" + ":" + "\t" + macro_average_precision);
+               /* System.out.println("Macro average precision for" + "\t" + (i + 1) + "\t" + ":" + "\t" + macro_average_precision);
                 System.out.println("Macro average recall for" + "\t" + (i + 1) + "\t" + ":" + "\t" + macro_average_recall);
-                //System.out.println("Macro average F1 for" + "\t" + (i + 1) + "\t" + ":" + "\t" + macro_average_F1);
+                System.out.println("Macro average F1 for" + "\t" + (i + 1) + "\t" + ":" + "\t" + macro_average_F1);
 
                 System.out.println("Micro average precision for" + "\t" + (i + 1) + "\t" + ":" + "\t" + micro_average_precision);
                 System.out.println("Micro average recall for" + "\t" + (i + 1) + "\t" + ":" + "\t" + micro_average_recall);
-               // System.out.println("Micro average F1 for" + "\t" + (i + 1) + "\t" + ":" + "\t" + micro_average_F1);
+                System.out.println("Micro average F1 for" + "\t" + (i + 1) + "\t" + ":" + "\t" + micro_average_F1);*/
             }
-        }
-        //compute the mean average precision
-        double total = 0;
-
-        for (int i = 0; i < ee.size(); i++) {
-            double sum_precision_N = 0;
-
-            for (int j = 0; j < N.length; j++) {
-                sum_precision_N += precision_matrix[i][j];
-                //System.out.println(ret_rel_matrix[j][i]);
             }
+            //compute the mean average precision
+            double total = 0;
 
-            total += (1 / (double) (i + 1)) * sum_precision_N;
+            for (int i = 0; i < ee.size(); i++) {
+                double sum_precision_N = 0;
+
+                for (int j = 0; j < N.length; j++) {
+                    sum_precision_N += precision_matrix[i][j];
+                }
+
+                total += (1 / (double) (i + 1)) * sum_precision_N;
+            }
+            double MAP = (1 / (double) ee.size()) * total;
+            System.out.println("Mean average precision :" + "\t" + MAP);
         }
-        double MAP = (1 / (double) ee.size()) * total;
-        System.out.println("Mean average precision :" + "\t" + MAP);
+
     }
 
-}
 
 
 

@@ -24,7 +24,7 @@ public class Main {
     public static void main(String[] args) throws IOException {
 
         Main main = new Main();
-        main.startTesting(args[0],args[1]);
+        main.startTesting(FILE_NAME_QUERIES,FILE_NAME_DOCS);
     }
 
 
