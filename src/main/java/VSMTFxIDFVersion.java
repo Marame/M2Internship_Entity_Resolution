@@ -68,7 +68,7 @@ public class VSMTFxIDFVersion {
                 listTF.add(freq);
             } else {
                 double k = 0.4;
-                double tf = (double) ((k + 1) * freq) / (k + freq);
+                double tf =  ((k + 1) * freq) / (k + freq);
                 listTF.add(tf);
             }
         }
