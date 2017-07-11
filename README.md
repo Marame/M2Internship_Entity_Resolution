@@ -1,6 +1,6 @@
 # M2Internship_Entity_Resolution
 
-This project handles prototypesof :
+This project handles prototypes of :
  - Vector space Model : term vector model, which is an algebraic model for representing text
  documents  as vectors of identifiers, such as, for example, index terms. It is used in information filtering,
  information retrieval, indexing and relevancy rankings.
@@ -30,5 +30,17 @@ tend to make distributions more uniform, by adjusting low probabilities such as 
 - Evaluation : handles the evaluation of the implemented vector space model, by computing the micro average precision/recall,
 the macro average precision/recall, mean average precision
 
-*****Running the project:
-mvn clean install
+*****************Arguments in entry*******************:
+-Queries file path : text file containing the queries, having id, query, relevant documents ids and bag of words as fields
+-Documents file path : text file containing the documents, having id and document name as fields
+There's examples of such argument files in the resources directory: the examples exlicit the structure
+that these files should have
+
+*****************Running the project******************:
+buiding : mvn clean install
+executing main: in project workspace, run the following command:
+mvn -X exec:java -Dexec.mainClass="Main" -Dexec.args=""your queries file path" "your documents file path""
+
+warning: In pom.xml Main class configuration, make sure of adding the correct path
+of your main class
+

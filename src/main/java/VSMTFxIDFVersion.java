@@ -84,13 +84,13 @@ public class VSMTFxIDFVersion {
         for (String word : bow) {
             int nbdocs = 0;
             int i = 0;
-            while (i < e.getDocuments().length) {
-                if (e.getDocuments()[i].getName().toLowerCase().indexOf(word.toLowerCase()) != -1)
+            while (i < e.getDocuments().size()) {
+                if (e.getDocuments().get(i).getName().toLowerCase().indexOf(word.toLowerCase()) != -1)
                     nbdocs++;
                 i++;
             }
 
-            listIDF.add(Math.log(((double) (e.getDocuments().length + 1) / nbdocs)));
+            listIDF.add(Math.log(((double) (e.getDocuments().size() + 1) / nbdocs)));
         }
         return listIDF;
     }

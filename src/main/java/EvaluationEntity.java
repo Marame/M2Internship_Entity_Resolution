@@ -8,11 +8,12 @@ import java.util.List;
 
 public class EvaluationEntity {
     private Document query;
-    private Document[] documents;
-    private Document[] relevant_documents;
+    private List<Document> documents;
+    private List<Document>  relevant_documents;
     private List<String> bagOfWords;
 
-    public EvaluationEntity(Document query, Document[] documents, Document[] relevant_documents, List<String> bagOfWords) {
+
+    public EvaluationEntity(Document query, List<Document> documents, List<Document> relevant_documents, List<String> bagOfWords) {
         this.query = query;
         this.documents = documents;
         this.relevant_documents = relevant_documents;
@@ -28,7 +29,7 @@ public class EvaluationEntity {
         return bagOfWords;
     }
 
-    public void setRelevant_documents(Document[] relevant_documents) {
+    public void setRelevant_documents(List<Document> relevant_documents) {
         this.relevant_documents = relevant_documents;
     }
 
@@ -37,7 +38,7 @@ public class EvaluationEntity {
         this.query = query;
     }
 
-    public Document[] getRelevant_documents() {
+    public List<Document> getRelevant_documents() {
 
         return relevant_documents;
     }
@@ -47,25 +48,28 @@ public class EvaluationEntity {
         return query;
     }
 
-    public EvaluationEntity(Document query, Document[] documents, Document[] relevant_documents) {
+    public EvaluationEntity(Document query, List<Document> documents, List<Document> relevant_documents) {
         this.query = query;
         this.documents = documents;
         this.relevant_documents = relevant_documents;
     }
 
-    public Document[] getDocuments() {
+    public List<Document> getDocuments() {
 
         return documents;
     }
 
-    public EvaluationEntity(Document query, Document[] relevant_documents) {
+    public EvaluationEntity(Document query, List<Document>  relevant_documents) {
 
         this.query = query;
         this.relevant_documents = relevant_documents;
     }
 
-    public EvaluationEntity(Document query) {
+    public void setDocuments(List<Document> documents) {
+        this.documents = documents;
+    }
 
-        this.query = query;
+    public EvaluationEntity() {
+
     }
 }

@@ -1,88 +1,185 @@
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
- * Created by romdhane on 23/05/17.
- **/
+ * Created by romdhane on 07/07/17.
+ */
+
 public class Main {
-
-    Document query1 = new Document("query1", "news about presidential campaign", 0.0d);
-    Document doc11 = new Document("doc11", "news about", 0.0d);
-    Document doc21 = new Document("doc21", "news about organic food campaign", 0.0d);
-    Document doc31 = new Document("doc31", "news of presidential campaign", 0.0d);
-    Document doc41 = new Document("doc41", "news of presidential campaign presidential candidate", 0.0d);
-    Document doc51 = new Document("doc51", "news of organic food campaign campaign campaign campaign", 0.0d);
-    Document doc61 = new Document("doc61", "news of", 0.0d);
-    List<String> bow1 = Arrays.asList("news", "about", "presidential", "campaign", "food");
-
-    Document query2 = new Document("query2", "Test Vector space model", 0.0d);
-    Document doc12 = new Document("doc12", "Test Vector", 0.0d);
-    Document doc22 = new Document("doc22", "Test Vector space", 0.0d);
-    Document doc32 = new Document("doc32", "Vector space model", 0.0d);
-    Document doc42 = new Document("doc42", "Test Test Test Vector Model", 0.0d);
-    Document doc52 = new Document("doc52", "test Vector space model", 0.0d);
-    Document doc62 = new Document("doc62", "Test space", 0.0d);
-    List<String> bow2 = Arrays.asList("Test", "Vector", "space", "model");
-
-    Document[] docs1 = {doc11, doc21, doc31, doc41, doc51, doc61};
-    Document[] relevant_docs1 = {doc31, doc41, doc21};
-
-    Document[] docs2 = {doc12, doc22, doc32, doc42, doc52, doc62};
-    Document[] relevant_docs2 = {doc42, doc32, doc22};
-
-    EvaluationEntity ee1 = new EvaluationEntity(query1, docs1, relevant_docs1, bow1);
-    EvaluationEntity ee2 = new EvaluationEntity(query2, docs2, relevant_docs2, bow2);
-    EvaluationEntity[] ee = {ee1, ee2};
-
-
     // versions of VSM
     String[] vsm_versions = {new String("Binary"), new String("TF"), new String("TF/IDF"), new String("BM25")};
     //Versions of smoothing in Language Model
     String[] smoothing_versions = {new String("jelinek-mercer"), new String("dirichlet-prior")};
     double lambda = 0.4;
+    static String FILE_NAME_QUERIES = "/home/romdhane/Documents/stage_inria/queries";
+    static String FILE_NAME_DOCS = "/home/romdhane/Documents/stage_inria/documents";
 
-    public static void main(String... args) throws IOException {
+    public static void main(String[] args) throws IOException {
 
         Main main = new Main();
-        main.startTestingVSM();
+        main.startTesting(args[0],args[1]);
     }
 
-    public void startTestingVSM() throws IOException {
 
-        //Our initial Evaluation entities
-        for (EvaluationEntity e : ee) {
-            System.out.println("query: " + e.getQuery().getName());
-            int i = 1;
-            for (Document doc : e.getDocuments()) {
-                System.out.println("d" + i + ": " + doc.getName());
-                i++;
+    public void startTesting(String filenameQueries, String filenameDocs) throws FileNotFoundException, IOException {
+
+        BufferedReader br = null;
+        FileReader fr = null;
+        BufferedReader brd = null;
+        FileReader frd = null;
+        List<EvaluationEntity> ee = new ArrayList<>();
+
+
+        try {
+
+            fr = new FileReader(filenameQueries);
+            br = new BufferedReader(fr);
+            String sCurrentLine;
+            br = new BufferedReader(new FileReader(filenameQueries));
+
+
+            while ((sCurrentLine = br.readLine()) != null && sCurrentLine.length() != 0) {
+                EvaluationEntity e = new EvaluationEntity();
+                Document query = new Document();
+                List<Document> reldocs = new ArrayList<>();
+                //String[] splited = sCurrentLine.split("--");
+                Pattern pq = Pattern.compile("\"([^\"]*)\"");
+                Matcher mq = pq.matcher(sCurrentLine);
+                List<String> matches_q = new ArrayList<String>();
+                while (mq.find()) {
+                    matches_q.add(mq.group(1));
+                }
+                int val = Integer.parseInt(matches_q.get(0).replace("\\s", ""));
+                //System.out.println(val);
+                query.setId(val);
+                query.setName(matches_q.get(1));
+                String[] bagOfWords = matches_q.get(3).split(",");
+                e.setBagOfWords(Arrays.asList(bagOfWords));
+
+
+                e.setQuery(query);
+                e.setQuery(query);
+                List<Document> docs = new ArrayList<>();
+                frd = new FileReader(filenameDocs);
+                brd = new BufferedReader(frd);
+                String sCurrentLined;
+                brd = new BufferedReader(new FileReader(filenameDocs));
+                while ((sCurrentLined = brd.readLine()) != null && sCurrentLined.length() != 0) {
+                    if (sCurrentLine.isEmpty()) break;
+                    //System.out.println(sCurrentLined);
+                    Document doc = new Document();
+
+                    Pattern pd = Pattern.compile("\"([^\"]*)\"");
+                    Matcher md = pd.matcher(sCurrentLined);
+                    List<String> matches_d = new ArrayList<String>();
+                    while (md.find()) {
+                        matches_d.add(md.group(1));
+                    }
+
+                    int vald = Integer.parseInt(matches_d.get(0).replace("\\s", ""));
+                    doc.setId(vald);
+
+                    String[] relevant_ids = matches_q.get(2).split(",");
+
+                    int rid = 0;
+                    for (int i = 0; i < relevant_ids.length; i++) {
+                        rid = Integer.parseInt(relevant_ids[i].replaceAll("\\s", ""));
+                        if (rid == vald) {
+                            Document reldoc = new Document();
+                            reldoc.setId(rid);
+                            reldoc.setName(matches_d.get(1).toString());
+                            reldocs.add(reldoc);
+                            e.setRelevant_documents(reldocs);
+
+                        }
+                    }
+
+                    e.setRelevant_documents(reldocs);
+                    doc.setName(matches_d.get(1));
+                    docs.add(doc);
+                }
+
+                e.setDocuments(docs);
+                e.setRelevant_documents(reldocs);
+                ee.add(e);
+            }
+
+
+        } catch (IOException e) {
+
+            e.printStackTrace();
+
+        } finally {
+
+            try {
+
+                if (br != null)
+                    br.close();
+
+                if (fr != null)
+                    fr.close();
+
+            } catch (IOException ex) {
+
+                ex.printStackTrace();
+
+            }
+            //Our initial Evaluation entities
+            for (EvaluationEntity e : ee) {
+                System.out.println("query: " + e.getQuery().getName());
+                int i = 1;
+                for (Document doc : e.getDocuments()) {
+                    System.out.println("d" + i + ": " + doc.getName());
+                    i++;
+                }
+            }
+
+            System.out.println("$$$$$$$$$$$$ Results for Vector Space Model $$$$$$$$$$$$$");
+
+            for (String version : vsm_versions) {
+
+                System.out.println("***********Results for" + "\t" + version + "\t" + "version*********");
+
+                Evaluation eval = new Evaluation();
+                eval.final_evaluation(ee, "", version);
+            }
+
+            System.out.println("$$$$$$$$$$$$ Results for Language Model $$$$$$$$$$$$$");
+
+            for (String version : smoothing_versions) {
+
+                System.out.println("***********Results for" + "\t" + version + "\t" + "version*********");
+
+                Evaluation eval = new Evaluation();
+                eval.final_evaluation(ee, version, "");
             }
         }
 
-        System.out.println("$$$$$$$$$$$$ Results for Vector Space Model $$$$$$$$$$$$$");
+            /*for (EvaluationEntity e : ee) {
+                System.out.println("**Query**");
+                System.out.println(e.getQuery().getName());
+                System.out.println("**Relevant documents**");
+                for (Document d : e.getRelevant_documents()) {
+                    System.out.println(d.getId() + "->" + d.getName());
+                }
+                System.out.println("**Documents**");
+                for (Document d : e.getDocuments()) {
+                    System.out.println(d.getId() + "->" + d.getName());
+                }
+                System.out.println("**Bag of words**");
+                for (String s : e.getBagOfWords()) {
+                    System.out.println(s);
+                }
 
-        for (String version : vsm_versions) {
 
-            System.out.println("***********Results for" + "\t" + version + "\t" + "version*********");
-
-            Evaluation eval = new Evaluation();
-            eval.final_evaluation(ee, "", version);
+            }*/
         }
 
-        System.out.println("$$$$$$$$$$$$ Results for Language Model $$$$$$$$$$$$$");
-
-        for (String version : smoothing_versions) {
-
-            System.out.println("***********Results for" + "\t" + version + "\t" + "version*********");
-
-            Evaluation eval = new Evaluation();
-            eval.final_evaluation(ee, version, "");
-        }
     }
-}
-
-
-
-
-

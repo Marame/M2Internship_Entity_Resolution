@@ -3,7 +3,7 @@
  */
 public class Document {
 
-    private String id;
+    private Integer id;
     private String name;
     private Double score;
 
@@ -15,11 +15,11 @@ public class Document {
         this.name = name;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 
-    public Document(String id, String name, Double score) {
+    public Document(int id, String name, Double score) {
         this.id = id;
 
         this.name = name;
@@ -34,7 +34,7 @@ public class Document {
         return score;
     }
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
