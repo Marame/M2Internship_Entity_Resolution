@@ -11,20 +11,6 @@
 
     <name>maven-run-main-class</name>
     <url>http://maven.apache.org</url>
-    <dependencies>
-    <!-- https://mvnrepository.com/artifact/edu.stanford.nlp/stanford-corenlp -->
-    <dependency>
-        <groupId>edu.stanford.nlp</groupId>
-        <artifactId>stanford-corenlp</artifactId>
-        <version>3.8.0</version>
-    </dependency>
-        <!-- https://mvnrepository.com/artifact/org.apache.lucene/lucene-core -->
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-core</artifactId>
-            <version>3.6.0</version>
-        </dependency>
-    </dependencies>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -32,6 +18,25 @@
         <maven.compiler.target>1.7</maven.compiler.target>
     </properties>
 
+<dependencies>
+    <dependency>
+        <groupId>edu.stanford.nlp</groupId>
+        <artifactId>stanford-corenlp</artifactId>
+        <version>3.6.0</version>
+    </dependency>
+
+    <dependency>
+    <groupId>edu.stanford.nlp</groupId>
+    <artifactId>stanford-corenlp</artifactId>
+    <version>3.8.0</version>
+    <classifier>models</classifier>
+</dependency>
+    <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>1.7.12</version>
+    </dependency>
+    </dependencies>
 
     <build>
         <plugins>
@@ -41,7 +46,13 @@
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.7</version>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
+                <version>1.6.0</version>
                 <configuration>
                     <mainClass>Main</mainClass>
                 </configuration>

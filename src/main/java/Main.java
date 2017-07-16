@@ -3,7 +3,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -17,20 +16,22 @@ public class Main {
     String[] vsm_versions = {new String("Binary"), new String("TF"), new String("TF/IDF"), new String("BM25")};
     //Versions of smoothing in Language Model
     String[] smoothing_versions = {new String("jelinek-mercer"), new String("dirichlet-prior")};
+    String[] nlp_methods = {new String("stemming"), new String("lemmatizing")};
     double lambda = 0.4;
     static String FILE_NAME_QUERIES = "/home/romdhane/Documents/stage_inria/queries";
     static String FILE_NAME_DOCS = "/home/romdhane/Documents/stage_inria/documents";
+    String document = "news about presidential candidate who participated in the last presidential elections";
 
     public static void main(String[] args) throws IOException {
 
         Main main = new Main();
-        main.startTesting(FILE_NAME_QUERIES,FILE_NAME_DOCS);
+        main.startTesting(FILE_NAME_QUERIES, FILE_NAME_DOCS);
     }
 
 
     public void startTesting(String filenameQueries, String filenameDocs) throws FileNotFoundException, IOException {
 
-        BufferedReader br = null;
+       BufferedReader br = null;
         FileReader fr = null;
         BufferedReader brd = null;
         FileReader frd = null;
@@ -57,13 +58,9 @@ public class Main {
                     matches_q.add(mq.group(1));
                 }
                 int val = Integer.parseInt(matches_q.get(0).replace("\\s", ""));
-                //System.out.println(val);
+          ;
                 query.setId(val);
                 query.setName(matches_q.get(1));
-                String[] bagOfWords = matches_q.get(3).split(",");
-                e.setBagOfWords(Arrays.asList(bagOfWords));
-
-
                 e.setQuery(query);
                 e.setQuery(query);
                 List<Document> docs = new ArrayList<>();
@@ -132,33 +129,34 @@ public class Main {
 
             }
             //Our initial Evaluation entities
-            for (EvaluationEntity e : ee) {
+           /* for (EvaluationEntity e : ee) {
                 System.out.println("query: " + e.getQuery().getName());
                 int i = 1;
                 for (Document doc : e.getDocuments()) {
                     System.out.println("d" + i + ": " + doc.getName());
                     i++;
                 }
-            }
+            }*/
+            for (String nlp_method : nlp_methods) {
+                System.out.println("$$$$$$$$$$$$ Results for Vector Space Model $$$$$$$$$$$$$");
+                System.out.println("Using"+ "\t" +nlp_method + "\t" +"method");
 
-            System.out.println("$$$$$$$$$$$$ Results for Vector Space Model $$$$$$$$$$$$$");
+                for (String version : vsm_versions) {
 
-            for (String version : vsm_versions) {
+                    System.out.println("***********Results for" + "\t" + version + "\t" + "version*********");
+                    Evaluation eval = new Evaluation();
+                    eval.final_evaluation(ee, "", version, nlp_method);
+                }
 
-                System.out.println("***********Results for" + "\t" + version + "\t" + "version*********");
+                System.out.println("$$$$$$$$$$$$ Results for Language Model $$$$$$$$$$$$$");
 
-                Evaluation eval = new Evaluation();
-                eval.final_evaluation(ee, "", version);
-            }
+                for (String version : smoothing_versions) {
 
-            System.out.println("$$$$$$$$$$$$ Results for Language Model $$$$$$$$$$$$$");
+                    System.out.println("***********Results for" + "\t" + version + "\t" + "version*********");
 
-            for (String version : smoothing_versions) {
-
-                System.out.println("***********Results for" + "\t" + version + "\t" + "version*********");
-
-                Evaluation eval = new Evaluation();
-                eval.final_evaluation(ee, version, "");
+                    Evaluation eval = new Evaluation();
+                    eval.final_evaluation(ee, version, "", nlp_method);
+                }
             }
         }
 
@@ -177,9 +175,7 @@ public class Main {
                 for (String s : e.getBagOfWords()) {
                     System.out.println(s);
                 }
-
-
-            }*/
-        }
-
+              }*/
     }
+
+}

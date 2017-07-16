@@ -31,7 +31,6 @@ public class Evaluation {
 
         List<Document> firstN = results.subList(0, n);
 
-
         int ret_relevant = 0;
         int ret_nonrelevant = 0;
         int notret_relevant = 0;
@@ -58,9 +57,7 @@ public class Evaluation {
         precision = ret_relevant / ((double) (ret_relevant + ret_nonrelevant));
         recall = ret_relevant / (double) (ret_relevant + notret_relevant);
         F1 = 2 * precision * recall / (precision + recall);
-            /*System.out.println("Precision :" + "\t" + precision);
-            System.out.println("Recall :" + "\t" + recall);
-            System.out.println("F1:" + "\t" + F1);*/
+
         listresults.add(precision);
         listresults.add(recall);
         listresults.add(F1);
@@ -70,12 +67,12 @@ public class Evaluation {
         return listresults;
     }
 
-    public void final_evaluation(List<EvaluationEntity> ee, String smoothing_version, String vsm_version) throws IOException {
+    public void final_evaluation(List<EvaluationEntity> ee, String smoothing_version, String vsm_version, String nlp_method) throws IOException {
         List<Document> results = new ArrayList<>();
         int idx_ent = 0;
         for (EvaluationEntity e : ee) {
-            VSMTFxIDFVersion vsm = new VSMTFxIDFVersion(vsm_version);
-            LanguageModel lm = new LanguageModel(smoothing_version);
+            VSMTFxIDFVersion vsm = new VSMTFxIDFVersion(vsm_version, nlp_method);
+            LanguageModel lm = new LanguageModel(smoothing_version, nlp_method);
             if (smoothing_version.equals(""))
                 results = vsm.getRankingScoresVSM(e);
             else if (!smoothing_version.equals("")) results = lm.getRankingScoresLM(e, smoothing_version);
@@ -93,9 +90,9 @@ public class Evaluation {
 
             // ranked results
             System.out.println("ranked results for query n" + "\t" + (idx_ent + 1));
-           /* for (Document d : results) {
+            for (Document d : results) {
                 System.out.println(d.getName() + "->" + d.getScore());
-            }*/
+            }
             for (Integer n : N) {
                 int idx_N = n - 1;
                 List<Double> resultsAtn = evaluateVSM(n, e.getRelevant_documents(), results);
@@ -137,7 +134,7 @@ public class Evaluation {
             double micro_average_recall = sum_retrel / ((double) sum_retrel + sum_notretnotrel);
             double micro_average_F1 = 2 * micro_average_precision * micro_average_recall / (micro_average_precision + micro_average_recall);
 
-            if (i == 4) {
+            if (i == 2) {
                /* System.out.println("Macro average precision for" + "\t" + (i + 1) + "\t" + ":" + "\t" + macro_average_precision);
                 System.out.println("Macro average recall for" + "\t" + (i + 1) + "\t" + ":" + "\t" + macro_average_recall);
                 System.out.println("Macro average F1 for" + "\t" + (i + 1) + "\t" + ":" + "\t" + macro_average_F1);
@@ -146,24 +143,24 @@ public class Evaluation {
                 System.out.println("Micro average recall for" + "\t" + (i + 1) + "\t" + ":" + "\t" + micro_average_recall);
                 System.out.println("Micro average F1 for" + "\t" + (i + 1) + "\t" + ":" + "\t" + micro_average_F1);*/
             }
-            }
-            //compute the mean average precision
-            double total = 0;
-
-            for (int i = 0; i < ee.size(); i++) {
-                double sum_precision_N = 0;
-
-                for (int j = 0; j < N.length; j++) {
-                    sum_precision_N += precision_matrix[i][j];
-                }
-
-                total += (1 / (double) (i + 1)) * sum_precision_N;
-            }
-            double MAP = (1 / (double) ee.size()) * total;
-            System.out.println("Mean average precision :" + "\t" + MAP);
         }
+        //compute the mean average precision
+        double total = 0;
 
+        for (int i = 0; i < ee.size(); i++) {
+            double sum_precision_N = 0;
+
+            for (int j = 0; j < N.length; j++) {
+                sum_precision_N += precision_matrix[i][j];
+            }
+
+            total += (1 / (double) (i + 1)) * sum_precision_N;
+        }
+        double MAP = (1 / (double) ee.size()) * total;
+        System.out.println("Mean average precision :" + "\t" + MAP);
     }
+
+}
 
 
 
