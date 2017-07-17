@@ -13,6 +13,8 @@ public class Evaluation {
     private double precision;
     private double recall;
     private double F1;
+    private double MAP;
+    private double micro_av_precision;
     Double[][] precision_matrix = new Double[10][10];
     Double[][] recall_matrix = new Double[10][10];
     Double[][] F1_matrix = new Double[10][10];
@@ -67,6 +69,10 @@ public class Evaluation {
         return listresults;
     }
 
+    public double getMAP() {
+        return MAP;
+    }
+
     public void final_evaluation(List<EvaluationEntity> ee, String smoothing_version, String vsm_version, String nlp_method) throws IOException {
         List<Document> results = new ArrayList<>();
         int idx_ent = 0;
@@ -89,27 +95,23 @@ public class Evaluation {
             });
 
             // ranked results
-            System.out.println("ranked results for query n" + "\t" + (idx_ent + 1));
+            /*System.out.println("ranked results for query n" + "\t" + (idx_ent + 1));
             for (Document d : results) {
                 System.out.println(d.getName() + "->" + d.getScore());
-            }
+            }*/
             for (Integer n : N) {
                 int idx_N = n - 1;
                 List<Double> resultsAtn = evaluateVSM(n, e.getRelevant_documents(), results);
                 precision_matrix[idx_ent][idx_N] = resultsAtn.get(0);
-                //System.out.println(resultsAtn.get(0));
-
                 recall_matrix[idx_ent][idx_N] = resultsAtn.get(1);
                 F1_matrix[idx_ent][idx_N] = resultsAtn.get(2);
                 ret_rel_matrix[idx_ent][idx_N] = resultsAtn.get(3);
                 notret_notrel_matrix[idx_ent][idx_N] = resultsAtn.get(4);
-
-
             }
             idx_ent++;
         }
 
-        System.out.println("+++++++++Evaluation+++++++++");
+        //System.out.println("+++++++++Evaluation+++++++++");
         for (int i = 0; i < N.length; i++) {
             double sum_precision = 0;
             double sum_recall = 0;
@@ -123,8 +125,6 @@ public class Evaluation {
                 sum_F1 += F1_matrix[j][i];
                 sum_retrel += ret_rel_matrix[j][i];
                 sum_notretnotrel += notret_notrel_matrix[j][i];
-
-
             }
 
             double macro_average_precision = sum_precision / ee.size();
@@ -134,15 +134,16 @@ public class Evaluation {
             double micro_average_recall = sum_retrel / ((double) sum_retrel + sum_notretnotrel);
             double micro_average_F1 = 2 * micro_average_precision * micro_average_recall / (micro_average_precision + micro_average_recall);
 
-            if (i == 2) {
-               /* System.out.println("Macro average precision for" + "\t" + (i + 1) + "\t" + ":" + "\t" + macro_average_precision);
+          /*  if (i == 2) {
+               System.out.println("Macro average precision for" + "\t" + (i + 1) + "\t" + ":" + "\t" + macro_average_precision);
                 System.out.println("Macro average recall for" + "\t" + (i + 1) + "\t" + ":" + "\t" + macro_average_recall);
                 System.out.println("Macro average F1 for" + "\t" + (i + 1) + "\t" + ":" + "\t" + macro_average_F1);
 
                 System.out.println("Micro average precision for" + "\t" + (i + 1) + "\t" + ":" + "\t" + micro_average_precision);
                 System.out.println("Micro average recall for" + "\t" + (i + 1) + "\t" + ":" + "\t" + micro_average_recall);
-                System.out.println("Micro average F1 for" + "\t" + (i + 1) + "\t" + ":" + "\t" + micro_average_F1);*/
-            }
+                System.out.println("Micro average F1 for" + "\t" + (i + 1) + "\t" + ":" + "\t" + micro_average_F1);
+
+            }*/
         }
         //compute the mean average precision
         double total = 0;
@@ -157,7 +158,9 @@ public class Evaluation {
             total += (1 / (double) (i + 1)) * sum_precision_N;
         }
         double MAP = (1 / (double) ee.size()) * total;
-        System.out.println("Mean average precision :" + "\t" + MAP);
+        this.MAP = MAP;
+
+        //System.out.println("Mean average precision :" + "\t" + MAP);
     }
 
 }

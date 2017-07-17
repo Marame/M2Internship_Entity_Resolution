@@ -59,7 +59,6 @@ public class VSMTFxIDFVersion {
             StringTokenizer st = new StringTokenizer(d.getName());
             while (st.hasMoreTokens()) {
                 if (nlp_method.equals("stemming")) {
-                    // Stem
                     PorterStemmer stem = new PorterStemmer();
                     String s = st.nextToken();
                     if (!liststopwords.contains(s)) {
@@ -74,7 +73,6 @@ public class VSMTFxIDFVersion {
                     for (String st_lem: lem.lemmatize(st.nextToken())) {
                         bagOfWord.add(st_lem);
                     }
-
                 }
             }
                 }
@@ -86,7 +84,6 @@ public class VSMTFxIDFVersion {
     //computing the binary vector of a document, indicating if each term is present in the bag of words
     public List<Integer> indexVector(EvaluationEntity e, Document d)throws IOException {
         List<Integer> vector = new ArrayList<>();
-
         List<String> listOfWordsDoc = bagOfWordsByDoc(d);
         List<String> bow = bagOfWords(e);
 
@@ -162,7 +159,6 @@ public class VSMTFxIDFVersion {
 
     // computing ranking scores between the query and each one of the documents
     public List<Document> getRankingScoresVSM(EvaluationEntity e) throws IOException {
-
 
         List<Integer> vectquery = indexVector(e, e.getQuery());
 

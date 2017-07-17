@@ -35,14 +35,34 @@ P(w1, w2...wm) to the whole sequence.
     - Evaluation : handles the evaluation of the implemented vector space model, by computing the micro average precision/recall,
     the macro average precision/recall, mean average precision
 
-*****************Arguments in entry*******************:
+*Arguments in entry:
+
 -Queries file path : text file containing the queries, having id, query, relevant documents ids
 
 -Documents file path : text file containing the documents, having id and document name as fields
 There's examples of such argument files in the resources directory: the examples exlicit the structure
 that these files should have
 
-*****************Running the project******************:
+
+Sample output : in this example, we're giving the resulting mean average precision, in the case of stemming and lemmatizing
+
+version   Stemming  Lemmatizing
+
+===================================================
+Binary    2.425||   2.2583333333333333
+TF        1.5083333333333333||1.5083333333333333
+TF/IDF    1.5083333333333333||1.5083333333333333
+BM25      2.2583333333333333||2.2583333333333333
+
+$$$$$$$$$$$$ Results for Language Model $$$$$$$$$$$$$
+versionStemming       Lemmatizing
+
+===================================================
+jelinek-mercer 2.425||   2.425
+dirichlet-prior1.95||    1.95
+
+*Running the project:
+
 buiding : mvn clean install
 
 executing main: in project workspace, run the following command:

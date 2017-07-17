@@ -15,12 +15,11 @@ public class Main {
     // versions of VSM
     String[] vsm_versions = {new String("Binary"), new String("TF"), new String("TF/IDF"), new String("BM25")};
     //Versions of smoothing in Language Model
-    String[] smoothing_versions = {new String("jelinek-mercer"), new String("dirichlet-prior")};
     String[] nlp_methods = {new String("stemming"), new String("lemmatizing")};
-    double lambda = 0.4;
+    String[] smoothing_versions = {new String("jelinek-mercer"), new String("dirichlet-prior")};
     static String FILE_NAME_QUERIES = "/home/romdhane/Documents/stage_inria/queries";
     static String FILE_NAME_DOCS = "/home/romdhane/Documents/stage_inria/documents";
-    String document = "news about presidential candidate who participated in the last presidential elections";
+
 
     public static void main(String[] args) throws IOException {
 
@@ -31,7 +30,7 @@ public class Main {
 
     public void startTesting(String filenameQueries, String filenameDocs) throws FileNotFoundException, IOException {
 
-       BufferedReader br = null;
+        BufferedReader br = null;
         FileReader fr = null;
         BufferedReader brd = null;
         FileReader frd = null;
@@ -58,7 +57,7 @@ public class Main {
                     matches_q.add(mq.group(1));
                 }
                 int val = Integer.parseInt(matches_q.get(0).replace("\\s", ""));
-          ;
+                ;
                 query.setId(val);
                 query.setName(matches_q.get(1));
                 e.setQuery(query);
@@ -137,28 +136,41 @@ public class Main {
                     i++;
                 }
             }*/
-            for (String nlp_method : nlp_methods) {
-                System.out.println("$$$$$$$$$$$$ Results for Vector Space Model $$$$$$$$$$$$$");
-                System.out.println("Using"+ "\t" +nlp_method + "\t" +"method");
 
-                for (String version : vsm_versions) {
+            System.out.println("$$$$$$$$$$$$ Results for Vector Space Model $$$$$$$$$$$$$");
 
-                    System.out.println("***********Results for" + "\t" + version + "\t" + "version*********");
-                    Evaluation eval = new Evaluation();
-                    eval.final_evaluation(ee, "", version, nlp_method);
-                }
+            StringBuilder sb = new StringBuilder();
+            sb.append(String.format("%-10s%-10s%-10s\n", "version", "Stemming", "Lemmatizing" + "\n"));
+            sb.append(String.format("===================================================\n"));
+            for (String version : vsm_versions) {
 
-                System.out.println("$$$$$$$$$$$$ Results for Language Model $$$$$$$$$$$$$");
-
-                for (String version : smoothing_versions) {
-
-                    System.out.println("***********Results for" + "\t" + version + "\t" + "version*********");
-
-                    Evaluation eval = new Evaluation();
-                    eval.final_evaluation(ee, version, "", nlp_method);
-                }
+                Evaluation eval = new Evaluation();
+                eval.final_evaluation(ee, "", version, "stemming");
+                Evaluation eval1 = new Evaluation();
+                eval1.final_evaluation(ee, "", version, "lemmatizing");
+                sb.append(String.format("%-10s%-10s%-10s", version, eval.getMAP() + "||", eval1.getMAP() + "\n"));
             }
+            System.out.println(sb.toString());
+
+
+            System.out.println("$$$$$$$$$$$$ Results for Language Model $$$$$$$$$$$$$");
+
+            StringBuilder sb1 = new StringBuilder();
+            sb1.append(String.format("%-1s%-15s%-10s\n", "version", "Stemming", "Lemmatizing" + "\n"));
+            sb1.append(String.format("===================================================\n"));
+
+            for (String version : smoothing_versions) {
+
+                Evaluation eval2 = new Evaluation();
+                eval2.final_evaluation(ee, version, "", "stemming");
+                Evaluation eval3 = new Evaluation();
+                eval3.final_evaluation(ee, version, "", "lemmatizing");
+                sb1.append(String.format("%-15s%-10s%-10s", version, eval2.getMAP() + "||", eval3.getMAP() + "\n"));
+            }
+            System.out.println(sb1.toString());
         }
+    }
+
 
             /*for (EvaluationEntity e : ee) {
                 System.out.println("**Query**");
@@ -176,6 +188,9 @@ public class Main {
                     System.out.println(s);
                 }
               }*/
-    }
+
 
 }
+
+
+
