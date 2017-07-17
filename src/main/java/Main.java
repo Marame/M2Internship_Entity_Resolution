@@ -165,7 +165,7 @@ public class Main {
                 eval2.final_evaluation(ee, version, "", "stemming");
                 Evaluation eval3 = new Evaluation();
                 eval3.final_evaluation(ee, version, "", "lemmatizing");
-                sb1.append(String.format("%-15s%-10s%-10s", version, eval2.getMAP() + "||", eval3.getMAP() + "\n"));
+                sb1.append(String.format("%-20s%-10s%-10s", version, eval2.getMAP() + "||", eval3.getMAP() + "\n"));
             }
             System.out.println(sb1.toString());
         }

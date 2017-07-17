@@ -49,9 +49,11 @@ Sample output : in this example, we're giving the resulting mean average precisi
  $$$$$$$$$$$$ Results for Vector Space Model $$$$$$$$$$$$$
 
 
-vversion   Stemming  Lemmatizing
+version   MAP:Stemming  MAP:Lemmatizing
+
 
  ===================================================
+
  Binary    2.425||   2.2583333333333333
 
  TF        1.5083333333333333||1.2833333333333332
@@ -66,6 +68,7 @@ vversion   Stemming  Lemmatizing
  version Stemming       Lemmatizing
 
  ===================================================
+
  jelinek-mercer 1.3833333333333333||1.3833333333333333
 
  dirichlet-prior 1.95||    1.95
