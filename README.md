@@ -46,26 +46,31 @@ that these files should have
 
 Sample output : in this example, we're giving the resulting mean average precision, in the case of stemming and lemmatizing
 
-version   Stemming  Lemmatizing
-
-===================================================
-Binary    2.425||   2.2583333333333333
-
-TF        1.5083333333333333||1.5083333333333333
-
-TF/IDF    1.5083333333333333||1.5083333333333333
-
-BM25      2.2583333333333333||2.2583333333333333
+ $$$$$$$$$$$$ Results for Vector Space Model $$$$$$$$$$$$$
 
 
-$$$$$$$$$$$$ Results for Language Model $$$$$$$$$$$$$
+vversion   Stemming  Lemmatizing
 
-versionStemming       Lemmatizing
+ ===================================================
+ Binary    2.425||   2.2583333333333333
 
-===================================================
-jelinek-mercer 2.425||   2.425
+ TF        1.5083333333333333||1.2833333333333332
 
-dirichlet-prior1.95||    1.95
+ TF/IDF    1.5083333333333333||1.3833333333333333
+
+ BM25      2.2583333333333333||2.2583333333333333
+
+ $$$$$$$$$$$$ Results for Language Model$$$$$$$$$$$$$
+
+
+ version Stemming       Lemmatizing
+
+ ===================================================
+ jelinek-mercer 1.3833333333333333||1.3833333333333333
+
+ dirichlet-prior 1.95||    1.95
+
+
 
 
 *Running the project:

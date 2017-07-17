@@ -156,7 +156,7 @@ public class Main {
             System.out.println("$$$$$$$$$$$$ Results for Language Model $$$$$$$$$$$$$");
 
             StringBuilder sb1 = new StringBuilder();
-            sb1.append(String.format("%-1s%-15s%-10s\n", "version", "Stemming", "Lemmatizing" + "\n"));
+            sb1.append(String.format("%-10s%-10s%-10s\n", "version", "Stemming", "Lemmatizing" + "\n"));
             sb1.append(String.format("===================================================\n"));
 
             for (String version : smoothing_versions) {
