@@ -1,3 +1,8 @@
+package Models;
+
+import Entities.Document;
+import Entities.EvaluationEntity;
+import Utilities.Lemmatizer;
 import org.tartarus.snowball.ext.PorterStemmer;
 
 import java.util.ArrayList;
@@ -37,6 +42,8 @@ public class LanguageModel {
                     words.add(st_lem);
                 }
             }
+            else {
+            words.add(st.nextToken());}
         }
         return words;
     }
@@ -66,7 +73,15 @@ public class LanguageModel {
                 sumsize += (double) doc.getName().length();
             }
         }
+        else{
+            for (Document doc : e.getDocuments()) {
+                List<String> wordsDoc = docWords(doc);
+                double freq = (double) Collections.frequency(wordsDoc, word);
+                sumfreq += freq;
+                sumsize += (double) doc.getName().length();
+            }
 
+        }
 
         double prob = sumfreq / sumsize;
 
@@ -106,6 +121,19 @@ public class LanguageModel {
 
             }
         }
+        else {
+            double freq = (double) Collections.frequency(wordsDoc, word);
+            double prob = freq / (double) doc.getName().length();
+            double probC = probWordCollection(word, e);
+            if (smoothing_version == "jelinek-mercer") {
+                smoothedProb = (((1 - lambda) / lambda) * prob) / probC;
+
+            } else if (smoothing_version == "dirichlet-prior") {
+                smoothedProb = freq * (mu * probC);
+
+            }
+
+        }
 
         return smoothedProb;
     }
@@ -114,7 +142,6 @@ public class LanguageModel {
 
         for (Document doc : e.getDocuments()) {
             Document resultdoc = new Document();
-            //resultdoc.setName(doc.getName());
             double sum_jm = 0;
             double sum_dp = 0;
             List<String> listwordsQuery = docWords(e.getQuery());

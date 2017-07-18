@@ -1,3 +1,8 @@
+import Entities.Document;
+import Entities.EvaluationEntity;
+import Models.LanguageModel;
+import Models.VSMTFxIDFVersion;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
