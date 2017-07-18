@@ -1,12 +1,13 @@
 import Entities.Document;
 import Entities.EvaluationEntity;
+import com.opencsv.CSVReader;
 
-import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
 
 /**
  * Created by romdhane on 07/07/17.
@@ -29,9 +30,8 @@ public class Main {
 
     public void startTesting(String filenameQueries, String filenameDocs) throws FileNotFoundException, IOException {
 
-        BufferedReader br = null;
+
         FileReader fr = null;
-        BufferedReader brd = null;
         FileReader frd = null;
         List<EvaluationEntity> ee = new ArrayList<>();
 
@@ -39,35 +39,27 @@ public class Main {
         try {
 
             fr = new FileReader(filenameQueries);
-            br = new BufferedReader(fr);
-            br = new BufferedReader(new FileReader(filenameQueries));
-            String sCurrentLine = "";
-            String cvsSplitBy = ",";
+            CSVReader br = new CSVReader(fr);
+            String[] lineq = null;
+            while((lineq = br.readNext()) != null) {
 
-
-            while ((sCurrentLine = br.readLine()) != null && sCurrentLine.length() != 0) {
                 EvaluationEntity e = new EvaluationEntity();
                 Document query = new Document();
                 List<Document> reldocs = new ArrayList<>();
-
-                String[] lineq = sCurrentLine.split(cvsSplitBy);
                 int val = Integer.parseInt(lineq[0]);
-
                 query.setId(val);
-                query.setName(lineq[1]);
+                query.setName(lineq[1].replaceAll("\\n", "").replaceAll( "[,.;!?(){}\\[\\]<>%]", ""));
                 e.setQuery(query);
                 e.setQuery(query);
                 List<Document> docs = new ArrayList<>();
                 frd = new FileReader(filenameDocs);
-                brd = new BufferedReader(frd);
-                String sCurrentLined;
-                brd = new BufferedReader(new FileReader(filenameDocs));
-                while ((sCurrentLined = brd.readLine()) != null && sCurrentLined.length() != 0) {
-                    if (sCurrentLined.isEmpty()) break;
-                    //System.out.println(sCurrentLined);
+                CSVReader brd = new CSVReader(frd);
+                String[] lined = null;
+                while((lined = brd.readNext()) != null) {
+
                     Document doc = new Document();
 
-                    String[] lined = sCurrentLined.split(cvsSplitBy);
+                    //String[] lined = sCurrentLined.split("\"?(,|$)(?=(([^\"]*\"){2})*[^\"]*$) *\"?");
                     int vald = Integer.parseInt(lined[0]);
 
                     doc.setId(vald);
@@ -75,11 +67,11 @@ public class Main {
 
                     int rid = 0;
                     for (int i = 0; i < relevant_ids.length; i++) {
-                        rid = Integer.parseInt(relevant_ids[i].replaceAll("\\s", ""));
+                        rid = Integer.parseInt(relevant_ids[i].replaceAll("\\n", ""));
                         if (rid == vald) {
                             Document reldoc = new Document();
                             reldoc.setId(rid);
-                            reldoc.setName(lined[1]);
+                            reldoc.setName(lined[1].replaceAll( "[,.;!?(){}\\[\\]<>%]", "").replaceAll("\\n", ""));
                             reldocs.add(reldoc);
                             e.setRelevant_documents(reldocs);
 
@@ -87,7 +79,7 @@ public class Main {
                     }
 
                     e.setRelevant_documents(reldocs);
-                    doc.setName(lined[1]);
+                    doc.setName(lined[1].replaceAll( "[,.;!?(){}\\[\\]<>%]", "").replaceAll("\\n", ""));
                     docs.add(doc);
                 }
 
@@ -104,9 +96,6 @@ public class Main {
         } finally {
 
             try {
-
-                if (br != null)
-                    br.close();
 
                 if (fr != null)
                     fr.close();

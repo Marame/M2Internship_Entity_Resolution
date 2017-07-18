@@ -100,10 +100,10 @@ public class LanguageModel {
             double freq = (double) Collections.frequency(wordsDoc, resword);
             double prob = freq / (double) doc.getName().length();
             double probC = probWordCollection(resword, e);
-            if (smoothing_version == "jelinek-mercer") {
+            if (smoothing_version.equals("jelinek-mercer")) {
                 smoothedProb = (((1 - lambda) / lambda) * prob) / probC;
 
-            } else if (smoothing_version == "dirichlet-prior") {
+            } else if (smoothing_version.equals("dirichlet-prior")) {
                 smoothedProb = freq * (mu * probC);
 
             }
@@ -113,26 +113,24 @@ public class LanguageModel {
             double freq = (double) Collections.frequency(wordsDoc, resword);
             double prob = freq / (double) doc.getName().length();
             double probC = probWordCollection(resword, e);
-            if (smoothing_version == "jelinek-mercer") {
+            if (smoothing_version.equals("jelinek-mercer")) {
                 smoothedProb = (((1 - lambda) / lambda) * prob) / probC;
 
-            } else if (smoothing_version == "dirichlet-prior") {
+            } else if (smoothing_version.equals("dirichlet-prior")) {
                 smoothedProb = freq * (mu * probC);
-
             }
         }
         else {
             double freq = (double) Collections.frequency(wordsDoc, word);
             double prob = freq / (double) doc.getName().length();
             double probC = probWordCollection(word, e);
-            if (smoothing_version == "jelinek-mercer") {
+            if (smoothing_version.equals("jelinek-mercer")) {
                 smoothedProb = (((1 - lambda) / lambda) * prob) / probC;
 
-            } else if (smoothing_version == "dirichlet-prior") {
+            } else if (smoothing_version.equals("dirichlet-prior")) {
                 smoothedProb = freq * (mu * probC);
 
             }
-
         }
 
         return smoothedProb;
@@ -145,30 +143,21 @@ public class LanguageModel {
             double sum_jm = 0;
             double sum_dp = 0;
             List<String> listwordsQuery = docWords(e.getQuery());
-            if (smoothing_version.equals("jelinek-mercer")) {
+
                 for (String word : listwordsQuery) {
 
                     if (doc.getName().toLowerCase().indexOf(word.toLowerCase()) != -1) {
                         double freqWordQuery = (double) Collections.frequency(listwordsQuery, word);
 
-                        sum_jm += freqWordQuery * Math.log(1 + probWord(word, doc, e, "jelinek-mercer"));
+                        sum_dp += freqWordQuery * Math.log(1 + probWord(word, doc, e, smoothing_version));
                     }
-
-                    resultdoc.setName(doc.getName());
-                    resultdoc.setScore(sum_jm);
-                }
-            } else if (smoothing_version.equals("dirichlet-prior")) {
-                for (String word : listwordsQuery) {
-
-                    if (doc.getName().toLowerCase().indexOf(word.toLowerCase()) != -1) {
-                        double freqWordQuery = (double) Collections.frequency(listwordsQuery, word);
-
-                        sum_dp += freqWordQuery * Math.log(1 + probWord(word, doc, e, "dirichlet-prior"));
+                    if(smoothing_version.equals("dirichlet-prior")){
+                        double smooth_factor = (listwordsQuery.size() * mu) / (mu + docWords(doc).size());
+                       sum_dp+= smooth_factor;
                     }
-                    double smooth_factor = (listwordsQuery.size() * mu) / (mu + docWords(doc).size());
                     resultdoc.setName(doc.getName());
-                    resultdoc.setScore(sum_dp + smooth_factor);
-                }
+                    resultdoc.setScore(sum_dp );
+
             }
             listRankingResults.add(resultdoc);
         }
