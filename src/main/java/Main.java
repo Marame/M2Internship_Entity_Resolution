@@ -1,11 +1,7 @@
-import Entities.Document;
 import Entities.EvaluationEntity;
-import com.opencsv.CSVReader;
 
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -19,7 +15,6 @@ public class Main {
     //Versions of smoothing in Language Model
     String[] nlp_methods = {new String("stemming"), new String("lemmatizing"), new String("nothing")};
     String[] smoothing_versions = {new String("jelinek-mercer"), new String("dirichlet-prior")};
-    private static final String COMMA_DELIMITER = ",";
 
     public static void main(String[] args) throws IOException {
 
@@ -31,80 +26,6 @@ public class Main {
     public void startTesting(String filenameQueries, String filenameDocs) throws FileNotFoundException, IOException {
 
 
-        FileReader fr = null;
-        FileReader frd = null;
-        List<EvaluationEntity> ee = new ArrayList<>();
-
-
-        try {
-
-            fr = new FileReader(filenameQueries);
-            CSVReader br = new CSVReader(fr);
-            String[] lineq = null;
-            while((lineq = br.readNext()) != null) {
-
-                EvaluationEntity e = new EvaluationEntity();
-                Document query = new Document();
-                List<Document> reldocs = new ArrayList<>();
-                int val = Integer.parseInt(lineq[0]);
-                query.setId(val);
-                query.setName(lineq[1].replaceAll("\\n", "").replaceAll( "[,.;!?(){}\\[\\]<>%]", ""));
-                e.setQuery(query);
-                e.setQuery(query);
-                List<Document> docs = new ArrayList<>();
-                frd = new FileReader(filenameDocs);
-                CSVReader brd = new CSVReader(frd);
-                String[] lined = null;
-                while((lined = brd.readNext()) != null) {
-
-                    Document doc = new Document();
-
-                    //String[] lined = sCurrentLined.split("\"?(,|$)(?=(([^\"]*\"){2})*[^\"]*$) *\"?");
-                    int vald = Integer.parseInt(lined[0]);
-
-                    doc.setId(vald);
-                    String[] relevant_ids = lineq[2].split("\\s+");
-
-                    int rid = 0;
-                    for (int i = 0; i < relevant_ids.length; i++) {
-                        rid = Integer.parseInt(relevant_ids[i].replaceAll("\\n", ""));
-                        if (rid == vald) {
-                            Document reldoc = new Document();
-                            reldoc.setId(rid);
-                            reldoc.setName(lined[1].replaceAll( "[,.;!?(){}\\[\\]<>%]", "").replaceAll("\\n", ""));
-                            reldocs.add(reldoc);
-                            e.setRelevant_documents(reldocs);
-
-                        }
-                    }
-
-                    e.setRelevant_documents(reldocs);
-                    doc.setName(lined[1].replaceAll( "[,.;!?(){}\\[\\]<>%]", "").replaceAll("\\n", ""));
-                    docs.add(doc);
-                }
-
-                e.setDocuments(docs);
-                e.setRelevant_documents(reldocs);
-                ee.add(e);
-            }
-
-
-        } catch (IOException e) {
-
-            e.printStackTrace();
-
-        } finally {
-
-            try {
-
-                if (fr != null)
-                    fr.close();
-
-            } catch (IOException ex) {
-
-                ex.printStackTrace();
-
-            }
             //Our initial Evaluation entities
            /* for (EvaluationEntity e : ee) {
                 System.out.println("query: " + e.getQuery().getName());
@@ -114,12 +35,13 @@ public class Main {
                     i++;
                 }
             }*/
-
+            ParseFiles pf = new ParseFiles();
+            List<EvaluationEntity> ee = pf.parseArgs(filenameQueries, filenameDocs);
             System.out.println("$$$$$$$$$$$$ Results for Vector Space Model $$$$$$$$$$$$$");
 
             StringBuilder sb = new StringBuilder();
-            sb.append(String.format("%-10s%-20s%-20s\n", "version", "MAP:nothing", "MAP:Stemming", "MAP:Lemmatizing" + "\n"));
-            sb.append(String.format("===================================================\n"));
+            sb.append(String.format("%-10s%-20s%-20s%-20s%\n", "version", "MAP:nothing", "MAP:Stemming", "MAP:Lemmatizing" + "\n"));
+            sb.append(String.format("============================================================\n"));
             for (String version : vsm_versions) {
 
                 Evaluation eval = new Evaluation();
@@ -138,7 +60,7 @@ public class Main {
 
             StringBuilder sb1 = new StringBuilder();
             sb1.append(String.format("%-10s%-30s%-30s%-30s\n", "version", "MAP:nothing", "MAP:Stemming", "MAP:Lemmatizing" + "\n"));
-            sb1.append(String.format("===================================================\n"));
+            sb1.append(String.format("==========================================================\n"));
 
             for (String version : smoothing_versions) {
 
@@ -171,7 +93,7 @@ public class Main {
             }*/
 
 
-        }
+
 
 
 
