@@ -19,6 +19,13 @@ public class LanguageModel {
     private String nlp_method;
     private double lambda = 0.4;
     private double mu = 2;
+    private Lemmatizer lem;
+
+    public LanguageModel(String smoothing_version, String nlp_method, Lemmatizer lem) {
+        this.smoothing_version = smoothing_version;
+        this.nlp_method = nlp_method;
+        this.lem = lem;
+    }
 
     public LanguageModel(String smoothing_version, String nlp_method) {
         this.smoothing_version = smoothing_version;
@@ -29,6 +36,7 @@ public class LanguageModel {
         List<String> words = new ArrayList<>();
         StringTokenizer st = new StringTokenizer(s.getName());
 
+
         while (st.hasMoreTokens()) {
             if (nlp_method.equals("stemming")) {
                 PorterStemmer stem = new PorterStemmer();
@@ -37,7 +45,7 @@ public class LanguageModel {
                 String result = stem.getCurrent();
                 words.add(result);
             } else if (nlp_method.equals("lemmatizing")) {
-                Lemmatizer lem = new Lemmatizer();
+
                 for (String st_lem : lem.lemmatize(st.nextToken())) {
                     words.add(st_lem);
                 }
@@ -64,7 +72,7 @@ public class LanguageModel {
                 sumsize += (double) doc.getName().length();
             }
         } else if (nlp_method.equals("lemmatizing")) {
-            Lemmatizer lem = new Lemmatizer();
+
             String resword = lem.lemmatize(word).get(0);
             for (Document doc : e.getDocuments()) {
                 List<String> wordsDoc = docWords(doc);
@@ -92,6 +100,7 @@ public class LanguageModel {
         double smoothedProb = 0;
 
         List<String> wordsDoc = docWords(doc);
+
         if (nlp_method.equals("stemming")) {
             PorterStemmer stem = new PorterStemmer();
             stem.setCurrent(word);
@@ -108,7 +117,7 @@ public class LanguageModel {
 
             }
         } else if (nlp_method.equals("lemmatizing")) {
-            Lemmatizer lem = new Lemmatizer();
+
             String resword = lem.lemmatize(word).get(0);
             double freq = (double) Collections.frequency(wordsDoc, resword);
             double prob = freq / (double) doc.getName().length();

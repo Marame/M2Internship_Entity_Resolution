@@ -12,19 +12,14 @@ import java.util.Properties;
 
 public class Lemmatizer {
 
-    private StanfordCoreNLP pipeline;
 
-
-    public Lemmatizer(){
         // Create StanfordCoreNLP object properties, with POS tagging
-        // (required for lemmatization), and lemmatization
-        Properties props;
-        props = new Properties();
-        props.put("annotators", "tokenize, ssplit, pos, lemma");
+        private StanfordCoreNLP pipeline;
 
-        // StanfordCoreNLP loads a lot of models, so you probably
-        // only want to do this once per execution
-        this.pipeline = new StanfordCoreNLP(props);
+     public void initializeCoreNLP() {
+        Properties props = new Properties();
+        props.put("annotators", "tokenize, ssplit, pos, lemma");
+        pipeline = new StanfordCoreNLP(props);
     }
 
     public List<String> lemmatize(String documentText){
@@ -35,7 +30,7 @@ public class Lemmatizer {
         Annotation document = new Annotation(documentText);
 
         // run all Annotators on this text
-        this.pipeline.annotate(document);
+       pipeline.annotate(document);
 
         // Iterate over all of the sentences found
         List<CoreMap> sentences = document.get(CoreAnnotations.SentencesAnnotation.class);

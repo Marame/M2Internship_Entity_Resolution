@@ -2,6 +2,7 @@ import Entities.Document;
 import Entities.EvaluationEntity;
 import Models.LanguageModel;
 import Models.VSMTFxIDFVersion;
+import Utilities.Lemmatizer;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -78,12 +79,12 @@ public class Evaluation {
         return MAP;
     }
 
-    public void final_evaluation(List<EvaluationEntity> ee, String smoothing_version, String vsm_version, String nlp_method) throws IOException {
+    public void final_evaluation(List<EvaluationEntity> ee, String smoothing_version, String vsm_version, String nlp_method, Lemmatizer l) throws IOException {
         List<Document> results = new ArrayList<>();
         int idx_ent = 0;
         for (EvaluationEntity e : ee) {
-            VSMTFxIDFVersion vsm = new VSMTFxIDFVersion(vsm_version, nlp_method);
-            LanguageModel lm = new LanguageModel(smoothing_version, nlp_method);
+            VSMTFxIDFVersion vsm = new VSMTFxIDFVersion(vsm_version, nlp_method, l);
+            LanguageModel lm = new LanguageModel(smoothing_version, nlp_method, l);
             if (smoothing_version.equals(""))
                 results = vsm.getRankingScoresVSM(e);
             else if (!smoothing_version.equals("")) results = lm.getRankingScoresLM(e, smoothing_version);
