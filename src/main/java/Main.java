@@ -1,11 +1,7 @@
-import Entities.EvaluationEntity;
-import Utilities.Lemmatizer;
+import Models.NGram;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -22,16 +18,16 @@ public class Main {
     public static void main(String[] args) throws IOException {
 
         Main main = new Main();
-        //main.startTesting(args[0], args[1], args[2], args[3], args[4]);
         main.startTesting(args[0], args[1]);
+
 
     }
 
 
-    // public void startTesting(String filenameQueries, String filenameDocs, String filePredict, String ngram, String K) throws FileNotFoundException, IOException
+    public void startTesting(String filenameQueries, String filenameDocs) throws IOException
 
-    //{
-    public void startTesting(String filenameQueries, String filenameDocs) throws FileNotFoundException, IOException {
+    {
+        //public void startTesting(String filenameQueries, String filenameDocs) throws FileNotFoundException, IOException {
 
         //Our initial Evaluation entities
            /* for (EvaluationEntity e : ee) {
@@ -42,9 +38,8 @@ public class Main {
                     i++;
                 }
             }*/
-        System.out.println(filenameQueries);
-        System.out.println(filenameDocs);
-        Lemmatizer lem = new Lemmatizer();
+
+     /*   Lemmatizer lem = new Lemmatizer();
         lem.initializeCoreNLP();
         ParseFiles pf = new ParseFiles();
 
@@ -61,20 +56,20 @@ public class Main {
             eval.final_evaluation(ee, "", version, "nothing", lem);
             long endTime = System.currentTimeMillis();
             NumberFormat formatter = new DecimalFormat("#0.00000");
-            System.out.print("Execution time for nothing  is " + formatter.format((endTime - startTime) / 1000d) + " seconds"+"\n");
+           // System.out.print("Execution time for nothing  is " + formatter.format((endTime - startTime) / 1000d) + " seconds"+"\n");
 
             Evaluation eval1 = new Evaluation();
             long startTime1 = System.currentTimeMillis();
             eval1.final_evaluation(ee, "", version, "stemming", lem);
             long endTime1 = System.currentTimeMillis();
             NumberFormat formatter1 = new DecimalFormat("#0.00000");
-            System.out.print("Execution time for stemming  is " + formatter1.format((endTime1 - startTime1)/ 1000d) + " seconds"+"\n");
+            //System.out.print("Execution time for stemming  is " + formatter1.format((endTime1 - startTime1)/ 1000d) + " seconds"+"\n");
             Evaluation eval2 = new Evaluation();
             long startTime2 = System.currentTimeMillis();
             eval2.final_evaluation(ee, "", version, "lemmatizing", lem);
             long endTime2 = System.currentTimeMillis();
             NumberFormat formatter2 = new DecimalFormat("#0.00000");
-            System.out.print("Execution time for lemmatizing  is " + formatter2.format((endTime2 - startTime2)/ 1000d) + " seconds"+"\n");
+            //System.out.print("Execution time for lemmatizing  is " + formatter2.format((endTime2 - startTime2)/ 1000d) + " seconds"+"\n");
             sb.append(String.format("%-10s%-20s%-20s%-20s", version, eval.getMAP() + "||", eval1.getMAP() + "||", eval2.getMAP() + "\n"));
         }
         System.out.println(sb.toString());
@@ -98,34 +93,9 @@ public class Main {
             sb1.append(String.format("%-20s%-20s%-20s%-20s", version, eval.getMAP() + "||", eval1.getMAP() + "||", eval2.getMAP() + "\n"));
         }
         System.out.println(sb1.toString());
-    }
-}
+    }*/
 
-        /*String trainFile = filenameDocs;
-        String predictFile = filePredict;
-        int nGram = Integer.parseInt(ngram);
-        double k = Double.parseDouble(K);
-        double[] linearInterpoParams;
-           /* if (args.length > 5) {
-            linearInterpoParams = new double[ngram];
-            for (int i = 0; i < ngram; i++) {
-                linearInterpoParams[i] = Double.parseDouble(args[i+4]);
-            }
-        } else
-          linearInterpoParams = null;*/
 
-       /* NGram lm = new NGram(nGram);
-		/*if (args.length > 4 + ngram) {
-        int lowFreThre = Integer.parseInt(args[ngram+4]), unkThre = Integer.parseInt(args[ngram+5]);
-        lm = new NGram(ngram, K, linearInterpoParams, lowFreThre, unkThre);
-    } else
-    lm = new NGram(ngram, K, linearInterpoParams, 5, 6);*/
-
-		/*lm.train(trainFile);
-    Double[] pred = lm.predict(predictFile);
-    String savePred = new SimpleDateFormat("yyyyMMdd-HHmmss").format(new Date());
-		lm.savePredictions(pred, "/pred-" + savePred + ".txt");
-		lm.evaluate(pred);*/
 
 
         /*for (EvaluationEntity e : ee) {
@@ -141,11 +111,19 @@ public class Main {
             }
 
         }*/
+        NGram ng = new NGram();
+        Map<String, Map<String, Double>> nGramsFeature = ng.computeFeature(" news about",filenameQueries, filenameDocs);
+        // Map<String, List<String>> nGramsFeature = ng.ngrams(filenameQueries, filenameDocs);
+        for (String st : nGramsFeature.keySet()) {
 
+            System.out.println("Key=" + "\t" + st);
+            System.out.println("***********ngrams with frequencies***********");
+            for (String s : nGramsFeature.get(st).keySet()) {
 
+                System.out.println("Token key=" + "\t" + s);
+                //System.out.println("Token count=" + "\t" + nGramsFeature.get(st).get(s));
+            }
+        }
 
-
-
-
-
-
+    }
+}

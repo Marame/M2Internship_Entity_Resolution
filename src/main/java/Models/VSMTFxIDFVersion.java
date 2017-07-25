@@ -15,7 +15,7 @@ public class VSMTFxIDFVersion {
     private String version;
     private String nlp_method;
     private List<Document> dotProduct = new ArrayList<>();
-    private Lemmatizer lem ;
+    public Lemmatizer lem ;
 
     public VSMTFxIDFVersion(String version, String nlp_method, Lemmatizer lem) {
         this.version = version;
@@ -261,7 +261,6 @@ public class VSMTFxIDFVersion {
         } else if (version.equals("TF/IDF")) {
 
             List<Double> listqueryTF = getTF(e, e.getQuery(), false);
-
             List<Double> vectqueryTF = new Vector<>(listqueryTF);
 
             List<Double> listIDF = getIDF(e);
