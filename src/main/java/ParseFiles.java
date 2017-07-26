@@ -1,5 +1,6 @@
 import Entities.Document;
 import Entities.EvaluationEntity;
+import Models.NGram;
 import com.opencsv.CSVReader;
 
 import java.io.FileReader;
@@ -17,6 +18,7 @@ public class ParseFiles {
     private FileReader frd = null;
     List<EvaluationEntity> ee = new ArrayList<>();
     private static final Pattern SPACE = Pattern.compile(" ");
+    int vocab_size =0;
 
 
     public List<EvaluationEntity> parseArgs(String filenameQueries, String filenameDocs) {
@@ -26,6 +28,8 @@ public class ParseFiles {
             fr = new FileReader(filenameQueries);
             CSVReader br = new CSVReader(fr);
             String[] lineq = null;
+
+            NGram ng = new NGram();
             while ((lineq = br.readNext()) != null) {
 
                 EvaluationEntity e = new EvaluationEntity();
@@ -71,9 +75,10 @@ public class ParseFiles {
                 e.setDocuments(docs);
                 e.setRelevant_documents(reldocs);
                 ee.add(e);
+                 //vocab_size += e.getBagOfWords().size();
             }
 
-
+            //ng.setVocab_size(vocab_size);
 
         } catch (IOException e) {
 

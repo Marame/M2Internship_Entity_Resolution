@@ -1,7 +1,7 @@
 import Entities.Document;
 import Entities.EvaluationEntity;
 import Models.LanguageModel;
-import Models.VSMTFxIDFVersion;
+import Models.VectorSpaceModel;
 import Utilities.Lemmatizer;
 
 import java.io.IOException;
@@ -83,7 +83,7 @@ public class Evaluation {
         List<Document> results = new ArrayList<>();
         int idx_ent = 0;
         for (EvaluationEntity e : ee) {
-            VSMTFxIDFVersion vsm = new VSMTFxIDFVersion(vsm_version, nlp_method, l);
+            VectorSpaceModel vsm = new  VectorSpaceModel(vsm_version, nlp_method, l);
             LanguageModel lm = new LanguageModel(smoothing_version, nlp_method, l);
             if (smoothing_version.equals(""))
                 results = vsm.getRankingScoresVSM(e);

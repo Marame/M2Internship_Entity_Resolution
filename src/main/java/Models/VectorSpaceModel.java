@@ -11,23 +11,23 @@ import java.util.*;
 /**
  * Created by romdhane on 21/05/17.
  */
-public class VSMTFxIDFVersion {
+public class VectorSpaceModel {
     private String version;
     private String nlp_method;
     private List<Document> dotProduct = new ArrayList<>();
     public Lemmatizer lem ;
 
-    public VSMTFxIDFVersion(String version, String nlp_method, Lemmatizer lem) {
+    public VectorSpaceModel(String version, String nlp_method, Lemmatizer lem) {
         this.version = version;
         this.nlp_method = nlp_method;
         this.lem = lem;
     }
 
-    public VSMTFxIDFVersion() {
+    public VectorSpaceModel() {
     }
 
 
-    public VSMTFxIDFVersion(String version, String nlp_method) {
+    public VectorSpaceModel(String version, String nlp_method) {
         this.version = version;
         this.nlp_method = nlp_method;
     }

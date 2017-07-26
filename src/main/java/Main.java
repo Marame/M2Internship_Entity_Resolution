@@ -1,6 +1,11 @@
+import Entities.EvaluationEntity;
 import Models.NGram;
+import Utilities.Lemmatizer;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.List;
 import java.util.Map;
 
 
@@ -19,6 +24,7 @@ public class Main {
 
         Main main = new Main();
         main.startTesting(args[0], args[1]);
+       // main.startTestingNGram(args[1], args[2]);
 
 
     }
@@ -27,7 +33,6 @@ public class Main {
     public void startTesting(String filenameQueries, String filenameDocs) throws IOException
 
     {
-        //public void startTesting(String filenameQueries, String filenameDocs) throws FileNotFoundException, IOException {
 
         //Our initial Evaluation entities
            /* for (EvaluationEntity e : ee) {
@@ -39,7 +44,7 @@ public class Main {
                 }
             }*/
 
-     /*   Lemmatizer lem = new Lemmatizer();
+        Lemmatizer lem = new Lemmatizer();
         lem.initializeCoreNLP();
         ParseFiles pf = new ParseFiles();
 
@@ -93,7 +98,7 @@ public class Main {
             sb1.append(String.format("%-20s%-20s%-20s%-20s", version, eval.getMAP() + "||", eval1.getMAP() + "||", eval2.getMAP() + "\n"));
         }
         System.out.println(sb1.toString());
-    }*/
+    }
 
 
 
@@ -111,19 +116,26 @@ public class Main {
             }
 
         }*/
+
+
+    public void startTestingNGram(String filenameDocs, String ngram)throws IOException{
         NGram ng = new NGram();
-        Map<String, Map<String, Double>> nGramsFeature = ng.computeFeature(" news about",filenameQueries, filenameDocs);
+        ng.setFilenameDocuments(filenameDocs);
+        ng.setN(Integer.parseInt(ngram));
+        Map<String, Map<String, Double>> nGramsFeatures = ng.computeFeatures("myocardial");
         // Map<String, List<String>> nGramsFeature = ng.ngrams(filenameQueries, filenameDocs);
-        for (String st : nGramsFeature.keySet()) {
+        for (String st : nGramsFeatures.keySet()) {
 
             System.out.println("Key=" + "\t" + st);
             System.out.println("***********ngrams with frequencies***********");
-            for (String s : nGramsFeature.get(st).keySet()) {
+            for (String s : nGramsFeatures.get(st).keySet()) {
 
                 System.out.println("Token key=" + "\t" + s);
-                //System.out.println("Token count=" + "\t" + nGramsFeature.get(st).get(s));
+                System.out.println("Token count=" + "\t" + nGramsFeatures.get(st).get(s));
             }
         }
+        //Double prob = ng.predict("myocardial infarction inferior ischemia", 3);
+        //System.out.println(prob);
 
     }
 }
