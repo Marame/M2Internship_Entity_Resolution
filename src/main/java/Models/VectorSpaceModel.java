@@ -1,5 +1,6 @@
 package Models;
 
+import Entities.Concurrency;
 import Entities.Document;
 import Entities.EvaluationEntity;
 import Utilities.Lemmatizer;
@@ -76,7 +77,7 @@ public class VectorSpaceModel {
                 if (nlp_method.equals("stemming")) {
                     PorterStemmer stem = new PorterStemmer();
                     String s = st.nextToken();
-                    if (!liststopwords.contains(s)) {
+                    if ((!liststopwords.contains(s))&&!bagOfWord.contains(s)) {
                         stem.setCurrent(s);
                         stem.stem();
                         String result = stem.getCurrent();
@@ -259,6 +260,9 @@ public class VectorSpaceModel {
                 dotProduct.add(resultdoc);
             }
         } else if (version.equals("TF/IDF")) {
+            Concurrency con = new Concurrency();
+            con.setE(e);
+            con.setNormalised(false);
 
             List<Double> listqueryTF = getTF(e, e.getQuery(), false);
             List<Double> vectqueryTF = new Vector<>(listqueryTF);
@@ -282,6 +286,10 @@ public class VectorSpaceModel {
                 dotProduct.add(resultdoc);
             }
         } else if (version.equals("BM25")) {
+
+            Concurrency con = new Concurrency();
+            con.setE(e);
+            con.setNormalised(true);
 
             List<Double> listqueryTF = getTF(e, e.getQuery(), true);
             List<Double> vectqueryTF = new Vector<>(listqueryTF);

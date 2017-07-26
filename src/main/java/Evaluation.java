@@ -101,10 +101,11 @@ public class Evaluation {
             });
 
             // ranked results
-            /*System.out.println("ranked results for query n" + "\t" + (idx_ent + 1));
+       if(smoothing_version.equals("dirichlet-prior")){
+            System.out.println("ranked results for query n" + "\t" + (idx_ent + 1));
             for (Document d : results) {
                 System.out.println(d.getName() + "->" + d.getScore());
-            }*/
+            }}
             for (Integer n : N) {
                 int idx_N = n - 1;
                 List<Double> resultsAtn = evaluateVSM(n, e.getRelevant_documents(), results);

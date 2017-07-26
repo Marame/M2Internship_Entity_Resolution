@@ -161,7 +161,7 @@ public class LanguageModel {
                         sum_dp += freqWordQuery * Math.log(1 + probWord(word, doc, e, smoothing_version));
                     }
                     if(smoothing_version.equals("dirichlet-prior")){
-                        double smooth_factor = listwordsQuery.size() * Math.log(mu / (mu + docWords(doc).size()));
+                        double smooth_factor = listwordsQuery.size() * (mu / (mu + docWords(doc).size()));
                        sum_dp+= smooth_factor;
                     }
                     resultdoc.setName(doc.getName());
