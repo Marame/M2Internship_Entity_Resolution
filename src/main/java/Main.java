@@ -51,7 +51,7 @@ public class Main {
         List<EvaluationEntity> ee = pf.parseArgs(filenameQueries, filenameDocs);
         System.out.println("$$$$$$$$$$$$ Results for Vector Space Model $$$$$$$$$$$$$");
 
-       StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
         sb.append(String.format("%-10s%-20s%-20s%-20s", "version", "MAP:nothing", "MAP:Stemming", "MAP:Lemmatizing" + "\n"));
         sb.append(String.format("============================================================\n"));
         for (String version : vsm_versions) {
@@ -61,7 +61,7 @@ public class Main {
             eval.final_evaluation(ee, "", version, "nothing", lem);
             long endTime = System.currentTimeMillis();
             NumberFormat formatter = new DecimalFormat("#0.00000");
-           // System.out.print("Execution time for nothing  is " + formatter.format((endTime - startTime) / 1000d) + " seconds"+"\n");
+            // System.out.print("Execution time for nothing  is " + formatter.format((endTime - startTime) / 1000d) + " seconds"+"\n");
 
             Evaluation eval1 = new Evaluation();
             long startTime1 = System.currentTimeMillis();
@@ -75,15 +75,29 @@ public class Main {
             long endTime2 = System.currentTimeMillis();
             NumberFormat formatter2 = new DecimalFormat("#0.00000");
             //System.out.print("Execution time for lemmatizing  is " + formatter2.format((endTime2 - startTime2)/ 1000d) + " seconds"+"\n");
-            sb.append(String.format("%-10s%-20s%-20s%-20s", version, eval.getMAP() + "||", eval1.getMAP() + "||", eval2.getMAP() + "\n"));
+            sb.append("************** MAP values ***************" + "\n");
+            sb.append(String.format("%-20s%-20s%-20s%-20s", version, eval.getMAP() + "||", eval1.getMAP() + "||", eval2.getMAP() + "\n"));
+
+            //sb.append("************** Micro average precision values ***************" + "\n");
+            //sb.append(String.format("%-20s%-20s%-20s%-20s", version, eval.getMicro_average_precision() + "||", eval1.getMicro_average_precision() + "||", eval2.getMicro_average_precision() + "\n"));
+            sb.append("************** Micro average recall values ***************" + "\n");
+            sb.append(String.format("%-20s%-20s%-20s%-20s", version, eval.getMicro_average_recall() + "||", eval1.getMicro_average_recall() + "||", eval2.getMicro_average_recall() + "\n"));
+            sb.append("************** Macro average precision values ***************" + "\n");
+            sb.append(String.format("%-20s%-20s%-20s%-20s", version, eval.getMacro_average_precision() + "||", eval1.getMacro_average_precision() + "||", eval2.getMacro_average_precision() + "\n"));
+            sb.append("************** Macro average recall values ***************" + "\n");
+            sb.append(String.format("%-20s%-20s%-20s%-20s", version, eval.getMacro_average_recall() + "||", eval1.getMacro_average_recall() + "||", eval2.getMacro_average_recall() + "\n"));
+            sb.append("************** Micro average F1 values ***************" + "\n");
+            sb.append(String.format("%-20s%-20s%-20s%-20s", version, eval.getMicro_average_F1() + "||", eval1.getMicro_average_F1() + "||", eval2.getMicro_average_F1() + "\n"));
+            sb.append("************** Macro average F1 values ***************" + "\n");
+            sb.append(String.format("%-20s%-20s%-20s%-20s", version, eval.getMacro_average_F1() + "||", eval1.getMacro_average_F1() + "||", eval2.getMacro_average_F1() + "\n"));
         }
-        System.out.println(sb.toString());
+       System.out.println(sb.toString());
 
 
         System.out.println("$$$$$$$$$$$$ Results for Language Model $$$$$$$$$$$$$");
 
         StringBuilder sb1 = new StringBuilder();
-        sb1.append(String.format("%-10s%-30s%-30s%-30s\n", "version", "MAP:nothing", "MAP:Stemming", "MAP:Lemmatizing" + "\n"));
+        sb1.append(String.format("%-10s%-30s%-30s%-30s\n", "version", "nothing", "Stemming", "Lemmatizing" + "\n"));
         sb1.append(String.format("==========================================================\n"));
 
         for (String version : smoothing_versions) {
@@ -95,9 +109,24 @@ public class Main {
             eval1.final_evaluation(ee, version, "", "stemming", lem);
             Evaluation eval2 = new Evaluation();
             eval2.final_evaluation(ee, version, "", "lemmatizing", lem);
+
+            sb1.append("************** MAP values ***************" + "\n");
             sb1.append(String.format("%-20s%-20s%-20s%-20s", version, eval.getMAP() + "||", eval1.getMAP() + "||", eval2.getMAP() + "\n"));
+
+            //sb1.append("************** Micro average precision values ***************" + "\n");
+           // sb1.append(String.format("%-20s%-20s%-20s%-20s", version, eval.getMicro_average_precision() + "||", eval1.getMicro_average_precision() + "||", eval2.getMicro_average_precision() + "\n"));
+            sb1.append("************** Micro average recall values ***************" + "\n");
+            sb1.append(String.format("%-20s%-20s%-20s%-20s", version, eval.getMicro_average_recall() + "||", eval1.getMicro_average_recall() + "||", eval2.getMicro_average_recall() + "\n"));
+            sb1.append("************** Macro average precision values ***************" + "\n");
+            sb1.append(String.format("%-20s%-20s%-20s%-20s", version, eval.getMacro_average_precision() + "||", eval1.getMacro_average_precision() + "||", eval2.getMacro_average_precision() + "\n"));
+            sb1.append("************** Macro average recall values ***************" + "\n");
+            sb1.append(String.format("%-20s%-20s%-20s%-20s", version, eval.getMacro_average_recall() + "||", eval1.getMacro_average_recall() + "||", eval2.getMacro_average_recall() + "\n"));
+            sb1.append("************** Micro average F1 values ***************" + "\n");
+            sb1.append(String.format("%-20s%-20s%-20s%-20s", version, eval.getMicro_average_F1() + "||", eval1.getMicro_average_F1() + "||", eval2.getMicro_average_F1() + "\n"));
+            sb1.append("************** Macro average F1 values ***************" + "\n");
+            sb1.append(String.format("%-20s%-20s%-20s%-20s", version, eval.getMacro_average_F1() + "||", eval1.getMacro_average_F1() + "||", eval2.getMacro_average_F1() + "\n"));
+            System.out.println(sb1.toString());
         }
-        System.out.println(sb1.toString());
     }
 
 
