@@ -30,10 +30,11 @@ public class Evaluation {
     Double[][] F1_matrix = new Double[100][100];
     Double[][] ret_rel_matrix = new Double[100][100];
     Double[][] notret_notrel_matrix = new Double[100][100];
+    Double[][] notret_rel_matrix = new Double[100][100];
 
     //Double[][] notret_rel_matrix = new Double[10][10];
 
-    int[] N = {5,10, 15, 19};
+    int[] N = {1, 2, 3, 4, 5, 6};
     public double getMAP() {
         return MAP;
     }
@@ -100,6 +101,7 @@ public class Evaluation {
         listresults.add(F1);
         listresults.add((double) ret_relevant);
         listresults.add((double) notret_nonrelevant);
+        listresults.add((double) notret_relevant);
 
         return listresults;
     }
@@ -141,6 +143,7 @@ public class Evaluation {
                 F1_matrix[idx_ent][idx_N] = resultsAtn.get(2);
                 ret_rel_matrix[idx_ent][idx_N] = resultsAtn.get(3);
                 notret_notrel_matrix[idx_ent][idx_N] = resultsAtn.get(4);
+                notret_rel_matrix[idx_ent][idx_N] = resultsAtn.get(5);
                 idx_N ++;
             }
             idx_ent++;
@@ -160,19 +163,20 @@ public class Evaluation {
                 sum_F1 += F1_matrix[j][i];
                 sum_retrel += ret_rel_matrix[j][i];
                 sum_notretnotrel += notret_notrel_matrix[j][i];
+                sum_notretrel += notret_rel_matrix[j][i];
             }
 
             double macro_average_precision = sum_precision / ee.size();
             this.macro_average_precision =macro_average_precision;
             double macro_average_recall = sum_recall / ee.size();
             this.macro_average_recall = macro_average_recall;
-            double macro_average_F1 = sum_F1 / ee.size();
+            double macro_average_F1 = sum_F1 / (double)ee.size();
             this.macro_average_F1 = macro_average_F1;
             double micro_average_precision = sum_retrel / (double)( sum_retrel + sum_notretrel);
             this.micro_average_precision= micro_average_precision;
             double micro_average_recall = sum_retrel / (double)( sum_retrel + sum_notretnotrel);
             this.micro_average_recall= micro_average_recall;
-            double micro_average_F1 = 2 * micro_average_precision * micro_average_recall / (double)(micro_average_precision +  micro_average_recall);
+            double micro_average_F1 = 2 * micro_average_precision * micro_average_recall / (micro_average_precision +  micro_average_recall);
             this.micro_average_F1 = micro_average_F1;
 
           /*  if (i == 2) {
