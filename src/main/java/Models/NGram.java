@@ -12,17 +12,20 @@ import java.util.*;
 public class NGram {
     static LinkedList<String> sentences = new LinkedList<String>();
     //smoothing_factor
-    private double lambda = 0.5; ;
-   private int vocab_size;
-   private String filenameQueries;
+    private double lambda = 0.5;
+    ;
+    private int vocab_size;
+    private String filenameQueries;
     private String filenameDocuments;
     private int n;
-
+    private double average;
     public void setN(int n) {
         this.n = n;
     }
 
-
+    public double getAverage() {
+        return average;
+    }
 
     public void setFilenameDocuments(String filenameDocuments) {
         this.filenameDocuments = filenameDocuments;
@@ -32,7 +35,7 @@ public class NGram {
         this.vocab_size = vocab_size;
     }
 
-    public static List<String> ngrams(int n, String str) {
+    public List<String> ngrams(String str) {
         List<String> ngrams = new ArrayList<String>();
         String[] words = str.split(" ");
         for (int i = 0; i < words.length - n + 1; i++)
@@ -59,30 +62,89 @@ public class NGram {
 
         String[] lined = null;
         while ((lined = brd.readNext()) != null) {
-            sentences.add("<S> " + lined[1] + " </S>");
+            sentences.add(lined[1]);
         }
         for (String sentence : sentences) {
             //Map<String, Integer> ngramMap = new HashMap<>();
             //nGrams set
-            nGrams.put(sentence, ngrams(n, sentence));
+            nGrams.put(sentence, ngrams(sentence));
         }
         return nGrams;
     }
 
-    public int computeFrequency( String sample) throws IOException {
+    public int computeFrequency(String sample) throws IOException {
         FileReader fr = new FileReader(filenameDocuments);
         CSVReader br = new CSVReader(fr);
         int count = 0;
         String[] line = null;
         while ((line = br.readNext()) != null) {
-            if (line[1].toLowerCase().indexOf(sample.toLowerCase())!=-1) count++;
+            if (line[1].toLowerCase().indexOf(sample.toLowerCase()) != -1) count++;
         }
         return count;
 
     }
 
+    public int computeIntersection(String querySample, String docSample) {
 
-    public double computeProbability(String term, String sample) throws IOException {
+        List<String> ngramsQuery = ngrams(querySample);
+        final List<String> ngramsDoc = ngrams(docSample);
+        List<String> listIntersect = new ArrayList<>();
+        int inter = 0;
+        for (String q : ngramsQuery) {
+            for (String d : ngramsDoc) {
+                String[] tokens_d = d.split(" ");
+                for (String st : tokens_d) {
+
+                    if ((q.toLowerCase().indexOf(st.toLowerCase()) != -1) && (!listIntersect.contains(st)))
+                        listIntersect.add(st);
+                }
+            }
+        }
+            inter = listIntersect.size();
+        return inter;
+    }
+
+    public int computeUnion(String querySample, String docSample) {
+
+        List<String> ngramsQuery = ngrams(querySample);
+        List<String> ngramsDoc = ngrams(docSample);
+        List<String> listUnion = new ArrayList<>();
+        int union = 0;
+        for (String q : ngramsQuery) {
+            if (!listUnion.contains(q))
+                listUnion.add(q);
+        }
+        for (String d : ngramsDoc) {
+            if (!listUnion.contains(d))
+                listUnion.add(d);
+        }
+        union = listUnion.size();
+
+        return union;
+    }
+
+    public double computeJaccard(String querySample, String docSample) {
+
+        int intersect = computeIntersection(querySample, docSample);
+        int union = computeUnion(querySample, docSample);
+        double jaccard =  intersect / (double) union;
+
+        return jaccard;
+     }
+    public double computeDice(String querySample, String docSample) {
+
+        int intersect = computeIntersection(querySample, docSample);
+        String[]tokensq =  querySample.split(" ");
+        String[]tokensd =  querySample.split(" ");
+        double jaccard =  intersect / (double) (tokensq.length +tokensd.length);
+
+        return jaccard;
+    }
+
+
+
+
+    /*public double computeProbability(String term, String sample) throws IOException {
         VectorSpaceModel vsm = new VectorSpaceModel();
 
         double prob = (computeFrequency(sample+"\\s"+term) + lambda) /(double)(computeFrequency(sample) + lambda*vocab_size) ;
@@ -105,14 +167,16 @@ public class NGram {
             pred=predSample;
         }
         return prod;
-    }
+    }*/
 
-    public Map<String, Map<String, Double>> computeFeatures(String term) throws IOException {
+    public Map<String, Map<String, Double>> computeFeatures(String query, String similarity) throws IOException {
         Map<String, Map<String, Double>> nGramsFeatures = new HashMap<String, Map<String, Double>>();
         Map<String, List<String>> ngrams = ngramSamples();
-
+        double average = 0;
         for (String st : ngrams.keySet()) {
             Map<String, Double> ngramMap = new HashMap<>();
+            double sum =0;
+
             for (String sentence : ngrams.get(st)) {
 
                 //String[] tokens = sentence.split(" ");
@@ -124,8 +188,15 @@ public class NGram {
                         ngramMap.put(token, 0);
                     }
                 }*/
-                ngramMap.put(sentence, computeProbSentence(sentence+"\t"+term));}
-                nGramsFeatures.put(st, ngramMap);
+                if(similarity.equals("Jaccard"))
+                ngramMap.put(sentence, computeJaccard(query, sentence));
+                if(similarity.equals("Dice")) ngramMap.put(sentence, computeDice(query, sentence));
+                sum += computeJaccard(query, sentence);
+            }
+            average = sum/ngrams.size();
+            System.out.println(average);
+            nGramsFeatures.put(st, ngramMap);
+
             }
 
         return nGramsFeatures;

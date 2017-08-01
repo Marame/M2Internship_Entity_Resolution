@@ -1,6 +1,5 @@
 import Entities.Document;
 import Entities.EvaluationEntity;
-import Models.NGram;
 import com.opencsv.CSVReader;
 
 import java.io.FileReader;
@@ -29,7 +28,6 @@ public class ParseFiles {
             CSVReader br = new CSVReader(fr);
             String[] lineq = null;
 
-            NGram ng = new NGram();
             while ((lineq = br.readNext()) != null) {
 
                 EvaluationEntity e = new EvaluationEntity();

@@ -23,10 +23,8 @@ public class Main {
     public static void main(String[] args) throws IOException {
 
         Main main = new Main();
-        main.startTesting(args[0], args[1]);
-       // main.startTestingNGram(args[1], args[2]);
-
-
+        //main.startTesting(args[0], args[1]);
+        main.startTestingNGram(args[1], args[2]);
     }
 
 
@@ -91,7 +89,7 @@ public class Main {
             sb.append("************** Macro average F1 values ***************" + "\n");
             sb.append(String.format("%-20s%-20s%-20s%-20s", version, eval.getMacro_average_F1() + "||", eval1.getMacro_average_F1() + "||", eval2.getMacro_average_F1() + "\n"));
         }
-       System.out.println(sb.toString());
+       //System.out.println(sb.toString());
 
 
         System.out.println("$$$$$$$$$$$$ Results for Language Model $$$$$$$$$$$$$");
@@ -127,7 +125,9 @@ public class Main {
             sb1.append(String.format("%-20s%-20s%-20s%-20s", version, eval.getMacro_average_F1() + "||", eval1.getMacro_average_F1() + "||", eval2.getMacro_average_F1() + "\n"));
 
         }
-        System.out.println(sb1.toString());
+        //System.out.println(sb1.toString());
+        //Training training = new Training();
+        //training.train(filenameQueries, filenameDocs);
     }
 
 
@@ -152,20 +152,31 @@ public class Main {
         NGram ng = new NGram();
         ng.setFilenameDocuments(filenameDocs);
         ng.setN(Integer.parseInt(ngram));
-        Map<String, Map<String, Double>> nGramsFeatures = ng.computeFeatures("myocardial");
+        Map<String, Map<String, Double>> nGramsFeatures = ng.computeFeatures("wall myocardial infarction","Dice");
+
         // Map<String, List<String>> nGramsFeature = ng.ngrams(filenameQueries, filenameDocs);
-        for (String st : nGramsFeatures.keySet()) {
+       for (String st : nGramsFeatures.keySet()) {
 
             System.out.println("Key=" + "\t" + st);
             System.out.println("***********ngrams with frequencies***********");
+            double sum =0;
+            double average = 0;
+
             for (String s : nGramsFeatures.get(st).keySet()) {
 
-                System.out.println("Token key=" + "\t" + s);
-                System.out.println("Token count=" + "\t" + nGramsFeatures.get(st).get(s));
+
+
+                //System.out.println("key=" + "\t" + s);
+                //System.out.println("jaccard score=" + "\t" + nGramsFeatures.get(st).get(s));
+                sum+= nGramsFeatures.get(st).get(s);
             }
+
+            average = sum / (double)nGramsFeatures.get(st).keySet().size();
+            System.out.println("average:"+"\t"+average);
+
         }
-        //Double prob = ng.predict("myocardial infarction inferior ischemia", 3);
-        //System.out.println(prob);
+
+
 
     }
 }
