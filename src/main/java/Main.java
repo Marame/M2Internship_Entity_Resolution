@@ -1,11 +1,6 @@
-import Entities.EvaluationEntity;
 import Models.NGram;
-import Utilities.Lemmatizer;
 
 import java.io.IOException;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.util.List;
 import java.util.Map;
 
 
@@ -24,7 +19,7 @@ public class Main {
 
         Main main = new Main();
         //main.startTesting(args[0], args[1]);
-        main.startTestingNGram(args[1], args[2]);
+       main.startTestingNGram(args[1], args[2]);
     }
 
 
@@ -42,7 +37,7 @@ public class Main {
                 }
             }*/
 
-        Lemmatizer lem = new Lemmatizer();
+       /* Lemmatizer lem = new Lemmatizer();
         lem.initializeCoreNLP();
         ParseFiles pf = new ParseFiles();
 
@@ -124,10 +119,11 @@ public class Main {
             sb1.append("************** Macro average F1 values ***************" + "\n");
             sb1.append(String.format("%-20s%-20s%-20s%-20s", version, eval.getMacro_average_F1() + "||", eval1.getMacro_average_F1() + "||", eval2.getMacro_average_F1() + "\n"));
 
-        }
+        }*/
         //System.out.println(sb1.toString());
-        //Training training = new Training();
-        //training.train(filenameQueries, filenameDocs);
+       /*Training training = new Training();
+        training.train(filenameQueries, filenameDocs);*/
+
     }
 
 
@@ -158,7 +154,7 @@ public class Main {
        for (String st : nGramsFeatures.keySet()) {
 
             System.out.println("Key=" + "\t" + st);
-            System.out.println("***********ngrams with frequencies***********");
+            System.out.println("***********ngrams with average scores***********");
             double sum =0;
             double average = 0;
 
