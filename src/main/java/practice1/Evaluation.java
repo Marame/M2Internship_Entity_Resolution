@@ -1,16 +1,20 @@
-import Entities.Document;
-import Entities.EvaluationEntity;
-import Models.LanguageModel;
-import Models.VectorSpaceModel;
-import Utilities.Lemmatizer;
+package practice1;
+
+import practice1.entities.Document;
+import practice1.entities.EvaluationEntity;
+import practice1.models.LanguageModel;
+import practice1.models.VectorSpaceModel;
+import practice1.utilities.Lemmatizer;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * Created by romdhane on 14/06/17.
  */
-
 public class Evaluation {
 
     private double precision;
@@ -35,6 +39,7 @@ public class Evaluation {
     //Double[][] notret_rel_matrix = new Double[10][10];
 
     int[] N = {1, 2, 3, 4, 5, 6};
+
     public double getMAP() {
         return MAP;
     }
@@ -111,7 +116,7 @@ public class Evaluation {
         List<Document> results = new ArrayList<>();
         int idx_ent = 0;
         for (EvaluationEntity e : ee) {
-            VectorSpaceModel vsm = new  VectorSpaceModel(vsm_version, nlp_method, l);
+            VectorSpaceModel vsm = new VectorSpaceModel(vsm_version, nlp_method, l);
             LanguageModel lm = new LanguageModel(smoothing_version, nlp_method, l);
             if (smoothing_version.equals(""))
                 results = vsm.getRankingScoresVSM(e);
@@ -144,7 +149,7 @@ public class Evaluation {
                 ret_rel_matrix[idx_ent][idx_N] = resultsAtn.get(3);
                 notret_notrel_matrix[idx_ent][idx_N] = resultsAtn.get(4);
                 notret_rel_matrix[idx_ent][idx_N] = resultsAtn.get(5);
-                idx_N ++;
+                idx_N++;
             }
             idx_ent++;
         }
@@ -167,16 +172,16 @@ public class Evaluation {
             }
 
             double macro_average_precision = sum_precision / ee.size();
-            this.macro_average_precision =macro_average_precision;
+            this.macro_average_precision = macro_average_precision;
             double macro_average_recall = sum_recall / ee.size();
             this.macro_average_recall = macro_average_recall;
-            double macro_average_F1 = sum_F1 / (double)ee.size();
+            double macro_average_F1 = sum_F1 / (double) ee.size();
             this.macro_average_F1 = macro_average_F1;
-            double micro_average_precision = sum_retrel / (double)( sum_retrel + sum_notretrel);
-            this.micro_average_precision= micro_average_precision;
-            double micro_average_recall = sum_retrel / (double)( sum_retrel + sum_notretnotrel);
-            this.micro_average_recall= micro_average_recall;
-            double micro_average_F1 = 2 * micro_average_precision * micro_average_recall / (micro_average_precision +  micro_average_recall);
+            double micro_average_precision = sum_retrel / (double) (sum_retrel + sum_notretrel);
+            this.micro_average_precision = micro_average_precision;
+            double micro_average_recall = sum_retrel / (double) (sum_retrel + sum_notretnotrel);
+            this.micro_average_recall = micro_average_recall;
+            double micro_average_F1 = 2 * micro_average_precision * micro_average_recall / (micro_average_precision + micro_average_recall);
             this.micro_average_F1 = micro_average_F1;
 
           /*  if (i == 2) {
@@ -198,10 +203,10 @@ public class Evaluation {
             double sum_precision_N = 0;
 
             for (int j = 0; j < N.length; j++) {
-                if(j==0)
-                sum_precision_N += precision_matrix[i][j];
-                else{
-                    sum_precision_N += precision_matrix[i][j]*(recall_matrix[i][j-1]);
+                if (j == 0)
+                    sum_precision_N += precision_matrix[i][j];
+                else {
+                    sum_precision_N += precision_matrix[i][j] * (recall_matrix[i][j - 1]);
                 }
             }
 
