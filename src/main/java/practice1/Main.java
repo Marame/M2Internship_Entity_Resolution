@@ -1,5 +1,6 @@
 package practice1;
 
+import org.tartarus.snowball.ext.PorterStemmer;
 import practice1.entities.Document;
 import practice1.entities.EvaluationEntity;
 import practice1.models.NGram;
@@ -23,11 +24,11 @@ public class Main {
     public static void main(String[] args) throws IOException {
         Main main = new Main();
         main.startTesting(args[0], args[1]);
-       //main.startTestingNGram(args[1], args[2]);
+        //main.startTestingNGram(args[1], args[2]);
     }
 
 
-    public void startTesting(String filenameQueries ,String filenameDocs) throws IOException {
+    public void startTesting(String filenameQueries, String filenameDocs) throws IOException {
         //practice1.Aggregating training = new practice1.Aggregating();
         //training.train(filenameQueries, filenameDocs, newfilenameQueries);
 
@@ -43,13 +44,15 @@ public class Main {
 
         Lemmatizer lem = new Lemmatizer();
         lem.initializeCoreNLP();
+        PorterStemmer porterStemmer = new PorterStemmer();
+        final Tokeniser tokeniser = new Tokeniser(lem, porterStemmer);
+
         System.out.println(lem.toString());
         ParseFiles pf = new ParseFiles();
-        Index indexing = new Index();
-        indexing.setLem(lem);
+        Index index = new Index(tokeniser);
         List<Document> documents = pf.retrieveDocuments(filenameDocs);
-        indexing.setDocuments(documents);
-        indexing.indexAll();
+        index.setDocuments(documents);
+        index.indexAll();
 
        /* for (Document d : indexing.getDocuments()) {
             System.out.println(d.getId() + "->" + d.getContent());
@@ -78,8 +81,7 @@ public class Main {
             System.out.println("*********No NLP METHOD************");
             Evaluation eval = new Evaluation();
             //long startTime = System.currentTimeMillis();
-            List<String> bow = indexing.getBowFor(NO_NLP_METHOD);
-            eval.final_evaluation(ee, "", version, NO_NLP_METHOD, lem, bow, documents);
+            eval.final_evaluation(ee, "", version, NO_NLP_METHOD, index);
             //long endTime = System.currentTimeMillis();
 
             //NumberFormat formatter = new DecimalFormat("#0.00000");
@@ -88,8 +90,7 @@ public class Main {
             System.out.println("*********STEMMING NLP METHOD************");
             Evaluation eval1 = new Evaluation();
             //long startTime1 = System.currentTimeMillis();
-            List<String> bow1 = indexing.getBowFor(STEMMING_NLP_METHOD);
-            eval1.final_evaluation(ee, "", version, STEMMING_NLP_METHOD, lem, bow1, documents);
+            eval1.final_evaluation(ee, "", version, STEMMING_NLP_METHOD, index);
             //long endTime1 = System.currentTimeMillis();
 
             // NumberFormat formatter1 = new DecimalFormat("#0.00000");
@@ -98,18 +99,17 @@ public class Main {
             System.out.println("*********LEMMATIZING NLP METHOD************");
             Evaluation eval2 = new Evaluation();
             //long startTime2 = System.currentTimeMillis();
-            List<String> bow2 = indexing.getBowFor(LEMMATIZING_NLP_METHOD);
-            eval2.final_evaluation(ee, "", version, LEMMATIZING_NLP_METHOD, lem, bow2, documents);
+            eval2.final_evaluation(ee, "", version, LEMMATIZING_NLP_METHOD, index);
             long endTime2 = System.currentTimeMillis();
 
             //NumberFormat formatter2 = new DecimalFormat("#0.00000");
             //System.out.print("Execution time for lemmatizing  is " + formatter2.format((endTime2 - startTime2)/ 1000d) + " seconds"+"\n");
 
             sb.append("************** MAP values ***************" + "\n");
-            sb.append(String.format("%-20s%-20s%-20s%-20s", version, eval.getMAP() +"||",  eval1.getMAP() +"||", eval2.getMAP() + "\n"));
+            sb.append(String.format("%-20s%-20s%-20s%-20s", version, eval.getMAP() + "||", eval1.getMAP() + "||", eval2.getMAP() + "\n"));
 
             sb.append("************** Micro average precision values ***************" + "\n");
-            sb.append(String.format("%-20s%-20s%-20s%-20s", version, eval.getMicro_average_precision() + "||", eval1.getMicro_average_precision() + "||", eval2.getMicro_average_precision() +"\n"));
+            sb.append(String.format("%-20s%-20s%-20s%-20s", version, eval.getMicro_average_precision() + "||", eval1.getMicro_average_precision() + "||", eval2.getMicro_average_precision() + "\n"));
             sb.append("************** Micro average recall values ***************" + "\n");
             sb.append(String.format("%-20s%-20s%-20s%-20s", version, eval.getMicro_average_recall() + "||", eval1.getMicro_average_recall() + "||", eval2.getMicro_average_recall() + "\n"));
             sb.append("************** Macro average precision values ***************" + "\n");
@@ -124,26 +124,23 @@ public class Main {
         System.out.println(sb.toString());
 
 
-            System.out.println("$$$$$$$$$$$$ Results for Language Model $$$$$$$$$$$$$");
+        System.out.println("$$$$$$$$$$$$ Results for Language Model $$$$$$$$$$$$$");
 
-            StringBuilder sb1 = new StringBuilder();
-            sb1.append(String.format("%-10s%-30s%-30s%-30s\n", "version", NO_NLP_METHOD, STEMMING_NLP_METHOD, LEMMATIZING_NLP_METHOD + "\n"));
-            sb1.append(String.format("==========================================================\n"));
+        StringBuilder sb1 = new StringBuilder();
+        sb1.append(String.format("%-10s%-30s%-30s%-30s\n", "version", NO_NLP_METHOD, STEMMING_NLP_METHOD, LEMMATIZING_NLP_METHOD + "\n"));
+        sb1.append(String.format("==========================================================\n"));
 
-            for (String version : smoothing_versions) {
+        for (String version : smoothing_versions) {
 
-                Evaluation eval = new Evaluation();
-                List<String> bow = mapBow.get(mapBow.keySet().toArray()[0]);
-                eval.final_evaluation(ee, version, "", NO_NLP_METHOD, lem, bow, documents);
-
+            Evaluation eval = new Evaluation();
+            eval.final_evaluation(ee, version, "", NO_NLP_METHOD, index);
             Evaluation eval1 = new Evaluation();
-            List<String> bow1 =mapBow.get(mapBow.keySet().toArray()[1]);
-            eval1.final_evaluation(ee, version, "", STEMMING_NLP_METHOD, lem, bow1, documents);
+            eval1.final_evaluation(ee, version, "", STEMMING_NLP_METHOD, index);
             Evaluation eval2 = new Evaluation();
-            List<String> bow2 = mapBow.get(mapBow.keySet().toArray()[2]);
-            eval2.final_evaluation(ee, version, "", LEMMATIZING_NLP_METHOD, lem, bow2, documents);
+            eval2.final_evaluation(ee, version, "", LEMMATIZING_NLP_METHOD, index);
 
-            sb1.append("************** MAP values ***************" + "\n");sb1.append(String.format("%-20s%-20s%-20s%-20s", version, eval.getMAP()));
+            sb1.append("************** MAP values ***************" + "\n");
+            sb1.append(String.format("%-20s%-20s%-20s%-20s", version, eval.getMAP()));
             sb1.append("************** Micro average precision values ***************" + "\n");
             sb1.append(String.format("%-20s%-20s%-20s%-20s", version, eval.getMicro_average_precision() + "||", eval1.getMicro_average_precision() + "||", eval2.getMicro_average_precision() + "\n"));
             sb1.append("************** Micro average recall values ***************" + "\n");
@@ -161,9 +158,7 @@ public class Main {
         System.out.println(sb1.toString());
 
 
-            }
-
-
+    }
 
 
     public void startTestingNGram(String filenameDocs, String ngram) throws IOException {

@@ -1,18 +1,11 @@
 package practice1.models;
 
-import org.tartarus.snowball.ext.PorterStemmer;
 import practice1.Index;
-import practice1.entities.Concurrency;
 import practice1.entities.Document;
 import practice1.entities.EvaluationEntity;
-import practice1.Lemmatizer;
 
 import java.io.IOException;
 import java.util.*;
-
-import static practice1.Index.LEMMATIZING_NLP_METHOD;
-import static practice1.Index.NO_NLP_METHOD;
-import static practice1.Index.STEMMING_NLP_METHOD;
 
 /**
  * Created by romdhane on 21/05/17.
@@ -31,50 +24,19 @@ public class VectorSpaceModel {
     private String nlp_method;
     private List<Document> dotProduct = new ArrayList<>();
 
-    public Lemmatizer lemm;
-
-    public void setLemm(Lemmatizer lemm) {
-        this.lemm = lemm;
-    }
-
-    public VectorSpaceModel(String version, String nlp_method, Lemmatizer lemm, Index index) throws IOException {
+    public VectorSpaceModel(String version, String nlp_method, Index index) throws IOException {
         this.version = version;
         this.nlp_method = nlp_method;
-        this.lemm = lemm;
         this.index = index;
     }
 
     public VectorSpaceModel() {
     }
 
-    // retrieving the tokens of a single document
-    public List<String> tokenizeDoc(Document s) {
-        List<String> bagOfWord = new ArrayList<>();
-        StringTokenizer st = new StringTokenizer(s.getContent());
-
-        while (st.hasMoreTokens()) {
-            if (nlp_method.equals(STEMMING_NLP_METHOD)) {
-                PorterStemmer stem = new PorterStemmer();
-                stem.setCurrent(st.nextToken());
-                stem.stem();
-                String result = stem.getCurrent();
-                bagOfWord.add(result);
-            } else if (nlp_method.equals(LEMMATIZING_NLP_METHOD)) {
-                for (String st_lem : lemm.lemmatize(st.nextToken())) {
-                    bagOfWord.add(st_lem);
-                }
-            } else {
-                bagOfWord.add(st.nextToken());
-            }
-        }
-        return bagOfWord;
-    }
-
-
     //computing the binary vector of a document, indicating if each term is present in the bag of words
     public List<Integer> indexDocument(Document d) throws IOException {
         List<Integer> vector = new ArrayList<>();
-        List<String> documentTokens = tokenizeDoc(d);
+        List<String> documentTokens = index.getTokeniser().tokenise(d.getContent(), nlp_method);
         List<String> bow = index.getBowFor(nlp_method);
 
         for (String value : bow) {
@@ -95,11 +57,10 @@ public class VectorSpaceModel {
     public List<Double> getTF(Document d, List<String> bow, boolean normalised) throws IOException {
         List<Double> listTF = new ArrayList<>();
 
-        List<String> listOfWordsDoc = tokenizeDoc(d);
+        List<String> documentTokens = index.getTokeniser().tokenise(d.getContent(), nlp_method);
 
         for (String value : bow) {
-
-            double freq = (double) Collections.frequency(listOfWordsDoc, value);
+            double freq = (double) Collections.frequency(documentTokens, value);
             if (normalised == false) {
                 listTF.add(freq);
             } else {
@@ -139,14 +100,24 @@ public class VectorSpaceModel {
         return idf;
     }
 
-
-
     public List<Double> getIDF() throws IOException {
-        List<Double> listIDF = new ArrayList<>();
 
-        for (String word : bow) {
-            listIDF.add(idf(word, documents));
+        List<Double> listIDF = new ArrayList<>();
+        int nbDoc = index.getDocuments().size();
+        int totalNbDocWordPresent = 0;
+        for (String word : index.getBowFor(nlp_method)) {
+            int nbDocWordPresent = index.getWordToDocument().get(nlp_method).get(word).size();
+
+            double idf = 0.0f;
+            if (nbDoc != 0) {
+                idf = Math.log(((nbDoc + 1) / (double) (totalNbDocWordPresent)));
+            } else {
+                idf = Math.log((nbDoc + 1) / (double) (totalNbDocWordPresent + 1));
+            }
+
+            listIDF.add(idf);
         }
+
         return listIDF;
     }
 
@@ -177,14 +148,14 @@ public class VectorSpaceModel {
             }
         } else if (version.equals(VSM_TF)) {
 
-            List<Double> listvecTF = getTF(documents, e.getQuery(), false);
+            List<Double> listvecTF = getTF(e.getQuery(), index.getBowFor(nlp_method), false);
             //Transforming to vector
             List<Double> vectTF = new Vector<>(listvecTF);
 
             for (Document doc : documents) {
                 Document resultdoc = new Document();
                 resultdoc.setName(doc.getContent());
-                List<Double> listdocTF = getTF(documents, doc, false);
+                List<Double> listdocTF = getTF(e.getQuery(), index.getBowFor(nlp_method), false);
                 List<Double> docTF = new Vector<>(listdocTF);
                 double sum = 0;
                 for (int i = 0; i < vectTF.size(); i++) {
@@ -197,11 +168,8 @@ public class VectorSpaceModel {
                 dotProduct.add(resultdoc);
             }
         } else if (version.equals(VSM_TFIDF)) {
-            Concurrency con = new Concurrency();
-            con.setE(e);
-            con.setNormalised(false);
             System.out.println("TF of query");
-            List<Double> listqueryTF = getTF(documents, e.getQuery(), false);
+            List<Double> listqueryTF = getTF(e.getQuery(), index.getBowFor(nlp_method), false);
             List<Double> vectqueryTF = new Vector<>(listqueryTF);
             System.out.println("TF of query done");
 
@@ -215,7 +183,7 @@ public class VectorSpaceModel {
             for (Document doc : documents) {
                 Document resultdoc = new Document();
                 resultdoc.setName(doc.getContent());
-                List<Double> listdocTF = getTF(documents, doc, false);
+                List<Double> listdocTF = getTF(e.getQuery(), index.getBowFor(nlp_method), false);
                 List<Double> vectdocTF = new Vector<>(listdocTF);
                 double sum = 0;
                 for (int i = 0; i < vectqueryTF.size(); i++) {
@@ -230,11 +198,7 @@ public class VectorSpaceModel {
             }
         } else if (version.equals(VSM_BM25)) {
 
-            Concurrency con = new Concurrency();
-            con.setE(e);
-            con.setNormalised(true);
-
-            List<Double> listqueryTF = getTF(documents, e.getQuery(), true);
+            List<Double> listqueryTF = getTF(e.getQuery(), index.getBowFor(nlp_method), false);
             List<Double> vectqueryTF = new Vector<>(listqueryTF);
 
             List<Double> listIDF = getIDF();
@@ -243,7 +207,7 @@ public class VectorSpaceModel {
             for (Document doc : documents) {
                 Document resultdoc = new Document();
                 resultdoc.setName(doc.getContent());
-                List<Double> listdocTF = getTF(documents, doc, true);
+                List<Double> listdocTF = getTF(e.getQuery(), index.getBowFor(nlp_method), true);
                 List<Double> vectdocTF = new Vector<>(listdocTF);
 
                 double sum = 0;

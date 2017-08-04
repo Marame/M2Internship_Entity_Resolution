@@ -117,16 +117,16 @@ public class Evaluation {
     }
 
 
-    public void final_evaluation(List<EvaluationEntity> ee, String smoothing_version, String vsm_version, String nlp_method, Lemmatizer l, List<String> bow, List<Document> docs) throws IOException {
+    public void final_evaluation(List<EvaluationEntity> ee, String smoothing_version, String vsm_version, String nlp_method, Index index) throws IOException {
 
         List<Document> results = new ArrayList<>();
         int idx_ent = 0;
         for (EvaluationEntity e : ee) {
             if (smoothing_version.equals("")) {
-                VectorSpaceModel vsm = new VectorSpaceModel(vsm_version, nlp_method, l, bow, docs);
+                VectorSpaceModel vsm = new VectorSpaceModel(vsm_version, nlp_method, index);
                 results = vsm.getRankingScoresVSM(e);
             } else if (!smoothing_version.equals("")) {
-                LanguageModel lm = new LanguageModel(smoothing_version, nlp_method, l);
+                LanguageModel lm = new LanguageModel(smoothing_version, nlp_method, index);
                 results = lm.getRankingScoresLM(e, smoothing_version);
             }
 
