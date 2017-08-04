@@ -142,11 +142,13 @@ public class Evaluation {
             });
 
             // ranked results
-       /*if(smoothing_version.equals("dirichlet-prior")){
-            System.out.println("ranked results for query n" + "\t" + (idx_ent + 1));
+
+            System.out.println("Ranked results for query: " + "\t" + e.getQuery());
             for (Document d : results) {
                 System.out.println(d.getContent() + "->" + d.getScore());
-            }}*/
+            }
+
+
             int idx_N = 0;
             for (Integer n : N) {
                 List<Double> resultsAtn = evaluateVSM(n, e.getRelevant_documents(), results);
@@ -211,14 +213,15 @@ public class Evaluation {
 
             for (int j = 0; j < N.length; j++) {
                 if (j == 0)
-                    sum_precision_N += precision_matrix[i][j];
+                    sum_precision_N += precision_matrix[i][j] * recall_matrix[i][j];
                 else {
-                    sum_precision_N += precision_matrix[i][j] * (recall_matrix[i][j - 1]);
+                    sum_precision_N += precision_matrix[i][j] * (recall_matrix[i][j] - recall_matrix[i][j - 1]);
                 }
             }
 
             total += (1 / (double) (i + 1)) * sum_precision_N;
         }
+
         double MAP = (1 / (double) ee.size()) * total;
         this.MAP = MAP;
 
