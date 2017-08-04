@@ -45,7 +45,7 @@ public class Main {
         Lemmatizer lem = new Lemmatizer();
         lem.initializeCoreNLP();
         PorterStemmer porterStemmer = new PorterStemmer();
-        final Tokeniser tokeniser = new Tokeniser(lem, porterStemmer);
+        final Tokenizer tokeniser = new Tokenizer(lem, porterStemmer);
 
         System.out.println(lem.toString());
         ParseFiles pf = new ParseFiles();
@@ -130,7 +130,7 @@ public class Main {
         sb1.append(String.format("%-10s%-30s%-30s%-30s\n", "version", NO_NLP_METHOD, STEMMING_NLP_METHOD, LEMMATIZING_NLP_METHOD + "\n"));
         sb1.append(String.format("==========================================================\n"));
 
-        for (String version : smoothing_versions) {
+        /*for (String version : smoothing_versions) {
 
             Evaluation eval = new Evaluation();
             eval.final_evaluation(ee, version, "", NO_NLP_METHOD, index);
@@ -155,7 +155,7 @@ public class Main {
             sb1.append(String.format("%-20s%-20s%-20s%-20s", version, eval.getMacro_average_F1() + "||", eval1.getMacro_average_F1() + "||", eval2.getMacro_average_F1() + "\n"));
 
         }
-        System.out.println(sb1.toString());
+        System.out.println(sb1.toString());*/
 
 
     }

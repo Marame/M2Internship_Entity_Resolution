@@ -168,18 +168,12 @@ public class VectorSpaceModel {
                 dotProduct.add(resultdoc);
             }
         } else if (version.equals(VSM_TFIDF)) {
-            System.out.println("TF of query");
             List<Double> listqueryTF = getTF(e.getQuery(), index.getBowFor(nlp_method), false);
             List<Double> vectqueryTF = new Vector<>(listqueryTF);
-            System.out.println("TF of query done");
 
-            System.out.println("IDF");
             List<Double> listIDF = getIDF();
             List<Double> vectIDF = new Vector<>(listIDF);
 
-            System.out.println("IDF done");
-
-            System.out.println("dot product");
             for (Document doc : documents) {
                 Document resultdoc = new Document();
                 resultdoc.setName(doc.getContent());
@@ -194,7 +188,6 @@ public class VectorSpaceModel {
                 resultdoc.setScore(sum);
 
                 dotProduct.add(resultdoc);
-                System.out.println("dot product done");
             }
         } else if (version.equals(VSM_BM25)) {
 

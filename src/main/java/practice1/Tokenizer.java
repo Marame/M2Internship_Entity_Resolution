@@ -9,12 +9,12 @@ import java.util.StringTokenizer;
 import static practice1.Index.LEMMATIZING_NLP_METHOD;
 import static practice1.Index.STEMMING_NLP_METHOD;
 
-public class Tokeniser {
+public class Tokenizer {
 
     private Lemmatizer lem;
     private PorterStemmer stemmer;
 
-    public Tokeniser(Lemmatizer lem, PorterStemmer stemmer) {
+    public Tokenizer(Lemmatizer lem, PorterStemmer stemmer) {
         this.lem = lem;
         this.stemmer = stemmer;
     }

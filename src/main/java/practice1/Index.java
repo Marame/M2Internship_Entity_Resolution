@@ -2,6 +2,7 @@ package practice1;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tartarus.snowball.ext.PorterStemmer;
 import practice1.entities.Document;
 
 import java.util.*;
@@ -38,11 +39,11 @@ public class Index {
 
     private Map<String, Map<String, List<Integer>>> wordToDocument = new HashMap<>();
 
-    public Tokeniser getTokeniser() {
+    public Tokenizer getTokeniser() {
         return tokeniser;
     }
 
-    private Tokeniser tokeniser;
+    private Tokenizer tokeniser;
     private List<Document> documents;
 
     public List<Document> getDocuments() {
@@ -53,7 +54,7 @@ public class Index {
         this.documents = documents;
     }
 
-    public Index(Tokeniser tokeniser) {
+    public Index(Tokenizer tokeniser) {
         this.tokeniser = tokeniser;
     }
 
@@ -61,6 +62,7 @@ public class Index {
         LOGGER.info("Start indexing...");
 
         for (String nlp_method : nlp_methods) {
+            LOGGER.info(nlp_method);
             bow.put(nlp_method, bagOfWords(nlp_method));
             wordToDocument.put(nlp_method, generateWordToDocument(nlp_method, tokeniser));
         }
@@ -68,7 +70,7 @@ public class Index {
         LOGGER.info("Finished indexing...");
     }
 
-    public Map<String, List<Integer>> generateWordToDocument(String method, Tokeniser tokeniser) {
+    public Map<String, List<Integer>> generateWordToDocument(String method, Tokenizer tokeniser) {
         Map<String, List<Integer>> wordToDocs = new HashMap<>();
         for (String word : getBowFor(method)) {
             for (Document document : documents) {
@@ -84,18 +86,22 @@ public class Index {
         }
         return wordToDocs;
     }
+    
 
     public List<String> bagOfWords(String nlp_method) {
 
         List<String> bagOfWord = new ArrayList<>();
-
         List<String> stopWords = new ArrayList<>(Arrays.asList(STOP_WORDS));
 
         for (Document d : documents) {
+            final List<String> tokens= tokeniser.tokenise(d.getContent(), nlp_method);
 
-            StringTokenizer st = new StringTokenizer(d.getContent());
-            while (st.hasMoreTokens()) {
-
+            for(String token : tokens) {
+                if(stopWords.contains(token)) {
+                    continue;
+                } else {
+                    bagOfWord.add(token);
+                }
             }
         }
 
