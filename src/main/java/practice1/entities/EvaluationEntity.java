@@ -10,11 +10,16 @@ import java.util.List;
 
 public class EvaluationEntity {
     private Document query;
-    private List<Document>  relevant_documents;
+    private List<Document> relevant_documents;
 
+    public EvaluationEntity() {
 
+    }
 
-
+    public EvaluationEntity(Document query, List<Document> relevant_documents) {
+        this.query = query;
+        this.relevant_documents = relevant_documents;
+    }
 
     public void setRelevant_documents(List<Document> relevant_documents) {
         this.relevant_documents = relevant_documents;
@@ -33,17 +38,5 @@ public class EvaluationEntity {
     public Document getQuery() {
 
         return query;
-    }
-
-
-    public EvaluationEntity(Document query, List<Document>  relevant_documents) {
-
-        this.query = query;
-        this.relevant_documents = relevant_documents;
-    }
-
-
-    public EvaluationEntity() {
-
     }
 }

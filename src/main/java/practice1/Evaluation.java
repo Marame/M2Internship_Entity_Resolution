@@ -85,17 +85,17 @@ public class Evaluation {
         int notret_nonrelevant = 0;
 
         for (Document m : firstN) {
-            String key = m.getName();
+            String key = m.getContent();
             for (Document d : relevant_docs) {
-                if (d.getName().equals(key)) ret_relevant++;
+                if (d.getContent().equals(key)) ret_relevant++;
             }
         }
 
         List<Document> rest = results.subList(n, results.size());
         for (Document l : rest) {
-            String key = l.getName();
+            String key = l.getContent();
             for (Document d : relevant_docs) {
-                if (d.getName().equals(key)) notret_relevant++;
+                if (d.getContent().equals(key)) notret_relevant++;
             }
         }
 
@@ -119,16 +119,16 @@ public class Evaluation {
 
     public void final_evaluation(List<EvaluationEntity> ee, String smoothing_version, String vsm_version, String nlp_method, Lemmatizer l, List<String> bow, List<Document> docs) throws IOException {
 
-
         List<Document> results = new ArrayList<>();
         int idx_ent = 0;
         for (EvaluationEntity e : ee) {
-            VectorSpaceModel vsm = new VectorSpaceModel(vsm_version, nlp_method, l, bow, docs);
-            LanguageModel lm = new LanguageModel(smoothing_version, nlp_method, l);
-            if (smoothing_version.equals(""))
+            if (smoothing_version.equals("")) {
+                VectorSpaceModel vsm = new VectorSpaceModel(vsm_version, nlp_method, l, bow, docs);
                 results = vsm.getRankingScoresVSM(e);
-            else if (!smoothing_version.equals(""))
+            } else if (!smoothing_version.equals("")) {
+                LanguageModel lm = new LanguageModel(smoothing_version, nlp_method, l);
                 results = lm.getRankingScoresLM(e, smoothing_version);
+            }
 
 
             Collections.sort(results, new Comparator<Document>() {
@@ -145,7 +145,7 @@ public class Evaluation {
        /*if(smoothing_version.equals("dirichlet-prior")){
             System.out.println("ranked results for query n" + "\t" + (idx_ent + 1));
             for (Document d : results) {
-                System.out.println(d.getName() + "->" + d.getScore());
+                System.out.println(d.getContent() + "->" + d.getScore());
             }}*/
             int idx_N = 0;
             for (Integer n : N) {

@@ -28,7 +28,7 @@ public class Document {
         this.score = score;
     }
 
-    public String getName() {
+    public String getContent() {
         return name;
     }
 

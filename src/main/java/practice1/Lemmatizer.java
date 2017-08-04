@@ -13,16 +13,16 @@ import java.util.Properties;
 public class Lemmatizer {
 
 
-        // Create StanfordCoreNLP object properties, with POS tagging
-        private StanfordCoreNLP pipeline;
+    // Create StanfordCoreNLP object properties, with POS tagging
+    private StanfordCoreNLP pipeline;
 
-     public void initializeCoreNLP() {
+    public void initializeCoreNLP() {
         Properties props = new Properties();
         props.put("annotators", "tokenize, ssplit, pos, lemma");
         pipeline = new StanfordCoreNLP(props);
     }
 
-    public List<String> lemmatize(String documentText){
+    public List<String> lemmatize(String documentText) {
 
         List<String> lemmas = new LinkedList<>();
 
@@ -30,13 +30,13 @@ public class Lemmatizer {
         Annotation document = new Annotation(documentText);
 
         // run all Annotators on this text
-       pipeline.annotate(document);
+        pipeline.annotate(document);
 
         // Iterate over all of the sentences found
         List<CoreMap> sentences = document.get(CoreAnnotations.SentencesAnnotation.class);
-        for(CoreMap sentence: sentences) {
+        for (CoreMap sentence : sentences) {
             // Iterate over all tokens in a sentence
-            for (CoreLabel token: sentence.get(CoreAnnotations.TokensAnnotation.class)) {
+            for (CoreLabel token : sentence.get(CoreAnnotations.TokensAnnotation.class)) {
                 // Retrieve and add the lemma for each word into the list of lemmas
                 lemmas.add(token.get(CoreAnnotations.LemmaAnnotation.class));
             }

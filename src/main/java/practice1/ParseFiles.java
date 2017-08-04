@@ -20,8 +20,7 @@ public class ParseFiles {
     private FileReader fr = null;
     private FileReader frd = null;
     private List<EvaluationEntity> ee = new ArrayList<>();
-    int vocab_size =0;
-
+    int vocab_size = 0;
 
 
     public List<EvaluationEntity> parseArgs(String filenameQueries, String filenameDocs) {
@@ -52,13 +51,13 @@ public class ParseFiles {
                     Document doc = new Document();
 
                     //String[] lined = sCurrentLined.split("\"?(,|$)(?=(([^\"]*\"){2})*[^\"]*$) *\"?");
-                    int documentId = Integer.parseInt(lined[1]);
+                    int documentId = Integer.parseInt(lined[0]);
 
                     doc.setId(documentId);
                     String[] queryReleventIds = lineq[2].split(" ");
 
                     // if contained, the current document is relevant
-                    if(Arrays.asList(queryReleventIds).contains(documentId)) {
+                    if (Arrays.asList(queryReleventIds).contains(documentId)) {
                         Document reldoc = new Document();
                         reldoc.setId(documentId);
                         reldoc.setName(lined[1]);
@@ -68,7 +67,7 @@ public class ParseFiles {
                 }
                 e.setRelevant_documents(relevantDocuments);
                 ee.add(e);
-                 //vocab_size += e.getBagOfWords().size();
+                //vocab_size += e.getBagOfWords().size();
             }
 
             //ng.setVocab_size(vocab_size);
@@ -82,7 +81,7 @@ public class ParseFiles {
                 if (fr != null)
                     fr.close();
 
-                if(frd != null)
+                if (frd != null)
                     frd.close();
 
             } catch (IOException ex) {
@@ -95,7 +94,7 @@ public class ParseFiles {
         return ee;
     }
 
-    public List<Document> retrieveDocuments(String filenameDocs) throws FileNotFoundException, IOException{
+    public List<Document> retrieveDocuments(String filenameDocs) throws FileNotFoundException, IOException {
 
         List<Document> docs = new ArrayList<>();
         frd = new FileReader(filenameDocs);
@@ -104,10 +103,10 @@ public class ParseFiles {
         while ((lined = brd.readNext()) != null) {
 
             Document doc = new Document();
-            int documentId = Integer.parseInt(lined[1]);
+            int documentId = Integer.parseInt(lined[0]);
             doc.setId(documentId);
 
-            doc.setName(lined[3]);
+            doc.setName(lined[1]);
             docs.add(doc);
         }
         /*VectorSpaceModel vsm = new VectorSpaceModel();

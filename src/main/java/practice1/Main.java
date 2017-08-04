@@ -3,11 +3,16 @@ package practice1;
 import practice1.entities.Document;
 import practice1.entities.EvaluationEntity;
 import practice1.models.NGram;
+import practice1.models.VectorSpaceModel;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+
+import static practice1.Index.LEMMATIZING_NLP_METHOD;
+import static practice1.Index.NO_NLP_METHOD;
+import static practice1.Index.STEMMING_NLP_METHOD;
+import static practice1.models.LanguageModel.smoothing_versions;
 
 
 /**
@@ -15,42 +20,23 @@ import java.util.Map;
  */
 
 public class Main {
-    public final static String VSM_BINARY = "Binary";
-    public final static String VSM_TF = "TF";
-    public final static String VSM_TFIDF = "TF/IDF";
-    public final static String VSM_BM25 = "BM25";
-
-    public final static String NO_NLP_METHOD = "nothing";
-    public final static String STEMMING_NLP_METHOD = "stemming";
-    public final static String LEMMATIZING_NLP_METHOD = "lemmatizing";
-
-    public final static String JELINEK_SMOOTHING = "jelinek-mercer";
-    public final static String DIRICHLET_SMOOTHING = "dirichlet-prior";
-
-    // versions of VSM
-    List<String> vsm_versions = Arrays.asList(VSM_BINARY, VSM_TF, VSM_TFIDF, VSM_BM25);
-
-    //Versions of smoothing in Language Model
-    List<String> nlp_methods = Arrays.asList(STEMMING_NLP_METHOD, LEMMATIZING_NLP_METHOD, NO_NLP_METHOD);
-    List<String> smoothing_versions = Arrays.asList(JELINEK_SMOOTHING, DIRICHLET_SMOOTHING);
-
     public static void main(String[] args) throws IOException {
         Main main = new Main();
-        main.startTesting(args[0], args[1], args[2]);
+        main.startTesting(args[0], args[1]);
        //main.startTestingNGram(args[1], args[2]);
     }
 
 
-    public void startTesting(String filenameQueries ,String filenameDocs, String newfilenameQueries) throws IOException {
+    public void startTesting(String filenameQueries ,String filenameDocs) throws IOException {
         //practice1.Aggregating training = new practice1.Aggregating();
         //training.train(filenameQueries, filenameDocs, newfilenameQueries);
 
         //Our initial Evaluation entities
 //            for (EvaluationEntity e : ee) {
-//                System.out.println("query: " + e.getQuery().getName());
+//                System.out.println("query: " + e.getQuery().getContent());
 //                int i = 1;
 //                for (Document doc : e.getDocuments()) {
-//                    System.out.println("d" + i + ": " + doc.getName());
+//                    System.out.println("d" + i + ": " + doc.getContent());
 //                    i++;
 //                }
 //            }
@@ -59,26 +45,25 @@ public class Main {
         lem.initializeCoreNLP();
         System.out.println(lem.toString());
         ParseFiles pf = new ParseFiles();
-        Indexing indexing = new Indexing();
+        Index indexing = new Index();
         indexing.setLem(lem);
         List<Document> documents = pf.retrieveDocuments(filenameDocs);
         indexing.setDocuments(documents);
-
-        Map<String, List<String>> mapBow = indexing.indexAll();
+        indexing.indexAll();
 
        /* for (Document d : indexing.getDocuments()) {
-            System.out.println(d.getId() + "->" + d.getName());
+            System.out.println(d.getId() + "->" + d.getContent());
         }*/
 
 
-        List<EvaluationEntity> ee = pf.parseArgs(newfilenameQueries, filenameDocs);
+        List<EvaluationEntity> ee = pf.parseArgs(filenameQueries, filenameDocs);
 
         /*for (EvaluationEntity e : ee) {
             System.out.println("**Query**");
-            System.out.println(e.getQuery().getName());
+            System.out.println(e.getQuery().getContent());
             System.out.println("**Relevant documents**");
             for (Document d : e.getRelevant_documents()) {
-                System.out.println(d.getId() + "->" + d.getName());
+                System.out.println(d.getId() + "->" + d.getContent());
             }
 
         }*/
@@ -88,13 +73,12 @@ public class Main {
         sb.append(String.format("%-10s%-20s%-20s%-20s", "version", "MAP:nothing", "MAP:Stemming", "MAP:Lemmatizing" + "\n"));
         sb.append(String.format("============================================================\n"));
 
-        for (String version : vsm_versions) {
+        for (String version : VectorSpaceModel.vsm_versions) {
 
             System.out.println("*********No NLP METHOD************");
             Evaluation eval = new Evaluation();
             //long startTime = System.currentTimeMillis();
-            List<String> bow = mapBow.get(mapBow.keySet().toArray()[0]);
-
+            List<String> bow = indexing.getBowFor(NO_NLP_METHOD);
             eval.final_evaluation(ee, "", version, NO_NLP_METHOD, lem, bow, documents);
             //long endTime = System.currentTimeMillis();
 
@@ -104,7 +88,7 @@ public class Main {
             System.out.println("*********STEMMING NLP METHOD************");
             Evaluation eval1 = new Evaluation();
             //long startTime1 = System.currentTimeMillis();
-            List<String> bow1 = mapBow.get(mapBow.keySet().toArray()[1]);
+            List<String> bow1 = indexing.getBowFor(STEMMING_NLP_METHOD);
             eval1.final_evaluation(ee, "", version, STEMMING_NLP_METHOD, lem, bow1, documents);
             //long endTime1 = System.currentTimeMillis();
 
@@ -114,7 +98,7 @@ public class Main {
             System.out.println("*********LEMMATIZING NLP METHOD************");
             Evaluation eval2 = new Evaluation();
             //long startTime2 = System.currentTimeMillis();
-            List<String> bow2 = mapBow.get(mapBow.keySet().toArray()[2]);
+            List<String> bow2 = indexing.getBowFor(LEMMATIZING_NLP_METHOD);
             eval2.final_evaluation(ee, "", version, LEMMATIZING_NLP_METHOD, lem, bow2, documents);
             long endTime2 = System.currentTimeMillis();
 
