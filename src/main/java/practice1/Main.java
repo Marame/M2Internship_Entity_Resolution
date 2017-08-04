@@ -104,7 +104,7 @@ public class Main {
             eval1.final_evaluation(ee, "", version, STEMMING_NLP_METHOD, lem, bow1, documents);
             //long endTime1 = System.currentTimeMillis();
 
-           // NumberFormat formatter1 = new DecimalFormat("#0.00000");
+            // NumberFormat formatter1 = new DecimalFormat("#0.00000");
             //System.out.print("Execution time for stemming  is " + formatter1.format((endTime1 - startTime1)/ 1000d) + " seconds"+"\n");
 
 
@@ -133,7 +133,7 @@ public class Main {
             sb.append("************** Macro average F1 values ***************" + "\n");
             sb.append(String.format("%-20s%-20s%-20s%-20s", version, eval.getMacro_average_F1() + "||", eval1.getMacro_average_F1() + "||", eval2.getMacro_average_F1() + "\n"));
         }
-       System.out.println(sb.toString());
+        System.out.println(sb.toString());
 
 
         System.out.println("$$$$$$$$$$$$ Results for Language Model $$$$$$$$$$$$$");
@@ -148,17 +148,17 @@ public class Main {
             List<String> bow = indexing.bagOfWords(NO_NLP_METHOD);
             eval.final_evaluation(ee, version, "", NO_NLP_METHOD, lem, bow, documents);
 
-            Evaluation eval1 = new Evaluation();
+           /* Evaluation eval1 = new Evaluation();
             List<String> bow1 = indexing.bagOfWords(STEMMING_NLP_METHOD);
             eval1.final_evaluation(ee, version, "", STEMMING_NLP_METHOD, lem, bow1, documents);
             Evaluation eval2 = new Evaluation();
-            List<String> bow2 = indexing.bagOfWords(LEMMATIZING_NLP_METHOD);
-            eval2.final_evaluation(ee, version, "", LEMMATIZING_NLP_METHOD, lem, bow2, documents);
+            //List<String> bow2 = indexing.bagOfWords(LEMMATIZING_NLP_METHOD);
+            //eval2.final_evaluation(ee, version, "", LEMMATIZING_NLP_METHOD, lem, bow2, documents);*/
 
             sb1.append("************** MAP values ***************" + "\n");
-            sb1.append(String.format("%-20s%-20s%-20s%-20s", version, eval.getMAP() + "||", eval1.getMAP() + "||", eval2.getMAP() + "\n"));
+            sb1.append(String.format("%-20s%-20s%-20s%-20s", version, eval.getMAP()));
 
-            sb1.append("************** Micro average precision values ***************" + "\n");
+           /* sb1.append("************** Micro average precision values ***************" + "\n");
             sb1.append(String.format("%-20s%-20s%-20s%-20s", version, eval.getMicro_average_precision() + "||", eval1.getMicro_average_precision() + "||", eval2.getMicro_average_precision() + "\n"));
             sb1.append("************** Micro average recall values ***************" + "\n");
             sb1.append(String.format("%-20s%-20s%-20s%-20s", version, eval.getMicro_average_recall() + "||", eval1.getMicro_average_recall() + "||", eval2.getMicro_average_recall() + "\n"));
@@ -172,9 +172,10 @@ public class Main {
             sb1.append(String.format("%-20s%-20s%-20s%-20s", version, eval.getMacro_average_F1() + "||", eval1.getMacro_average_F1() + "||", eval2.getMacro_average_F1() + "\n"));
 
         }
-        System.out.println(sb1.toString());
+        System.out.println(sb1.toString());*/
 
 
+        }
     }
 
 
