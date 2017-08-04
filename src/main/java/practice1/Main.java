@@ -1,12 +1,10 @@
 package practice1;
 
+import practice1.entities.Document;
 import practice1.entities.EvaluationEntity;
 import practice1.models.NGram;
-import practice1.utilities.Lemmatizer;
 
 import java.io.IOException;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -21,7 +19,7 @@ public class Main {
     public final static String VSM_TF = "TF";
     public final static String VSM_TFIDF = "TF/IDF";
     public final static String VSM_BM25 = "BM25";
-    
+
     public final static String NO_NLP_METHOD = "nothing";
     public final static String STEMMING_NLP_METHOD = "stemming";
     public final static String LEMMATIZING_NLP_METHOD = "lemmatizing";
@@ -31,19 +29,21 @@ public class Main {
 
     // versions of VSM
     List<String> vsm_versions = Arrays.asList(VSM_BINARY, VSM_TF, VSM_TFIDF, VSM_BM25);
-    
+
     //Versions of smoothing in Language Model
     List<String> nlp_methods = Arrays.asList(STEMMING_NLP_METHOD, LEMMATIZING_NLP_METHOD, NO_NLP_METHOD);
     List<String> smoothing_versions = Arrays.asList(JELINEK_SMOOTHING, DIRICHLET_SMOOTHING);
 
     public static void main(String[] args) throws IOException {
         Main main = new Main();
-        main.startTesting(args[0], args[1]);
-        //main.startTestingNGram(args[1], args[2]);
+        main.startTesting(args[0], args[1], args[2]);
+       //main.startTestingNGram(args[1], args[2]);
     }
 
 
-    public void startTesting(String filenameQueries, String filenameDocs) throws IOException {
+    public void startTesting(String filenameQueries ,String filenameDocs, String newfilenameQueries) throws IOException {
+        //practice1.Training training = new practice1.Training();
+        //training.train(filenameQueries, filenameDocs, newfilenameQueries);
 
         //Our initial Evaluation entities
 //            for (EvaluationEntity e : ee) {
@@ -57,35 +57,66 @@ public class Main {
 
         Lemmatizer lem = new Lemmatizer();
         lem.initializeCoreNLP();
+        System.out.println(lem.toString());
         ParseFiles pf = new ParseFiles();
+        Indexing indexing = new Indexing();
+        indexing.setLem(lem);
+        List<Document> documents = pf.retrieveDocuments(filenameDocs);
+        indexing.setDocuments(documents);
 
-        List<EvaluationEntity> ee = pf.parseArgs(filenameQueries, filenameDocs);
+        for (Document d : indexing.getDocuments()) {
+            System.out.println(d.getId() + "->" + d.getName());
+        }
+
+
+        List<EvaluationEntity> ee = pf.parseArgs(newfilenameQueries, filenameDocs);
+
+        /*for (EvaluationEntity e : ee) {
+            System.out.println("**Query**");
+            System.out.println(e.getQuery().getName());
+            System.out.println("**Relevant documents**");
+            for (Document d : e.getRelevant_documents()) {
+                System.out.println(d.getId() + "->" + d.getName());
+            }
+
+        }*/
         System.out.println("$$$$$$$$$$$$ Results for Vector Space Model $$$$$$$$$$$$$");
 
         StringBuilder sb = new StringBuilder();
         sb.append(String.format("%-10s%-20s%-20s%-20s", "version", "MAP:nothing", "MAP:Stemming", "MAP:Lemmatizing" + "\n"));
         sb.append(String.format("============================================================\n"));
+
         for (String version : vsm_versions) {
 
             Evaluation eval = new Evaluation();
-            long startTime = System.currentTimeMillis();
-            eval.final_evaluation(ee, "", version, NO_NLP_METHOD, lem);
-            long endTime = System.currentTimeMillis();
-            NumberFormat formatter = new DecimalFormat("#0.00000");
+            //long startTime = System.currentTimeMillis();
+            List<String> bow = indexing.bagOfWords(NO_NLP_METHOD);
+            eval.final_evaluation(ee, "", version, NO_NLP_METHOD, lem, bow, documents);
+            //long endTime = System.currentTimeMillis();
+
+            //NumberFormat formatter = new DecimalFormat("#0.00000");
             // System.out.print("Execution time for nothing  is " + formatter.format((endTime - startTime) / 1000d) + " seconds"+"\n");
 
+
             Evaluation eval1 = new Evaluation();
-            long startTime1 = System.currentTimeMillis();
-            eval1.final_evaluation(ee, "", version, STEMMING_NLP_METHOD, lem);
-            long endTime1 = System.currentTimeMillis();
-            NumberFormat formatter1 = new DecimalFormat("#0.00000");
+            //long startTime1 = System.currentTimeMillis();
+            List<String> bow1 = indexing.bagOfWords(STEMMING_NLP_METHOD);
+            eval1.final_evaluation(ee, "", version, STEMMING_NLP_METHOD, lem, bow1, documents);
+            //long endTime1 = System.currentTimeMillis();
+
+           // NumberFormat formatter1 = new DecimalFormat("#0.00000");
             //System.out.print("Execution time for stemming  is " + formatter1.format((endTime1 - startTime1)/ 1000d) + " seconds"+"\n");
+
+
             Evaluation eval2 = new Evaluation();
-            long startTime2 = System.currentTimeMillis();
-            eval2.final_evaluation(ee, "", version, LEMMATIZING_NLP_METHOD, lem);
+            //long startTime2 = System.currentTimeMillis();
+            List<String> bow2 = indexing.bagOfWords(LEMMATIZING_NLP_METHOD);
+            eval2.final_evaluation(ee, "", version, LEMMATIZING_NLP_METHOD, lem, bow2, documents);
             long endTime2 = System.currentTimeMillis();
-            NumberFormat formatter2 = new DecimalFormat("#0.00000");
+
+            //NumberFormat formatter2 = new DecimalFormat("#0.00000");
             //System.out.print("Execution time for lemmatizing  is " + formatter2.format((endTime2 - startTime2)/ 1000d) + " seconds"+"\n");
+
             sb.append("************** MAP values ***************" + "\n");
             sb.append(String.format("%-20s%-20s%-20s%-20s", version, eval.getMAP() + "||", eval1.getMAP() + "||", eval2.getMAP() + "\n"));
 
@@ -102,7 +133,7 @@ public class Main {
             sb.append("************** Macro average F1 values ***************" + "\n");
             sb.append(String.format("%-20s%-20s%-20s%-20s", version, eval.getMacro_average_F1() + "||", eval1.getMacro_average_F1() + "||", eval2.getMacro_average_F1() + "\n"));
         }
-        System.out.println(sb.toString());
+       System.out.println(sb.toString());
 
 
         System.out.println("$$$$$$$$$$$$ Results for Language Model $$$$$$$$$$$$$");
@@ -114,12 +145,15 @@ public class Main {
         for (String version : smoothing_versions) {
 
             Evaluation eval = new Evaluation();
-            eval.final_evaluation(ee, version, "", NO_NLP_METHOD, lem);
+            List<String> bow = indexing.bagOfWords(NO_NLP_METHOD);
+            eval.final_evaluation(ee, version, "", NO_NLP_METHOD, lem, bow, documents);
 
             Evaluation eval1 = new Evaluation();
-            eval1.final_evaluation(ee, version, "", STEMMING_NLP_METHOD, lem);
+            List<String> bow1 = indexing.bagOfWords(STEMMING_NLP_METHOD);
+            eval1.final_evaluation(ee, version, "", STEMMING_NLP_METHOD, lem, bow1, documents);
             Evaluation eval2 = new Evaluation();
-            eval2.final_evaluation(ee, version, "", LEMMATIZING_NLP_METHOD, lem);
+            List<String> bow2 = indexing.bagOfWords(LEMMATIZING_NLP_METHOD);
+            eval2.final_evaluation(ee, version, "", LEMMATIZING_NLP_METHOD, lem, bow2, documents);
 
             sb1.append("************** MAP values ***************" + "\n");
             sb1.append(String.format("%-20s%-20s%-20s%-20s", version, eval.getMAP() + "||", eval1.getMAP() + "||", eval2.getMAP() + "\n"));
@@ -138,28 +172,11 @@ public class Main {
             sb1.append(String.format("%-20s%-20s%-20s%-20s", version, eval.getMacro_average_F1() + "||", eval1.getMacro_average_F1() + "||", eval2.getMacro_average_F1() + "\n"));
 
         }
-        //System.out.println(sb1.toString());
-       /*Training training = new Training();
-        training.train(filenameQueries, filenameDocs);*/
+        System.out.println(sb1.toString());
+
 
     }
 
-
-
-
-        /*for (EvaluationEntity e : ee) {
-            System.out.println("**Query**");
-            System.out.println(e.getQuery().getName());
-            System.out.println("**Relevant documents**");
-            for (Document d : e.getRelevant_documents()) {
-                System.out.println(d.getId() + "->" + d.getName());
-            }
-            System.out.println("**Documents**");
-            for (Document d : e.getDocuments()) {
-                System.out.println(d.getId() + "->" + d.getName());
-            }
-
-        }*/
 
 
     public void startTestingNGram(String filenameDocs, String ngram) throws IOException {

@@ -4,7 +4,6 @@ import practice1.entities.Document;
 import practice1.entities.EvaluationEntity;
 import practice1.models.LanguageModel;
 import practice1.models.VectorSpaceModel;
-import practice1.utilities.Lemmatizer;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -16,6 +15,8 @@ import java.util.List;
  * Created by romdhane on 14/06/17.
  */
 public class Evaluation {
+
+    private List<Document> documents;
 
     private double precision;
     private double recall;
@@ -68,6 +69,10 @@ public class Evaluation {
         return macro_average_F1;
     }
 
+    public void setDocuments(List<Document> documents) {
+        this.documents = documents;
+    }
+
     public List<Double> evaluateVSM(int n, List<Document> relevant_docs, List<Document> results) {
 
         List<Double> listresults = new ArrayList<>();
@@ -112,11 +117,13 @@ public class Evaluation {
     }
 
 
-    public void final_evaluation(List<EvaluationEntity> ee, String smoothing_version, String vsm_version, String nlp_method, Lemmatizer l) throws IOException {
+    public void final_evaluation(List<EvaluationEntity> ee, String smoothing_version, String vsm_version, String nlp_method, Lemmatizer l, List<String> bow, List<Document> docs) throws IOException {
+
+
         List<Document> results = new ArrayList<>();
         int idx_ent = 0;
         for (EvaluationEntity e : ee) {
-            VectorSpaceModel vsm = new VectorSpaceModel(vsm_version, nlp_method, l);
+            VectorSpaceModel vsm = new VectorSpaceModel(vsm_version, nlp_method, l, bow, docs);
             LanguageModel lm = new LanguageModel(smoothing_version, nlp_method, l);
             if (smoothing_version.equals(""))
                 results = vsm.getRankingScoresVSM(e);

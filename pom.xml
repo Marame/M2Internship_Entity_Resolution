@@ -74,7 +74,7 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>1.6.0</version>
                 <configuration>
-                    <mainClass>Main</mainClass>
+                    <mainClass>practice1.Main</mainClass>
                 </configuration>
             </plugin>
         </plugins>

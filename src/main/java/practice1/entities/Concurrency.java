@@ -10,6 +10,7 @@ import java.util.concurrent.*;
  * Created by romdhane on 26/07/17.
  */
 public class Concurrency {
+    private List<Document> docs;
     private EvaluationEntity e;
     private boolean normalised;
     private List<Double> TF =new ArrayList<Double>();
@@ -33,15 +34,18 @@ public class Concurrency {
 
         return TF;
     }
+    public void setDocs(List<Document> docs) {
+        this.docs = docs;
+    }
+
+    public void setE(EvaluationEntity e) {
+        this.e = e;
+    }
 
     public void setNormalised(boolean normalised) {
         this.normalised = normalised;
     }
 
-    public void setE(EvaluationEntity e) {
-        this.e = e;
-
-    }
 
     public List<List<Double>> testThread()
     {
@@ -60,7 +64,7 @@ public class Concurrency {
 
                 VectorSpaceModel vsm = new VectorSpaceModel();
                 //setTF(vsm.getTF(e, e.getQuery(), normalised));
-                tf = vsm.getTF(e, e.getQuery(), normalised);
+                tf = vsm.getTF(docs, e.getQuery(), normalised);
                 listResults.add(0,tf);
                 return null;
             }
@@ -77,7 +81,7 @@ public class Concurrency {
 
                 VectorSpaceModel vsm = new VectorSpaceModel();
 
-                idf =vsm.getIDF(e);
+                idf =vsm.getIDF(docs);
                 System.out.println(idf);
 
                 listResults.add(1,idf);

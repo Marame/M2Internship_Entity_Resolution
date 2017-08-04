@@ -1,4 +1,4 @@
-package practice1.utilities;
+package practice1;
 
 import edu.stanford.nlp.ling.CoreAnnotations;
 import edu.stanford.nlp.ling.CoreLabel;
