@@ -75,7 +75,7 @@ public class Indexing {
     public Map<String, List<String>> indexAll() throws IOException {
 
         Map<String, List<String>> bow = new HashMap<>();
-        for (String nlp_method : Arrays.asList("NO_NLP_METHOD", "LEMMATIZING_NLP_METHOD", "STEMMING_NLP_METHOD")) {
+        for (String nlp_method : Arrays.asList("NO_NLP_METHOD", "STEMMING_NLP_METHOD", "LEMMATIZING_NLP_METHOD")) {
             bow.put(nlp_method, bagOfWords(nlp_method));
         }
         return bow;

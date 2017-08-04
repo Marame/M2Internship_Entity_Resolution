@@ -81,7 +81,7 @@ public class Concurrency {
 
                 VectorSpaceModel vsm = new VectorSpaceModel();
 
-                idf =vsm.getIDF(docs);
+                idf =vsm.getIDF();
                 System.out.println(idf);
 
                 listResults.add(1,idf);

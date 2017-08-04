@@ -42,7 +42,7 @@ public class Main {
 
 
     public void startTesting(String filenameQueries ,String filenameDocs, String newfilenameQueries) throws IOException {
-        //practice1.Training training = new practice1.Training();
+        //practice1.Aggregating training = new practice1.Aggregating();
         //training.train(filenameQueries, filenameDocs, newfilenameQueries);
 
         //Our initial Evaluation entities
@@ -63,6 +63,8 @@ public class Main {
         indexing.setLem(lem);
         List<Document> documents = pf.retrieveDocuments(filenameDocs);
         indexing.setDocuments(documents);
+
+        Map<String, List<String>> mapBow = indexing.indexAll();
 
        /* for (Document d : indexing.getDocuments()) {
             System.out.println(d.getId() + "->" + d.getName());
@@ -88,29 +90,31 @@ public class Main {
 
         for (String version : vsm_versions) {
 
+            System.out.println("*********No NLP METHOD************");
             Evaluation eval = new Evaluation();
             //long startTime = System.currentTimeMillis();
-            List<String> bow = indexing.bagOfWords(NO_NLP_METHOD);
+            List<String> bow = mapBow.get(mapBow.keySet().toArray()[0]);
+
             eval.final_evaluation(ee, "", version, NO_NLP_METHOD, lem, bow, documents);
             //long endTime = System.currentTimeMillis();
 
             //NumberFormat formatter = new DecimalFormat("#0.00000");
             // System.out.print("Execution time for nothing  is " + formatter.format((endTime - startTime) / 1000d) + " seconds"+"\n");
 
-
+            System.out.println("*********STEMMING NLP METHOD************");
             Evaluation eval1 = new Evaluation();
             //long startTime1 = System.currentTimeMillis();
-            List<String> bow1 = indexing.bagOfWords(STEMMING_NLP_METHOD);
+            List<String> bow1 = mapBow.get(mapBow.keySet().toArray()[1]);
             eval1.final_evaluation(ee, "", version, STEMMING_NLP_METHOD, lem, bow1, documents);
             //long endTime1 = System.currentTimeMillis();
 
             // NumberFormat formatter1 = new DecimalFormat("#0.00000");
             //System.out.print("Execution time for stemming  is " + formatter1.format((endTime1 - startTime1)/ 1000d) + " seconds"+"\n");
 
-
+            System.out.println("*********LEMMATIZING NLP METHOD************");
             Evaluation eval2 = new Evaluation();
             //long startTime2 = System.currentTimeMillis();
-            List<String> bow2 = indexing.bagOfWords(LEMMATIZING_NLP_METHOD);
+            List<String> bow2 = mapBow.get(mapBow.keySet().toArray()[2]);
             eval2.final_evaluation(ee, "", version, LEMMATIZING_NLP_METHOD, lem, bow2, documents);
             long endTime2 = System.currentTimeMillis();
 
@@ -118,10 +122,10 @@ public class Main {
             //System.out.print("Execution time for lemmatizing  is " + formatter2.format((endTime2 - startTime2)/ 1000d) + " seconds"+"\n");
 
             sb.append("************** MAP values ***************" + "\n");
-            sb.append(String.format("%-20s%-20s%-20s%-20s", version, eval.getMAP() ));
+            sb.append(String.format("%-20s%-20s%-20s%-20s", version, eval.getMAP() +"||",  eval1.getMAP() +"||", eval2.getMAP() + "\n"));
 
             sb.append("************** Micro average precision values ***************" + "\n");
-            sb.append(String.format("%-20s%-20s%-20s%-20s", version, eval.getMicro_average_precision() + "||", eval1.getMicro_average_precision() + "||", eval2.getMicro_average_precision() + "\n"));
+            sb.append(String.format("%-20s%-20s%-20s%-20s", version, eval.getMicro_average_precision() + "||", eval1.getMicro_average_precision() + "||", eval2.getMicro_average_precision() +"\n"));
             sb.append("************** Micro average recall values ***************" + "\n");
             sb.append(String.format("%-20s%-20s%-20s%-20s", version, eval.getMicro_average_recall() + "||", eval1.getMicro_average_recall() + "||", eval2.getMicro_average_recall() + "\n"));
             sb.append("************** Macro average precision values ***************" + "\n");
@@ -145,14 +149,14 @@ public class Main {
             for (String version : smoothing_versions) {
 
                 Evaluation eval = new Evaluation();
-                List<String> bow = indexing.bagOfWords(NO_NLP_METHOD);
+                List<String> bow = mapBow.get(mapBow.keySet().toArray()[0]);
                 eval.final_evaluation(ee, version, "", NO_NLP_METHOD, lem, bow, documents);
 
             Evaluation eval1 = new Evaluation();
-            List<String> bow1 = indexing.bagOfWords(STEMMING_NLP_METHOD);
+            List<String> bow1 =mapBow.get(mapBow.keySet().toArray()[1]);
             eval1.final_evaluation(ee, version, "", STEMMING_NLP_METHOD, lem, bow1, documents);
             Evaluation eval2 = new Evaluation();
-            List<String> bow2 = indexing.bagOfWords(LEMMATIZING_NLP_METHOD);
+            List<String> bow2 = mapBow.get(mapBow.keySet().toArray()[2]);
             eval2.final_evaluation(ee, version, "", LEMMATIZING_NLP_METHOD, lem, bow2, documents);
 
             sb1.append("************** MAP values ***************" + "\n");sb1.append(String.format("%-20s%-20s%-20s%-20s", version, eval.getMAP()));

@@ -20,7 +20,9 @@ public class LanguageModel {
     private String nlp_method;
     private double lambda = 0.4;
     private double mu = 2;
-    private Lemmatizer lem;
+    private List<Document> documents;
+    private List<String> bow;
+    public Lemmatizer lem;
 
     public LanguageModel(String smoothing_version, String nlp_method, Lemmatizer lem) {
         this.smoothing_version = smoothing_version;
@@ -66,7 +68,7 @@ public class LanguageModel {
             stem.setCurrent(word);
             stem.stem();
             String resword = stem.getCurrent();
-            for (Document doc : e.getDocuments()) {
+            for (Document doc : documents) {
                 List<String> wordsDoc = docWords(doc);
                 double freq = (double) Collections.frequency(wordsDoc, resword);
                 sumfreq += freq;
@@ -75,7 +77,7 @@ public class LanguageModel {
         } else if (nlp_method.equals(Main.LEMMATIZING_NLP_METHOD)) {
 
             String resword = lem.lemmatize(word).get(0);
-            for (Document doc : e.getDocuments()) {
+            for (Document doc : documents) {
                 List<String> wordsDoc = docWords(doc);
                 double freq = (double) Collections.frequency(wordsDoc, resword);
                 sumfreq += freq;
@@ -83,7 +85,7 @@ public class LanguageModel {
             }
         }
         else{
-            for (Document doc : e.getDocuments()) {
+            for (Document doc : documents) {
                 List<String> wordsDoc = docWords(doc);
                 double freq = (double) Collections.frequency(wordsDoc, word);
                 sumfreq += freq;
@@ -148,7 +150,7 @@ public class LanguageModel {
 
     public List<Document> getRankingScoresLM(EvaluationEntity e, String smoothing_version) {
 
-        for (Document doc : e.getDocuments()) {
+        for (Document doc : documents) {
             Document resultdoc = new Document();
             double sum_jm = 0;
             double sum_dp = 0;
