@@ -276,7 +276,7 @@ public class VectorSpaceModel {
             List<Double> listIDF = getIDF(documents);
             List<Double> vectIDF = new Vector<>(listIDF);
 
-            for (Document doc : e.getDocuments()) {
+            for (Document doc : documents) {
                 Document resultdoc = new Document();
                 resultdoc.setName(doc.getName());
                 List<Double> listdocTF = getTF(documents, doc, true);

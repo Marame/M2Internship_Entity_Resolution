@@ -4,10 +4,7 @@ import org.tartarus.snowball.ext.PorterStemmer;
 import practice1.entities.Document;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.StringTokenizer;
+import java.util.*;
 
 /**
  * Created by romdhane on 03/08/17.
@@ -71,5 +68,16 @@ public class Indexing {
 
         return bagOfWord;
 
+    }
+
+
+
+    public Map<String, List<String>> indexAll() throws IOException {
+
+        Map<String, List<String>> bow = new HashMap<>();
+        for (String nlp_method : Arrays.asList("NO_NLP_METHOD", "LEMMATIZING_NLP_METHOD", "STEMMING_NLP_METHOD")) {
+            bow.put(nlp_method, bagOfWords(nlp_method));
+        }
+        return bow;
     }
 }

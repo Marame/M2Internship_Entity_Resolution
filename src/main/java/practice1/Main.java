@@ -64,9 +64,9 @@ public class Main {
         List<Document> documents = pf.retrieveDocuments(filenameDocs);
         indexing.setDocuments(documents);
 
-        for (Document d : indexing.getDocuments()) {
+       /* for (Document d : indexing.getDocuments()) {
             System.out.println(d.getId() + "->" + d.getName());
-        }
+        }*/
 
 
         List<EvaluationEntity> ee = pf.parseArgs(newfilenameQueries, filenameDocs);
@@ -118,7 +118,7 @@ public class Main {
             //System.out.print("Execution time for lemmatizing  is " + formatter2.format((endTime2 - startTime2)/ 1000d) + " seconds"+"\n");
 
             sb.append("************** MAP values ***************" + "\n");
-            sb.append(String.format("%-20s%-20s%-20s%-20s", version, eval.getMAP() + "||", eval1.getMAP() + "||", eval2.getMAP() + "\n"));
+            sb.append(String.format("%-20s%-20s%-20s%-20s", version, eval.getMAP() ));
 
             sb.append("************** Micro average precision values ***************" + "\n");
             sb.append(String.format("%-20s%-20s%-20s%-20s", version, eval.getMicro_average_precision() + "||", eval1.getMicro_average_precision() + "||", eval2.getMicro_average_precision() + "\n"));
@@ -136,29 +136,27 @@ public class Main {
         System.out.println(sb.toString());
 
 
-        System.out.println("$$$$$$$$$$$$ Results for Language Model $$$$$$$$$$$$$");
+            System.out.println("$$$$$$$$$$$$ Results for Language Model $$$$$$$$$$$$$");
 
-        StringBuilder sb1 = new StringBuilder();
-        sb1.append(String.format("%-10s%-30s%-30s%-30s\n", "version", NO_NLP_METHOD, STEMMING_NLP_METHOD, LEMMATIZING_NLP_METHOD + "\n"));
-        sb1.append(String.format("==========================================================\n"));
+            StringBuilder sb1 = new StringBuilder();
+            sb1.append(String.format("%-10s%-30s%-30s%-30s\n", "version", NO_NLP_METHOD, STEMMING_NLP_METHOD, LEMMATIZING_NLP_METHOD + "\n"));
+            sb1.append(String.format("==========================================================\n"));
 
-        for (String version : smoothing_versions) {
+            for (String version : smoothing_versions) {
 
-            Evaluation eval = new Evaluation();
-            List<String> bow = indexing.bagOfWords(NO_NLP_METHOD);
-            eval.final_evaluation(ee, version, "", NO_NLP_METHOD, lem, bow, documents);
+                Evaluation eval = new Evaluation();
+                List<String> bow = indexing.bagOfWords(NO_NLP_METHOD);
+                eval.final_evaluation(ee, version, "", NO_NLP_METHOD, lem, bow, documents);
 
-           /* Evaluation eval1 = new Evaluation();
+            Evaluation eval1 = new Evaluation();
             List<String> bow1 = indexing.bagOfWords(STEMMING_NLP_METHOD);
             eval1.final_evaluation(ee, version, "", STEMMING_NLP_METHOD, lem, bow1, documents);
             Evaluation eval2 = new Evaluation();
-            //List<String> bow2 = indexing.bagOfWords(LEMMATIZING_NLP_METHOD);
-            //eval2.final_evaluation(ee, version, "", LEMMATIZING_NLP_METHOD, lem, bow2, documents);*/
+            List<String> bow2 = indexing.bagOfWords(LEMMATIZING_NLP_METHOD);
+            eval2.final_evaluation(ee, version, "", LEMMATIZING_NLP_METHOD, lem, bow2, documents);
 
-            sb1.append("************** MAP values ***************" + "\n");
-            sb1.append(String.format("%-20s%-20s%-20s%-20s", version, eval.getMAP()));
-
-           /* sb1.append("************** Micro average precision values ***************" + "\n");
+            sb1.append("************** MAP values ***************" + "\n");sb1.append(String.format("%-20s%-20s%-20s%-20s", version, eval.getMAP()));
+            sb1.append("************** Micro average precision values ***************" + "\n");
             sb1.append(String.format("%-20s%-20s%-20s%-20s", version, eval.getMicro_average_precision() + "||", eval1.getMicro_average_precision() + "||", eval2.getMicro_average_precision() + "\n"));
             sb1.append("************** Micro average recall values ***************" + "\n");
             sb1.append(String.format("%-20s%-20s%-20s%-20s", version, eval.getMicro_average_recall() + "||", eval1.getMicro_average_recall() + "||", eval2.getMicro_average_recall() + "\n"));
@@ -172,11 +170,11 @@ public class Main {
             sb1.append(String.format("%-20s%-20s%-20s%-20s", version, eval.getMacro_average_F1() + "||", eval1.getMacro_average_F1() + "||", eval2.getMacro_average_F1() + "\n"));
 
         }
-        System.out.println(sb1.toString());*/
+        System.out.println(sb1.toString());
 
 
-        }
-    }
+            }
+
 
 
 
