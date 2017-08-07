@@ -61,7 +61,7 @@ public class Index {
     }
 
     public void indexAll() {
-        LOGGER.info("Start indexing...");
+        //LOGGER.info("Start indexing...");
 
         for (String nlp_method : nlp_methods) {
             LOGGER.info(nlp_method);
@@ -69,7 +69,7 @@ public class Index {
             wordToDocument.put(nlp_method, generateWordToDocument(nlp_method, tokeniser));
         }
 
-        LOGGER.info("Finished indexing...");
+        //LOGGER.info("Finished indexing...");
     }
 
     public Map<String, List<Integer>> generateWordToDocument(String method, Tokenizer tokeniser) {

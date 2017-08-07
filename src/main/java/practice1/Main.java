@@ -178,14 +178,14 @@ public class Main {
         sb2.append(String.format("============================================================\n"));
 
 
-        System.out.println("*********No NLP METHOD************");
+       // System.out.println("*********No NLP METHOD************");
 
         Evaluation eval = new Evaluation();
 
         eval.final_evaluation(ee, "", "", NO_NLP_METHOD, lem,null, documents, index,ngram);
 
 
-        System.out.println("*********STEMMING NLP METHOD************");
+       // System.out.println("*********STEMMING NLP METHOD************");
 
         Evaluation eval1 = new Evaluation();
 
@@ -193,7 +193,7 @@ public class Main {
         eval1.final_evaluation(ee, "", "", STEMMING_NLP_METHOD, lem, null, documents, index, ngram);
 
 
-        System.out.println("*********LEMMATIZING NLP METHOD************");
+        //System.out.println("*********LEMMATIZING NLP METHOD************");
 
         Evaluation eval2 = new Evaluation();
 

@@ -17,6 +17,10 @@ import java.util.List;
  */
 public class Evaluation {
     public final static String VSM_BINARY = "Binary";
+    public final static String VSM_TF = "TF";
+    public final static String VSM_TFIDF = "TF/IDF";
+    public final static String VSM_BM25 = "BM25";
+
     private List<Document> documents;
     private Index index;
 
@@ -161,19 +165,16 @@ public class Evaluation {
                     results = vsm.getRankingScoresVSM(e);
                     sortResults(results);
                      //System.out.println("ranked results for query n" + "\t" + (idx_ent + 1));
-                    /*if(!vsm_version.equals(VSM_BINARY))
-                        System.out.println(e.getQuery().getContent());
-        for (Document d : results) {
-            System.out.println(d.getId() + "->" + d.getContent() + "->" + d.getScore());
-        }*/
                 }
 
             }
 
+            if(vsm_version.equals(VSM_TF))
+                System.out.println(e.getQuery().getContent());
+           /* for (Document d : results) {
+                System.out.println(d.getId() + "->" + d.getContent() + "->" + d.getScore());
+            }*/
 
-
-
-        // ranked results
 
 
 
