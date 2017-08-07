@@ -217,6 +217,8 @@ public class VectorSpaceModel {
                 dotProduct.add(resultdoc);
             }
 
+        } else {
+            System.out.println("Something wrong dude!");
         }
         return dotProduct;
     }
