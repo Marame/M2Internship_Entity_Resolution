@@ -1,10 +1,7 @@
 package practice1.entities;
 
-import practice1.models.VectorSpaceModel;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.*;
 
 /**
  * Created by romdhane on 26/07/17.
@@ -47,7 +44,7 @@ public class Concurrency {
     }
 
 
-    public List<List<Double>> testThread()
+   /* public List<List<Double>> testThread()
     {
         final List<List<Double>> listResults = new ArrayList<List<Double>>();
 
@@ -64,7 +61,7 @@ public class Concurrency {
 
                 VectorSpaceModel vsm = new VectorSpaceModel();
                 //setTF(vsm.getTF(e, e.getQuery(), normalised));
-                tf = vsm.getTF(docs, e.getQuery(), normalised);
+                tf = ingetTF(docs, e.getQuery(), normalised);
                 listResults.add(0,tf);
                 return null;
             }
@@ -131,7 +128,7 @@ public class Concurrency {
             //do something if you care about interruption;
         }
      return  listResults;
-    }
+    }*/
 
 
 }

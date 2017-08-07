@@ -1,8 +1,11 @@
 package practice1.models;
 
-import com.opencsv.CSVReader;
+import practice1.Index;
+import practice1.Lemmatizer;
+import practice1.entities.Document;
+import practice1.entities.EvaluationEntity;
 
-import java.io.FileReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
 
@@ -10,26 +13,32 @@ import java.util.*;
  * Created by romdhane on 20/07/17.
  */
 public class NGram {
-    static LinkedList<String> sentences = new LinkedList<String>();
-    //smoothing_factor
-    private double lambda = 0.5;
-    ;
+    static LinkedList<Document> sentences = new LinkedList<>();
+    private List<Document> resultList = new ArrayList<>();
+    private Lemmatizer lem;
+    private String nlp_method;
+    private Index index;
     private int vocab_size;
-    private String filenameQueries;
-    private String filenameDocuments;
-    private int n;
+    private int ngram;
+
+
     private double average;
+
+    public NGram( String nlp_method, Lemmatizer lem, Index index, int ngram) {
+        this.nlp_method = nlp_method;
+        this.lem = lem;
+        this.index = index;
+        this.ngram = ngram;
+    }
+
     public void setN(int n) {
-        this.n = n;
+        this.ngram = n;
     }
 
     public double getAverage() {
         return average;
     }
 
-    public void setFilenameDocuments(String filenameDocuments) {
-        this.filenameDocuments = filenameDocuments;
-    }
 
     public void setVocab_size(int vocab_size) {
         this.vocab_size = vocab_size;
@@ -38,8 +47,8 @@ public class NGram {
     public List<String> ngrams(String str) {
         List<String> ngrams = new ArrayList<String>();
         String[] words = str.split(" ");
-        for (int i = 0; i < words.length - n + 1; i++)
-            ngrams.add(concat(words, i, i + n));
+        for (int i = 0; i < words.length - ngram + 1; i++)
+            ngrams.add(concat(words, i, i + ngram));
         return ngrams;
     }
 
@@ -51,28 +60,25 @@ public class NGram {
     }
 
 
-    public Map<String, List<String>> ngramSamples() throws IOException {
+    public Map<Document, List<String>> ngramSamples() throws IOException, FileNotFoundException {
 
-        FileReader frd = new FileReader(filenameDocuments);
-        CSVReader brd = new CSVReader(frd);
-        //FileReader frq = new FileReader(filenameQueries);
-        //CSVReader brq = new CSVReader(frq);
-        Map<String, List<String>> nGrams = new HashMap<String, List<String>>();
-        int n = 3;
+        Map<Document, List<String>> nGrams = new HashMap<Document, List<String>>();
+        final List<Document> documents = index.getDocuments();
 
-        String[] lined = null;
-        while ((lined = brd.readNext()) != null) {
-            sentences.add(lined[1]);
+        for (Document doc: documents) {
+
+            sentences.add(doc);
         }
-        for (String sentence : sentences) {
+
+        for (Document sentence : sentences) {
             //Map<String, Integer> ngramMap = new HashMap<>();
             //nGrams set
-            nGrams.put(sentence, ngrams(sentence));
+            nGrams.put(sentence, ngrams(sentence.getContent()));
         }
         return nGrams;
     }
 
-    public int computeFrequency(String sample) throws IOException {
+    /*public int computeFrequency(String sample) throws IOException {
         FileReader fr = new FileReader(filenameDocuments);
         CSVReader br = new CSVReader(fr);
         int count = 0;
@@ -82,7 +88,7 @@ public class NGram {
         }
         return count;
 
-    }
+    }*/
 
     public int computeIntersection(String querySample, String docSample) {
 
@@ -141,9 +147,6 @@ public class NGram {
         return jaccard;
     }
 
-
-
-
     /*public double computeProbability(String term, String sample) throws IOException {
         VectorSpaceModel vsm = new VectorSpaceModel();
 
@@ -169,32 +172,23 @@ public class NGram {
         return prod;
     }*/
 
-    public Map<String, Map<String, Double>> computeFeatures(String query, String similarity) throws IOException {
-        Map<String, Map<String, Double>> nGramsFeatures = new HashMap<String, Map<String, Double>>();
-        Map<String, List<String>> ngrams = ngramSamples();
+    public Map<Document, Map<String, Double>> computeFeatures(EvaluationEntity e, String similarity) throws IOException {
+        Map<Document, Map<String, Double>> nGramsFeatures = new HashMap<Document, Map<String, Double>>();
+        Map<Document, List<String>> ngrams = ngramSamples();
         double average = 0;
-        for (String st : ngrams.keySet()) {
+        for (Document st : ngrams.keySet()) {
+
             Map<String, Double> ngramMap = new HashMap<>();
             double sum =0;
 
             for (String sentence : ngrams.get(st)) {
 
-                //String[] tokens = sentence.split(" ");
-
-                /*for (String token : tokens) {
-                    if (!token.equals("<S>") && !token.equals("</S>")) {
-                        ngramMap.put(token, Collections.frequency(Arrays.asList(tokens), token));
-                    } else {
-                        ngramMap.put(token, 0);
-                    }
-                }*/
                 if(similarity.equals("Jaccard"))
-                ngramMap.put(sentence, computeJaccard(query, sentence));
-                if(similarity.equals("Dice")) ngramMap.put(sentence, computeDice(query, sentence));
-                sum += computeJaccard(query, sentence);
+                ngramMap.put(sentence, computeJaccard(e.getQuery().getContent(), sentence));
+                else if(similarity.equals("Dice")) ngramMap.put(sentence, computeDice(e.getQuery().getContent(), sentence));
+                sum += computeJaccard(e.getQuery().getContent(), sentence);
             }
             average = sum/ngrams.size();
-            System.out.println(average);
             nGramsFeatures.put(st, ngramMap);
 
             }
@@ -202,7 +196,33 @@ public class NGram {
         return nGramsFeatures;
     }
 
+    public List<Document> getRankingScoresNgram(EvaluationEntity e, String similarity) throws IOException {
 
+        Map<Document, Map<String, Double>> nGramsFeatures = computeFeatures(e, "Jaccard");
+
+        for (Document st : nGramsFeatures.keySet()) {
+            Document resultdoc = new Document();
+            resultdoc.setId(st.getId());
+            resultdoc.setName(st.getContent());
+
+            double sum = 0;
+            double average = 0;
+
+            for (String s : nGramsFeatures.get(st).keySet()) {
+                //System.out.println("key=" + "\t" + s);
+                // System.out.println("jaccard score=" + "\t" + nGramsFeatures.get(st).get(s));
+                sum += nGramsFeatures.get(st).get(s);
+            }
+            average = sum / (double) nGramsFeatures.get(st).keySet().size();
+            resultdoc.setScore(average);
+            resultList.add(resultdoc);
+            //System.out.println("average:" + "\t" + average);
+
+        }
+        return  resultList;
+
+
+    }
 
 }
 

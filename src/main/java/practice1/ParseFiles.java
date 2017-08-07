@@ -18,6 +18,7 @@ import java.util.List;
 public class ParseFiles {
 
     private FileReader fr = null;
+    private FileReader frq = null;
     private FileReader frd = null;
     private List<EvaluationEntity> ee = new ArrayList<>();
     int vocab_size =0;
@@ -52,13 +53,13 @@ public class ParseFiles {
                     Document doc = new Document();
 
                     //String[] lined = sCurrentLined.split("\"?(,|$)(?=(([^\"]*\"){2})*[^\"]*$) *\"?");
-                    int documentId = Integer.parseInt(lined[1]);
+                    int documentId = Integer.parseInt(lined[0]);
 
                     doc.setId(documentId);
                     String[] queryReleventIds = lineq[2].split(" ");
 
                     // if contained, the current document is relevant
-                    if(Arrays.asList(queryReleventIds).contains(documentId)) {
+                    if(Arrays.asList(queryReleventIds).contains(lined[0])) {
                         Document reldoc = new Document();
                         reldoc.setId(documentId);
                         reldoc.setName(lined[1]);
@@ -104,18 +105,35 @@ public class ParseFiles {
         while ((lined = brd.readNext()) != null) {
 
             Document doc = new Document();
-            int documentId = Integer.parseInt(lined[1]);
+            int documentId = Integer.parseInt(lined[0]);
             doc.setId(documentId);
 
-            doc.setName(lined[3]);
+            doc.setName(lined[1]);
             docs.add(doc);
         }
-        /*VectorSpaceModel vsm = new VectorSpaceModel();
-        vsm.setDocuments(docs);
-        Evaluation eval = new Evaluation();
-        eval.setDocuments(docs);*/
 
         return docs;
+    }
+
+
+
+    public List<Document> retrieveQueries(String filenameQueries) throws FileNotFoundException, IOException{
+
+        List<Document> queries = new ArrayList<>();
+        frq = new FileReader(filenameQueries);
+        CSVReader brd = new CSVReader(frq);
+        String[] lineq = null;
+        while ((lineq = brd.readNext()) != null) {
+
+            Document query = new Document();
+            int queryId = Integer.parseInt(lineq[0]);
+            query.setId(queryId);
+
+            query.setName(lineq[1]);
+            queries.add(query);
+        }
+
+        return queries;
     }
 
 }
