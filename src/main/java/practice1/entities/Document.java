@@ -13,7 +13,7 @@ public class Document {
     }
 
 
-    public void setName(String name) {
+    public void setContent(String name) {
         this.name = name;
     }
 

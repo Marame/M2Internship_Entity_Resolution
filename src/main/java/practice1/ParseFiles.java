@@ -20,12 +20,15 @@ public class ParseFiles {
     private FileReader fr = null;
     private FileReader frq = null;
     private FileReader frd = null;
+    String nlpUsed ;
     private List<EvaluationEntity> ee = new ArrayList<>();
     int vocab_size =0;
 
+    public void setNlpUsed(String nlpUsed) {
+        this.nlpUsed = nlpUsed;
+    }
 
-
-    public List<EvaluationEntity> parseArgs(String filenameQueries, String filenameDocs) {
+    public List<EvaluationEntity> parseArgs(String filenameQueries, String filenameDocs, String nlpUsed) {
 
         try {
 
@@ -41,7 +44,7 @@ public class ParseFiles {
 
                 Document query = new Document();
                 query.setId(val);
-                query.setName(lineq[1]);
+                query.setContent(lineq[1]);
 
                 e.setQuery(query);
 
@@ -53,17 +56,36 @@ public class ParseFiles {
                     Document doc = new Document();
 
                     //String[] lined = sCurrentLined.split("\"?(,|$)(?=(([^\"]*\"){2})*[^\"]*$) *\"?");
-                    int documentId = Integer.parseInt(lined[0]);
+                    if(!nlpUsed.equals("true")) {
+                        int documentId = Integer.parseInt(lined[1]);
 
-                    doc.setId(documentId);
-                    String[] queryReleventIds = lineq[2].split(" ");
+                        doc.setId(documentId);
+                        String[] queryReleventIds = lineq[2].split(" ");
 
-                    // if contained, the current document is relevant
-                    if(Arrays.asList(queryReleventIds).contains(lined[0])) {
-                        Document reldoc = new Document();
-                        reldoc.setId(documentId);
-                        reldoc.setName(lined[1]);
-                        relevantDocuments.add(reldoc);
+                        // if contained, the current document is relevant
+                        if (Arrays.asList(queryReleventIds).contains(lined[1])) {
+                            Document reldoc = new Document();
+                            reldoc.setId(documentId);
+                            reldoc.setContent(lined[3]);
+                            relevantDocuments.add(reldoc);
+                        }
+                    }
+                    else {
+                        int documentId = Integer.parseInt(lined[0]);
+
+                        doc.setId(documentId);
+                        String[] queryReleventIds = lineq[2].split("\\s+");
+
+                        //System.out.println(queryReleventIds);
+
+                        // if contained, the current document is relevant
+                        if (Arrays.asList(queryReleventIds).contains(lined[0])) {
+                            Document reldoc = new Document();
+                            reldoc.setId(documentId);
+                            reldoc.setContent(lined[1]);
+                            relevantDocuments.add(reldoc);
+                        }
+
                     }
 
                 }
@@ -96,7 +118,7 @@ public class ParseFiles {
         return ee;
     }
 
-    public List<Document> retrieveDocuments(String filenameDocs) throws FileNotFoundException, IOException{
+    public List<Document> retrieveDocuments(String filenameDocs, String nlpUsed) throws FileNotFoundException, IOException{
 
         List<Document> docs = new ArrayList<>();
         frd = new FileReader(filenameDocs);
@@ -105,10 +127,13 @@ public class ParseFiles {
         while ((lined = brd.readNext()) != null) {
 
             Document doc = new Document();
-            int documentId = Integer.parseInt(lined[0]);
-            doc.setId(documentId);
-
-            doc.setName(lined[1]);
+            if(nlpUsed.equals("false")){
+                doc.setId(Integer.parseInt(lined[1]));
+                doc.setContent(lined[3].replaceAll("[-+.^:,_&/?]","")+"\"");}
+            else {
+                doc.setId(Integer.parseInt(lined[0]));
+                doc.setContent(lined[1]);
+            }
             docs.add(doc);
         }
 
@@ -129,7 +154,7 @@ public class ParseFiles {
             int queryId = Integer.parseInt(lineq[0]);
             query.setId(queryId);
 
-            query.setName(lineq[1]);
+            query.setContent(lineq[1]);
             queries.add(query);
         }
 

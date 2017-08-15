@@ -18,7 +18,8 @@ public class Index {
     public final static String LEMMATIZING_NLP_METHOD = "lemmatizing";
 
     //Versions of smoothing in Language Model
-    public static List<String> nlp_methods = Arrays.asList(STEMMING_NLP_METHOD, LEMMATIZING_NLP_METHOD, NO_NLP_METHOD);
+    public static List<String> nlp_methods = Arrays.asList(NO_NLP_METHOD,STEMMING_NLP_METHOD, LEMMATIZING_NLP_METHOD);
+    private Index index;
 
 
     public static String[] STOP_WORDS = {"a", "as", "able", "about", "above", "according", "accordingly", "across", "actually", "after", "afterwards", "again", "against", "aint", "all",
@@ -47,6 +48,8 @@ public class Index {
 
     private Tokenizer tokeniser;
     private List<Document> documents;
+    private String version;
+    private String nlp_method;
 
     public List<Document> getDocuments() {
         return documents;
@@ -60,6 +63,9 @@ public class Index {
         this.tokeniser = tokeniser;
     }
 
+
+
+
     public void indexAll() {
         //LOGGER.info("Start indexing...");
 
@@ -72,13 +78,31 @@ public class Index {
         //LOGGER.info("Finished indexing...");
     }
 
+    public int getDocsPresent(String token, List<Document> documents) {
+        int nbdocs = 0;
+        int i = 0;
+        while (i < documents.size()) {
+
+            String[] tokens = documents.get(i).getContent().split(" ");
+            if (Arrays.asList(tokens).contains(token)) {
+                nbdocs++;
+                i++;
+            }
+        }
+        return nbdocs;
+    }
+
+
     public Map<String, List<Integer>> generateWordToDocument(String method, Tokenizer tokeniser) {
         Map<String, List<Integer>> wordToDocs = new HashMap<>();
+
         for (String word : getBowFor(method)) {
+            int nbDocs = 0;
             for (Document document : documents) {
                 List<String> tokens = tokeniser.tokenise(document.getContent(), method);
                 if (tokens.contains(word)) {
                     if (wordToDocs.get(word) == null) {
+                        nbDocs ++;
                         wordToDocs.put(word, new ArrayList<Integer>());
                     }
 
@@ -96,10 +120,10 @@ public class Index {
         List<String> stopWords = new ArrayList<>(Arrays.asList(STOP_WORDS));
 
         for (Document d : documents) {
-            final List<String> tokens= tokeniser.tokenise(d.getContent(), nlp_method);
+            final List<String> tokens = tokeniser.tokenise(d.getContent(), nlp_method);
 
-            for(String token : tokens) {
-                if(stopWords.contains(token)) {
+            for (String token : tokens) {
+                if (stopWords.contains(token)) {
                     continue;
                 } else {
                     bagOfWord.add(token);
@@ -110,6 +134,39 @@ public class Index {
         return bagOfWord;
 
     }
+
+    public List<Document> nlpToDocs(List<Document> documents, String nlp_method){
+        List<Document> newDocs = new ArrayList<>();
+
+        for(Document d: documents){
+            final List<String> tokens= tokeniser.tokenise(d.getContent(), nlp_method);
+            Iterator<String> iter = tokens.iterator();
+            StringBuilder builder = new StringBuilder(iter.next());
+            while( iter.hasNext() )
+            {
+                builder.append(" ").append(iter.next());
+            }
+            d.setContent(builder.toString());
+            newDocs.add(d);
+        }
+        return  newDocs;
+    }
+
+    public Document nlpToDoc(Document doc, String nlp_method){
+
+        final List<String> tokens= tokeniser.tokenise(doc.getContent(), nlp_method);
+        Iterator<String> iter = tokens.iterator();
+        StringBuilder builder = new StringBuilder(iter.next());
+        while( iter.hasNext() )
+        {
+            builder.append(" ").append(iter.next());
+        }
+        doc.setContent(builder.toString());
+
+
+        return  doc;
+    }
+
 
     public List<String> getBowFor(String method) {
         return bow.get(method);

@@ -3,6 +3,7 @@ package practice1.models;
 import practice1.Index;
 import practice1.entities.Document;
 import practice1.entities.EvaluationEntity;
+import practice1.utilities.StringUtilities;
 
 import java.io.IOException;
 import java.util.*;
@@ -65,39 +66,12 @@ public class VectorSpaceModel {
                 listTF.add(freq);
             } else {
                 double k = 0.9;
-                double tf = (double) ((k + 1) * freq) / (k + freq);
+                double tf = ((k + 1) * freq) / ((double)(k + freq));
                 listTF.add(tf);
             }
         }
 
         return listTF;
-    }
-
-    public Double idf(String token, List<Document> docs) {
-
-        int nbdocs = 0;
-        int i = 0;
-        Double idf;
-        List<String> words = new ArrayList<>();
-
-        while (i < docs.size()) {
-
-            StringTokenizer st = new StringTokenizer(docs.get(i).getContent().toLowerCase());
-            while (st.hasMoreTokens()) {
-
-                words.add(st.nextToken());
-            }
-            if (words.contains(token)) {
-                nbdocs++;
-                i++;
-            }
-        }
-        if (nbdocs != 0)
-            idf = Math.log(((docs.size() + 1) / (double) (nbdocs)));
-        else
-            idf = Math.log(((docs).size() + 1) / (double) (nbdocs + 1));
-
-        return idf;
     }
 
     public List<Double> getIDF() throws IOException {
@@ -106,7 +80,7 @@ public class VectorSpaceModel {
         int nbDoc = index.getDocuments().size();
         int totalNbDocWordPresent = 0;
         for (String word : index.getBowFor(nlp_method)) {
-            int nbDocWordPresent = index.getWordToDocument().get(nlp_method).get(word).size();
+            totalNbDocWordPresent = index.getWordToDocument().get(nlp_method).get(word).size();
 
             double idf = 0.0f;
             if (nbDoc != 0) {
@@ -123,6 +97,7 @@ public class VectorSpaceModel {
 
     // computing ranking scores between the query and each one of the documents
     public List<Document> getRankingScoresVSM(EvaluationEntity e) throws IOException {
+        StringUtilities su = new StringUtilities();
 
         List<Integer> queryVector = indexDocument(e.getQuery());
 
@@ -132,9 +107,12 @@ public class VectorSpaceModel {
             for (Document doc : documents) {
                 Document resultDoc = new Document();
                 resultDoc.setId(doc.getId());
-                resultDoc.setName(doc.getContent());
+                resultDoc.setContent(doc.getContent());
 
                 List<Integer> vectdoc = indexDocument(doc);
+                if(su.hasOneToken(e.getQuery().getContent())==true){
+                    doc.setContent(su.getAcronym(e.getQuery().getContent()));
+                    vectdoc = indexDocument(doc);}
 
                 double sum = 0;
 
@@ -156,8 +134,11 @@ public class VectorSpaceModel {
             for (Document doc : documents) {
                 Document resultdoc = new Document();
                 resultdoc.setId(doc.getId());
-                resultdoc.setName(doc.getContent());
-                List<Double> listdocTF = getTF(e.getQuery(), index.getBowFor(nlp_method), false);
+                resultdoc.setContent(doc.getContent());
+                List<Double> listdocTF = getTF(doc, index.getBowFor(nlp_method), false);
+                if(su.hasOneToken(e.getQuery().getContent())==true){
+                    doc.setContent(su.getAcronym(e.getQuery().getContent()));
+                    listdocTF = getTF(doc, index.getBowFor(nlp_method), false);}
                 List<Double> docTF = new Vector<>(listdocTF);
                 double sum = 0;
                 for (int i = 0; i < vectTF.size(); i++) {
@@ -166,7 +147,6 @@ public class VectorSpaceModel {
                 }
 
                 resultdoc.setScore(sum);
-
                 dotProduct.add(resultdoc);
             }
         } else if (version.equals(VSM_TFIDF)) {
@@ -176,11 +156,15 @@ public class VectorSpaceModel {
             List<Double> listIDF = getIDF();
             List<Double> vectIDF = new Vector<>(listIDF);
 
+
             for (Document doc : documents) {
                 Document resultdoc = new Document();
                 resultdoc.setId(doc.getId());
-                resultdoc.setName(doc.getContent());
-                List<Double> listdocTF = getTF(e.getQuery(), index.getBowFor(nlp_method), false);
+                resultdoc.setContent(doc.getContent());
+                List<Double> listdocTF = getTF(doc, index.getBowFor(nlp_method), false);
+                if(su.hasOneToken(e.getQuery().getContent())==true){
+                    doc.setContent(su.getAcronym(e.getQuery().getContent()));
+                    listdocTF = getTF(doc, index.getBowFor(nlp_method), false);}
                 List<Double> vectdocTF = new Vector<>(listdocTF);
                 double sum = 0;
                 for (int i = 0; i < vectqueryTF.size(); i++) {
@@ -203,8 +187,11 @@ public class VectorSpaceModel {
             for (Document doc : documents) {
                 Document resultdoc = new Document();
                 resultdoc.setId(doc.getId());
-                resultdoc.setName(doc.getContent());
-                List<Double> listdocTF = getTF(e.getQuery(), index.getBowFor(nlp_method), true);
+                resultdoc.setContent(doc.getContent());
+                List<Double> listdocTF = getTF(doc, index.getBowFor(nlp_method), true);
+                if(su.hasOneToken(e.getQuery().getContent())==true){
+                    doc.setContent(su.getAcronym(e.getQuery().getContent()));
+                    listdocTF = getTF(doc, index.getBowFor(nlp_method), true);}
                 List<Double> vectdocTF = new Vector<>(listdocTF);
 
                 double sum = 0;

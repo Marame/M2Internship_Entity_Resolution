@@ -4,6 +4,7 @@ import practice1.Index;
 import practice1.Lemmatizer;
 import practice1.entities.Document;
 import practice1.entities.EvaluationEntity;
+import practice1.utilities.StringUtilities;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -12,7 +13,7 @@ import java.util.*;
 /**
  * Created by romdhane on 20/07/17.
  */
-public class NGram {
+public class NGramModel {
     static LinkedList<Document> sentences = new LinkedList<>();
     private List<Document> resultList = new ArrayList<>();
     private Lemmatizer lem;
@@ -22,9 +23,10 @@ public class NGram {
     private int ngram;
 
 
+
     private double average;
 
-    public NGram( String nlp_method, Lemmatizer lem, Index index, int ngram) {
+    public NGramModel(String nlp_method, Lemmatizer lem, Index index, int ngram) {
         this.nlp_method = nlp_method;
         this.lem = lem;
         this.index = index;
@@ -35,20 +37,14 @@ public class NGram {
         this.ngram = n;
     }
 
-    public double getAverage() {
-        return average;
-    }
 
-
-    public void setVocab_size(int vocab_size) {
-        this.vocab_size = vocab_size;
-    }
 
     public List<String> ngrams(String str) {
         List<String> ngrams = new ArrayList<String>();
         String[] words = str.split(" ");
         for (int i = 0; i < words.length - ngram + 1; i++)
             ngrams.add(concat(words, i, i + ngram));
+
         return ngrams;
     }
 
@@ -78,17 +74,6 @@ public class NGram {
         return nGrams;
     }
 
-    /*public int computeFrequency(String sample) throws IOException {
-        FileReader fr = new FileReader(filenameDocuments);
-        CSVReader br = new CSVReader(fr);
-        int count = 0;
-        String[] line = null;
-        while ((line = br.readNext()) != null) {
-            if (line[1].toLowerCase().indexOf(sample.toLowerCase()) != -1) count++;
-        }
-        return count;
-
-    }*/
 
     public int computeIntersection(String querySample, String docSample) {
 
@@ -101,11 +86,12 @@ public class NGram {
                 String[] tokens_d = d.split(" ");
                 for (String st : tokens_d) {
 
-                    if ((q.toLowerCase().indexOf(st.toLowerCase()) != -1) && (!listIntersect.contains(st)))
-                        listIntersect.add(st);
+                    if ((q.toLowerCase().indexOf(st.toLowerCase()) != -1) && (!listIntersect.contains(d)))
+                        listIntersect.add(d);
                 }
             }
         }
+
             inter = listIntersect.size();
         return inter;
     }
@@ -172,10 +158,10 @@ public class NGram {
         return prod;
     }*/
 
-    public Map<Document, Map<String, Double>> computeFeatures(EvaluationEntity e, String similarity) throws IOException {
+   /* public Map<Document, Map<String, Double>> computeFeatures(EvaluationEntity e, String similarity) throws IOException {
         Map<Document, Map<String, Double>> nGramsFeatures = new HashMap<Document, Map<String, Double>>();
         Map<Document, List<String>> ngrams = ngramSamples();
-        double average = 0;
+
         for (Document st : ngrams.keySet()) {
 
             Map<String, Double> ngramMap = new HashMap<>();
@@ -188,33 +174,28 @@ public class NGram {
                 else if(similarity.equals("Dice")) ngramMap.put(sentence, computeDice(e.getQuery().getContent(), sentence));
                 sum += computeJaccard(e.getQuery().getContent(), sentence);
             }
-            average = sum/ngrams.size();
+            //average = sum/ngrams.size();
             nGramsFeatures.put(st, ngramMap);
 
             }
 
         return nGramsFeatures;
-    }
+    }*/
 
     public List<Document> getRankingScoresNgram(EvaluationEntity e, String similarity) throws IOException {
 
-        Map<Document, Map<String, Double>> nGramsFeatures = computeFeatures(e, "Jaccard");
-
-        for (Document st : nGramsFeatures.keySet()) {
+        //Map<Document, Map<String, Double>> nGramsFeatures = computeFeatures(e, "Jaccard");
+        StringUtilities su = new StringUtilities();
+        for (Document st : index.nlpToDocs(index.getDocuments(), nlp_method)) {
+            double score = 0.0;
             Document resultdoc = new Document();
             resultdoc.setId(st.getId());
-            resultdoc.setName(st.getContent());
-
-            double sum = 0;
-            double average = 0;
-
-            for (String s : nGramsFeatures.get(st).keySet()) {
-                //System.out.println("key=" + "\t" + s);
-                // System.out.println("jaccard score=" + "\t" + nGramsFeatures.get(st).get(s));
-                sum += nGramsFeatures.get(st).get(s);
-            }
-            average = sum / (double) nGramsFeatures.get(st).keySet().size();
-            resultdoc.setScore(average);
+            resultdoc.setContent(st.getContent());
+            Document newQuery = index.nlpToDoc(e.getQuery(), nlp_method);
+            if(su.hasOneToken(e.getQuery().getContent())==true){
+            score = computeJaccard(newQuery.getContent(), su.getAcronym(st.getContent()));}
+            if(Double.isNaN(score)) score = 0.0;
+            resultdoc.setScore(score);
             resultList.add(resultdoc);
             //System.out.println("average:" + "\t" + average);
 

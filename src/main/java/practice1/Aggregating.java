@@ -1,6 +1,7 @@
 package practice1;
 
 import com.opencsv.CSVReader;
+import practice1.utilities.StringUtilities;
 
 import java.io.*;
 import java.util.HashSet;
@@ -28,8 +29,11 @@ public class Aggregating {
         }
         writer.close();
     }
-    public void aggregate(String filenameQueries, String filenameDocs ,String newfilenameQueries) throws  IOException {
 
+    public void aggregate(String filenameQueries, String filenameDocs ,String newfilenameQueries) throws  IOException {
+        stripDuplicatesFromFile(filenameQueries);
+
+        StringUtilities su = new StringUtilities();
         try {
             stripDuplicatesFromFile(filenameQueries);
             frq = new FileReader(filenameQueries);
@@ -41,38 +45,52 @@ public class Aggregating {
             PrintWriter pw = new PrintWriter(new File(newfilenameQueries));
             while ((lineq = brq.readNext()) != null) {
 
-                frd = new FileReader(filenameDocs);
-                CSVReader brd = new CSVReader(frd);
+                if ((lineq[0].equals("organisation"))) {
 
-                String[] lined = null;
-                String relids = "";
-                int id =0;
-                while ((lined = brd.readNext()) != null ) {
+                    frd = new FileReader(filenameDocs);
+                    CSVReader brd = new CSVReader(frd);
 
-                    if (lined[3].indexOf(lineq[2]) != -1) {
+                    String[] lined = null;
+                    String relids = "";
+                    int id = 0;
 
-                        relids += lined[1] + " ";
-                        System.out.println(relids);
+                    while ((lined = brd.readNext()) != null) {
+                        if (lined[0].equals("organisation")) {
+
+                            if ((su.hasOneToken(lineq[3]) == true)) {
+                                String acronym = su.getAcronym(lined[3].replaceAll("\\s+", " "));
+                                if ((acronym.equals(lineq[3].toUpperCase()))) {
+                                    relids += lined[1] + " ";
+                                }
+                            } else if ((su.hasOneToken(lined[3]) == false)) {
+
+                                if ((lined[3].indexOf(lineq[3]) != -1)) {
+
+                                    relids += lined[1] + " ";
+                                }
+                                id++;
+                            }
+                        }
                     }
-                    id ++;
+                        if (relids != "") {
+
+                            StringBuilder sb = new StringBuilder();
+                            sb.append("\"" + lineq[1] + "\"");
+                            sb.append(',');
+                            sb.append("\"" + lineq[3].replaceAll("[-+.^:,_&/?]", "") + "\"");
+                            sb.append(',');
+                            sb.append("\"" + relids + "\"");
+                            sb.append('\n');
+                            pw.write(sb.toString());
+                        }
+
+                        iq++;
+                    }
                 }
+                pw.close();
 
-                  if (relids !=""){
 
-                    StringBuilder sb = new StringBuilder();
 
-                    sb.append("\""+lineq[0]+"\"");
-                    sb.append(',');
-                    sb.append("\""+lineq[2].replaceAll("[-+.^:,_&/?]","")+"\"");
-                    sb.append(',');
-                    sb.append("\""+relids+"\"");
-                    sb.append('\n');
-                    pw.write(sb.toString());}
-
-                iq++;
-            }
-
-              pw.close();
         } catch (IOException e) {
 
             e.printStackTrace();

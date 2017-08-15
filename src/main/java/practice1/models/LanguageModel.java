@@ -6,6 +6,7 @@ import practice1.Lemmatizer;
 import practice1.Main;
 import practice1.entities.Document;
 import practice1.entities.EvaluationEntity;
+import practice1.utilities.StringUtilities;
 
 import java.util.*;
 import static practice1.Index.LEMMATIZING_NLP_METHOD;
@@ -67,7 +68,7 @@ public class LanguageModel {
         return words;
     }
 
-    public double probWordCollection(String word, EvaluationEntity e) {
+    public double probWordCollection(String word) {
         double sumfreq = 0;
         double sumsize = 0;
         final List<Document> documents = index.getDocuments();
@@ -77,7 +78,7 @@ public class LanguageModel {
             stem.setCurrent(word);
             stem.stem();
             String resword = stem.getCurrent();
-            for (Document doc : documents) {
+            for (Document doc : index.nlpToDocs(documents, nlp_method)) {
                 List<String> wordsDoc = docWords(doc);
                 double freq = (double) Collections.frequency(wordsDoc, resword);
                 sumfreq += freq;
@@ -86,7 +87,7 @@ public class LanguageModel {
         } else if (nlp_method.equals(LEMMATIZING_NLP_METHOD)) {
 
             String resword = lem.lemmatize(word).get(0);
-            for (Document doc : documents) {
+            for (Document doc : index.nlpToDocs(documents, nlp_method)) {
                 List<String> wordsDoc = docWords(doc);
                 double freq = (double) Collections.frequency(wordsDoc, resword);
                 sumfreq += freq;
@@ -100,15 +101,15 @@ public class LanguageModel {
                 sumfreq += freq;
                 sumsize += (double) doc.getContent().length();
             }
-
         }
 
         double prob = sumfreq / sumsize;
+        //if(DIRICHLET_SMOOTHING.equals(smoothing_version)) System.out.println(prob);
 
         return prob;
     }
 
-    public double probWord(String word, Document doc, EvaluationEntity e, String smoothing_version) {
+    public double probWord(String word, Document doc, String smoothing_version) {
         double smoothedProb = 0;
 
         List<String> wordsDoc = docWords(doc);
@@ -119,71 +120,81 @@ public class LanguageModel {
             stem.stem();
             String resword = stem.getCurrent();
             double freq = (double) Collections.frequency(wordsDoc, resword);
-            double prob = freq / (double) doc.getContent().length();
-            double probC = probWordCollection(resword, e);
+            //double prob = freq / (double) doc.getContent().length();
+            double probC = probWordCollection(resword);
             if (smoothing_version.equals(Main.JELINEK_SMOOTHING)) {
-                smoothedProb = (((1 - lambda) / lambda) * prob) / probC;
+                smoothedProb = (((1 - lambda) / lambda) * freq) / probC;
 
-            } else if (smoothing_version.equals(LEMMATIZING_NLP_METHOD)) {
-                smoothedProb = freq * (mu * probC);
 
+            } else if (smoothing_version.equals(DIRICHLET_SMOOTHING)) {
+                smoothedProb = freq /(mu * probC);
             }
         } else if (nlp_method.equals(LEMMATIZING_NLP_METHOD)) {
 
             String resword = lem.lemmatize(word).get(0);
             double freq = (double) Collections.frequency(wordsDoc, resword);
-            double prob = freq / (double) doc.getContent().length();
-            double probC = probWordCollection(resword, e);
+            //double prob = freq / (double) doc.getContent().length();
+            double probC = probWordCollection(resword);
             if (smoothing_version.equals(Main.JELINEK_SMOOTHING)) {
-                smoothedProb = (((1 - lambda) / lambda) * prob) / probC;
-
-            } else if (smoothing_version.equals(Main.DIRICHLET_SMOOTHING)) {
-                smoothedProb = freq * (mu * probC);
-            }
-        }
-        else {
-            double freq = (double) Collections.frequency(wordsDoc, word);
-            double prob = freq / (double) doc.getContent().length();
-            double probC = probWordCollection(word, e);
-            if (smoothing_version.equals(Main.JELINEK_SMOOTHING)) {
-                smoothedProb = (((1 - lambda) / lambda) * prob) / probC;
+                smoothedProb = (((1 - lambda) / lambda) * freq) / probC;
 
             } else if (smoothing_version.equals(Main.DIRICHLET_SMOOTHING)) {
                 smoothedProb = freq /(mu * probC);
 
             }
         }
+        else {
+            double freq = (double) Collections.frequency(wordsDoc, word);
+            double probC = probWordCollection(word);
+            if (smoothing_version.equals(Main.JELINEK_SMOOTHING)) {
+                smoothedProb = (((1 - lambda) / lambda) * freq) / probC;
 
+            } else if (smoothing_version.equals(Main.DIRICHLET_SMOOTHING)) {
+                smoothedProb = freq /(mu * probC);
+
+            }
+        }
         return smoothedProb;
     }
 
     public List<Document> getRankingScoresLM(EvaluationEntity e, String smoothing_version) {
+        StringUtilities su = new StringUtilities();
         final List<Document> documents = index.getDocuments();
 
-        for (Document doc : documents) {
+        List<String> listwordsQuery = docWords(e.getQuery());
+
+        for (Document doc : index.nlpToDocs(documents, nlp_method)) {
             Document resultdoc = new Document();
-            double sum_jm = 0;
-            double sum_dp = 0;
-            List<String> listwordsQuery = docWords(e.getQuery());
+            resultdoc.setId(doc.getId());
+            resultdoc.setContent(doc.getContent());
+
+            double sum_jmdp = 0.0;
 
                 for (String word : listwordsQuery) {
+                    double freqWordQuery = (double) Collections.frequency(listwordsQuery, word);
 
                     if (doc.getContent().toLowerCase().indexOf(word.toLowerCase()) != -1) {
-                        double freqWordQuery = (double) Collections.frequency(listwordsQuery, word);
+                        if(su.hasOneToken(e.getQuery().getContent())==false) {
+                           if(Double.isNaN(probWord(word, doc, smoothing_version))) continue;
+                            sum_jmdp += freqWordQuery * Math.log(1 + probWord(word, doc, smoothing_version));
+                        }
+                        else {
+                            doc.setContent(su.getAcronym(doc.getContent()));
+                            sum_jmdp += freqWordQuery * Math.log(1 + probWord(word, doc, smoothing_version));
+                        }
+                        if (smoothing_version.equals(Main.DIRICHLET_SMOOTHING)) {
+                            double smooth_factor = listwordsQuery.size() * (mu / (mu + docWords(doc).size()));
+                            sum_jmdp += smooth_factor;
+                        }
+                    } else continue;
+                }
 
-                        sum_dp += freqWordQuery * Math.log(1 + probWord(word, doc, e, smoothing_version));
-                    }
-                    if(smoothing_version.equals(Main.DIRICHLET_SMOOTHING)){
-                        double smooth_factor = listwordsQuery.size() * (mu / (mu + docWords(doc).size()));
-                       sum_dp+= smooth_factor;
-                    }
-                    resultdoc.setId(doc.getId());
-                    resultdoc.setName(doc.getContent());
-                    resultdoc.setScore(sum_dp );
+
+                resultdoc.setScore(sum_jmdp);
+
+                listRankingResults.add(resultdoc);
             }
-            listRankingResults.add(resultdoc);
+            return listRankingResults;
         }
-        return listRankingResults;
-    }
 
-}
+    }
