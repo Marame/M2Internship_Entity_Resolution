@@ -17,9 +17,14 @@ public class Index {
     public final static String STEMMING_NLP_METHOD = "stemming";
     public final static String LEMMATIZING_NLP_METHOD = "lemmatizing";
 
+    public final static String VSM_BINARY = "Binary";
+    public final static String VSM_TF = "TF";
+    public final static String VSM_TFIDF = "TF/IDF";
+    public final static String VSM_BM25 = "BM25";
+
     //Versions of smoothing in Language Model
-    public static List<String> nlp_methods = Arrays.asList(NO_NLP_METHOD,STEMMING_NLP_METHOD, LEMMATIZING_NLP_METHOD);
-    private Index index;
+    public static List<String> nlp_methods = Arrays.asList(LEMMATIZING_NLP_METHOD);
+    private int vocab_size;
 
 
     public static String[] STOP_WORDS = {"a", "as", "able", "about", "above", "according", "accordingly", "across", "actually", "after", "afterwards", "again", "against", "aint", "all",
@@ -48,8 +53,13 @@ public class Index {
 
     private Tokenizer tokeniser;
     private List<Document> documents;
+    public double avgDocsLength;
     private String version;
     private String nlp_method;
+
+    public int getVocab_size() {
+        return vocab_size;
+    }
 
     public List<Document> getDocuments() {
         return documents;
@@ -63,8 +73,9 @@ public class Index {
         this.tokeniser = tokeniser;
     }
 
-
-
+    public double getAvgDocsLength() {
+        return avgDocsLength;
+    }
 
     public void indexAll() {
         //LOGGER.info("Start indexing...");
@@ -74,24 +85,22 @@ public class Index {
             bow.put(nlp_method, bagOfWords(nlp_method));
             wordToDocument.put(nlp_method, generateWordToDocument(nlp_method, tokeniser));
         }
-
         //LOGGER.info("Finished indexing...");
     }
 
-    public int getDocsPresent(String token, List<Document> documents) {
-        int nbdocs = 0;
-        int i = 0;
-        while (i < documents.size()) {
 
-            String[] tokens = documents.get(i).getContent().split(" ");
-            if (Arrays.asList(tokens).contains(token)) {
-                nbdocs++;
-                i++;
-            }
+    public void getAvgLength(List<Document> docs){
+        double avg =0;
+        double average;
+        for (Document doc:documents) {
+            String[] tokens = doc.getContent().split(" ");
+            avg+=tokens.length;
+
         }
-        return nbdocs;
-    }
+        average = avg/(double)docs.size();
+        this.avgDocsLength = average;
 
+    }
 
     public Map<String, List<Integer>> generateWordToDocument(String method, Tokenizer tokeniser) {
         Map<String, List<Integer>> wordToDocs = new HashMap<>();
@@ -100,25 +109,30 @@ public class Index {
             int nbDocs = 0;
             for (Document document : documents) {
                 List<String> tokens = tokeniser.tokenise(document.getContent(), method);
-                if (tokens.contains(word)) {
+                if (document.getContent().indexOf(word) !=-1) {
                     if (wordToDocs.get(word) == null) {
-                        nbDocs ++;
+
                         wordToDocs.put(word, new ArrayList<Integer>());
                     }
-
-                    wordToDocs.get(word).add(document.getId());
+                     wordToDocs.get(word).add(document.getId());
                 }
+
+               else  wordToDocs.put(word, new ArrayList<Integer>());
             }
+
         }
         return wordToDocs;
     }
+
+
+
 
 
     public List<String> bagOfWords(String nlp_method) {
 
         List<String> bagOfWord = new ArrayList<>();
         List<String> stopWords = new ArrayList<>(Arrays.asList(STOP_WORDS));
-
+        int num_tokens = 0;
         for (Document d : documents) {
             final List<String> tokens = tokeniser.tokenise(d.getContent(), nlp_method);
 
@@ -127,10 +141,11 @@ public class Index {
                     continue;
                 } else {
                     bagOfWord.add(token);
+                    num_tokens++;
                 }
             }
         }
-
+        this.vocab_size = num_tokens;
         return bagOfWord;
 
     }

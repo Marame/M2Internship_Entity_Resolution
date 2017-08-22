@@ -26,7 +26,7 @@ public class LanguageModel {
     private double lambda = 0.4;
     private double mu = 2;
 
-    private List<String> bow;
+  
     public Lemmatizer lem;
     private Index index;
 
@@ -158,12 +158,14 @@ public class LanguageModel {
     }
 
     public List<Document> getRankingScoresLM(EvaluationEntity e, String smoothing_version) {
+
         StringUtilities su = new StringUtilities();
         final List<Document> documents = index.getDocuments();
 
         List<String> listwordsQuery = docWords(e.getQuery());
 
         for (Document doc : index.nlpToDocs(documents, nlp_method)) {
+
             Document resultdoc = new Document();
             resultdoc.setId(doc.getId());
             resultdoc.setContent(doc.getContent());
@@ -188,12 +190,10 @@ public class LanguageModel {
                         }
                     } else continue;
                 }
-
-
                 resultdoc.setScore(sum_jmdp);
-
                 listRankingResults.add(resultdoc);
             }
+
             return listRankingResults;
         }
 

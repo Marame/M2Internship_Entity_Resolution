@@ -9,26 +9,50 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
  * Created by romdhane on 19/07/17.
  */
-public class ParseFiles {
+public class ParseCorpus {
 
     private FileReader fr = null;
     private FileReader frq = null;
     private FileReader frd = null;
     String nlpUsed ;
     private List<EvaluationEntity> ee = new ArrayList<>();
+    List<Document> documents;
     int vocab_size =0;
 
     public void setNlpUsed(String nlpUsed) {
         this.nlpUsed = nlpUsed;
     }
 
-    public List<EvaluationEntity> parseArgs(String filenameQueries, String filenameDocs, String nlpUsed) {
+    public List<Document> retrieveDocuments(String filenameDocs, String nlpUsed) throws FileNotFoundException, IOException{
+
+        List<Document> docs = new ArrayList<>();
+        frd = new FileReader(filenameDocs);
+        CSVReader brd = new CSVReader(frd);
+        String[] lined = null;
+        int line_id =0;
+        while ((lined = brd.readNext()) != null&&(line_id<200)) {
+            line_id ++;
+
+            Document doc = new Document();
+            if(nlpUsed.equals("false")){
+                doc.setId(Integer.parseInt(lined[1]));
+                doc.setContent(lined[3].replaceAll("[-+.^:,_&/?]","")+"\"");}
+            else {
+                doc.setId(Integer.parseInt(lined[0]));
+                doc.setContent(lined[1]);
+            }
+            docs.add(doc);
+        }
+      this.documents = docs;
+        return docs;
+    }
+
+    public List<EvaluationEntity> parseArgs(String filenameQueries, String filenameDocs, String nlpUsed)throws IOException {
 
         try {
 
@@ -48,53 +72,55 @@ public class ParseFiles {
 
                 e.setQuery(query);
 
-                frd = new FileReader(filenameDocs);
-                CSVReader brd = new CSVReader(frd);
-                String[] lined = null;
-                while ((lined = brd.readNext()) != null) {
-
-                    Document doc = new Document();
 
                     //String[] lined = sCurrentLined.split("\"?(,|$)(?=(([^\"]*\"){2})*[^\"]*$) *\"?");
                     if(!nlpUsed.equals("true")) {
-                        int documentId = Integer.parseInt(lined[1]);
 
-                        doc.setId(documentId);
                         String[] queryReleventIds = lineq[2].split(" ");
 
                         // if contained, the current document is relevant
-                        if (Arrays.asList(queryReleventIds).contains(lined[1])) {
-                            Document reldoc = new Document();
-                            reldoc.setId(documentId);
-                            reldoc.setContent(lined[3]);
-                            relevantDocuments.add(reldoc);
+                        for (String relId : queryReleventIds) {
+                            int valId = Integer.parseInt(relId.replaceAll("\"", ""));
+
+                            for (Document Doc : documents) {
+
+                                if (Doc.getId() == valId) {
+                                    Document reldoc = new Document();
+                                    reldoc.setId(valId);
+                                    reldoc.setContent(Doc.getContent());
+                                    relevantDocuments.add(reldoc);
+
+                                }
+                            }
                         }
                     }
                     else {
-                        int documentId = Integer.parseInt(lined[0]);
 
-                        doc.setId(documentId);
-                        String[] queryReleventIds = lineq[2].split("\\s+");
+                        String[] queryReleventIds = lineq[2].split(" ");
 
-                        //System.out.println(queryReleventIds);
 
                         // if contained, the current document is relevant
-                        if (Arrays.asList(queryReleventIds).contains(lined[0])) {
-                            Document reldoc = new Document();
-                            reldoc.setId(documentId);
-                            reldoc.setContent(lined[1]);
-                            relevantDocuments.add(reldoc);
+                        for (String relId : queryReleventIds) {
+                            int valId = Integer.parseInt(relId.replaceAll("\"", ""));
+
+                            for (Document Doc : documents) {
+
+                                if (Doc.getId() == valId) {
+                                    Document reldoc = new Document();
+                                    reldoc.setId(valId);
+                                    reldoc.setContent(Doc.getContent());
+                                    relevantDocuments.add(reldoc);
+
+                                }
+                            }
                         }
 
                     }
 
-                }
                 e.setRelevant_documents(relevantDocuments);
                 ee.add(e);
-                 //vocab_size += e.getBagOfWords().size();
-            }
 
-            //ng.setVocab_size(vocab_size);
+            }
 
         } catch (IOException e) {
 
@@ -118,27 +144,6 @@ public class ParseFiles {
         return ee;
     }
 
-    public List<Document> retrieveDocuments(String filenameDocs, String nlpUsed) throws FileNotFoundException, IOException{
-
-        List<Document> docs = new ArrayList<>();
-        frd = new FileReader(filenameDocs);
-        CSVReader brd = new CSVReader(frd);
-        String[] lined = null;
-        while ((lined = brd.readNext()) != null) {
-
-            Document doc = new Document();
-            if(nlpUsed.equals("false")){
-                doc.setId(Integer.parseInt(lined[1]));
-                doc.setContent(lined[3].replaceAll("[-+.^:,_&/?]","")+"\"");}
-            else {
-                doc.setId(Integer.parseInt(lined[0]));
-                doc.setContent(lined[1]);
-            }
-            docs.add(doc);
-        }
-
-        return docs;
-    }
 
 
 

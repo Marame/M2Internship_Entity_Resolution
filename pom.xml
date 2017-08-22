@@ -32,11 +32,7 @@
         <version>2.1</version>
         <scope>test</scope>
     </dependency>
-    <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-api</artifactId>
-        <version>1.7.5</version>
-    </dependency>
+
     <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-simple</artifactId>
@@ -54,32 +50,21 @@
         <artifactId>opencsv</artifactId>
         <version>3.3</version>
     </dependency>
-    <!-- https://mvnrepository.com/artifact/com.google.apis/google-api-services-translate -->
+
+    <!-- https://mvnrepository.com/artifact/gov.nist.math/jama -->
     <dependency>
-        <groupId>com.google.apis</groupId>
-        <artifactId>google-api-services-translate</artifactId>
-        <version>v2-rev10-1.13.2-beta</version>
+        <groupId>gov.nist.math</groupId>
+        <artifactId>jama</artifactId>
+        <version>1.0.3</version>
     </dependency>
 
-    <!-- https://mvnrepository.com/artifact/com.googlecode/google-api-translate-java -->
+    <!-- https://mvnrepository.com/artifact/de.julielab/aliasi-lingpipe -->
     <dependency>
-        <groupId>com.googlecode</groupId>
-        <artifactId>google-api-translate-java</artifactId>
-        <version>0.92</version>
+        <groupId>de.julielab</groupId>
+        <artifactId>aliasi-lingpipe</artifactId>
+        <version>4.1.0</version>
     </dependency>
 
-    <!-- https://mvnrepository.com/artifact/com.nervepoint/google-translate-v2-java-maven-plugin -->
-    <dependency>
-        <groupId>com.nervepoint</groupId>
-        <artifactId>google-translate-v2-java-maven-plugin</artifactId>
-        <version>0.0.3</version>
-    </dependency>
-    <!-- https://mvnrepository.com/artifact/com.google.cloud/google-cloud-translate -->
-    <dependency>
-        <groupId>com.google.cloud</groupId>
-        <artifactId>google-cloud-translate</artifactId>
-        <version>0.3.0</version>
-    </dependency>
 
 </dependencies>
 

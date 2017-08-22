@@ -6,9 +6,10 @@ import practice1.entities.Document;
 import practice1.entities.EvaluationEntity;
 import practice1.utilities.StringUtilities;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Created by romdhane on 20/07/17.
@@ -23,9 +24,6 @@ public class NGramModel {
     private int ngram;
 
 
-
-    private double average;
-
     public NGramModel(String nlp_method, Lemmatizer lem, Index index, int ngram) {
         this.nlp_method = nlp_method;
         this.lem = lem;
@@ -36,8 +34,6 @@ public class NGramModel {
     public void setN(int n) {
         this.ngram = n;
     }
-
-
 
     public List<String> ngrams(String str) {
         List<String> ngrams = new ArrayList<String>();
@@ -55,24 +51,6 @@ public class NGramModel {
         return sb.toString();
     }
 
-
-    public Map<Document, List<String>> ngramSamples() throws IOException, FileNotFoundException {
-
-        Map<Document, List<String>> nGrams = new HashMap<Document, List<String>>();
-        final List<Document> documents = index.getDocuments();
-
-        for (Document doc: documents) {
-
-            sentences.add(doc);
-        }
-
-        for (Document sentence : sentences) {
-            //Map<String, Integer> ngramMap = new HashMap<>();
-            //nGrams set
-            nGrams.put(sentence, ngrams(sentence.getContent()));
-        }
-        return nGrams;
-    }
 
 
     public int computeIntersection(String querySample, String docSample) {
@@ -193,8 +171,13 @@ public class NGramModel {
             resultdoc.setContent(st.getContent());
             Document newQuery = index.nlpToDoc(e.getQuery(), nlp_method);
             if(su.hasOneToken(e.getQuery().getContent())==true){
-            score = computeJaccard(newQuery.getContent(), su.getAcronym(st.getContent()));}
-            if(Double.isNaN(score)) score = 0.0;
+            score = computeJaccard(newQuery.getContent(), su.getAcronym(st.getContent()));
+            }
+                else
+            {
+                score = computeJaccard(newQuery.getContent(),st.getContent());
+          }
+            //if(Double.isNaN(score)) score = 0.0;
             resultdoc.setScore(score);
             resultList.add(resultdoc);
             //System.out.println("average:" + "\t" + average);
