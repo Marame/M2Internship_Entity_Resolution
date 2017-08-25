@@ -2,6 +2,9 @@ package practice1;
 
 
 import com.opencsv.CSVReader;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVRecord;
+import org.omg.CORBA.SystemException;
 import practice1.entities.Document;
 import practice1.entities.EvaluationEntity;
 
@@ -28,24 +31,24 @@ public class ParseCorpus {
         this.nlpUsed = nlpUsed;
     }
 
-    public List<Document> retrieveDocuments(String filenameDocs, String nlpUsed) throws FileNotFoundException, IOException{
+    public List<Document> retrieveDocuments(String filenameDocs, String nlpUsed) throws FileNotFoundException, IOException, SystemException {
 
         List<Document> docs = new ArrayList<>();
         frd = new FileReader(filenameDocs);
-        CSVReader brd = new CSVReader(frd);
-        String[] lined = null;
-        int line_id =0;
-        while ((lined = brd.readNext()) != null&&(line_id<200)) {
-            line_id ++;
 
+        Iterable<CSVRecord> records = null;
+        try {
+            CSVFormat csvFormat = CSVFormat.EXCEL.withHeader().withDelimiter(',');
+            records = csvFormat.parse(frd);
+        } catch (IOException e) {
+            System.out.println("cannot read csv file");
+        }
+
+        for (CSVRecord record : records) {
             Document doc = new Document();
-            if(nlpUsed.equals("false")){
-                doc.setId(Integer.parseInt(lined[1]));
-                doc.setContent(lined[3].replaceAll("[-+.^:,_&/?]","")+"\"");}
-            else {
-                doc.setId(Integer.parseInt(lined[0]));
-                doc.setContent(lined[1]);
-            }
+            doc.setId(Integer.parseInt(record.get(1)));
+            System.out.println(record.get(1));
+            doc.setContent(record.get(0));
             docs.add(doc);
         }
       this.documents = docs;
@@ -57,70 +60,47 @@ public class ParseCorpus {
         try {
 
             fr = new FileReader(filenameQueries);
-            CSVReader br = new CSVReader(fr);
-            String[] lineq = null;
+            Iterable<CSVRecord> records = null;
+            try {
+                CSVFormat csvFormat = CSVFormat.EXCEL.withHeader().withDelimiter(',');
+                records = csvFormat.parse(fr);
+            } catch (IOException e) {
+                System.out.println("cannot read csv file");
+            }
 
-            while ((lineq = br.readNext()) != null) {
+            for (CSVRecord record : records) {
                 EvaluationEntity e = new EvaluationEntity();
-
                 List<Document> relevantDocuments = new ArrayList<>();
-                int val = Integer.parseInt(lineq[0]);
+                int val = Integer.parseInt(record.get(0));
 
                 Document query = new Document();
                 query.setId(val);
-                query.setContent(lineq[1]);
-
+                query.setContent(record.get(1));
                 e.setQuery(query);
 
+                String[] queryReleventIds = record.get(2).split(" ");
 
-                    //String[] lined = sCurrentLined.split("\"?(,|$)(?=(([^\"]*\"){2})*[^\"]*$) *\"?");
-                    if(!nlpUsed.equals("true")) {
+                // if contained, the current document is relevant
+                for (String relId : queryReleventIds) {
+                    int valId = Integer.parseInt(relId);
 
-                        String[] queryReleventIds = lineq[2].split(" ");
+                    for (Document Doc : documents) {
 
-                        // if contained, the current document is relevant
-                        for (String relId : queryReleventIds) {
-                            int valId = Integer.parseInt(relId.replaceAll("\"", ""));
+                        if (Doc.getId() == valId) {
+                            Document reldoc = new Document();
+                            reldoc.setId(Doc.getId());
+                            reldoc.setContent(Doc.getContent());
+                            relevantDocuments.add(reldoc);
 
-                            for (Document Doc : documents) {
-
-                                if (Doc.getId() == valId) {
-                                    Document reldoc = new Document();
-                                    reldoc.setId(valId);
-                                    reldoc.setContent(Doc.getContent());
-                                    relevantDocuments.add(reldoc);
-
-                                }
-                            }
                         }
                     }
-                    else {
-
-                        String[] queryReleventIds = lineq[2].split(" ");
-
-
-                        // if contained, the current document is relevant
-                        for (String relId : queryReleventIds) {
-                            int valId = Integer.parseInt(relId.replaceAll("\"", ""));
-
-                            for (Document Doc : documents) {
-
-                                if (Doc.getId() == valId) {
-                                    Document reldoc = new Document();
-                                    reldoc.setId(valId);
-                                    reldoc.setContent(Doc.getContent());
-                                    relevantDocuments.add(reldoc);
-
-                                }
-                            }
-                        }
-
-                    }
+                }
 
                 e.setRelevant_documents(relevantDocuments);
                 ee.add(e);
 
             }
+
 
         } catch (IOException e) {
 
@@ -143,7 +123,6 @@ public class ParseCorpus {
         }
         return ee;
     }
-
 
 
 

@@ -15,6 +15,9 @@ import java.util.*;
  */
 public class Evaluation {
     private Index index;
+    int[] N = {10,20,30,40,50};
+    //int[] N = {10, 20, 30, 40, 50, 100, 150, 200, 250, 300, 350, 400, 420};
+    private List<EvaluationEntity> ee = new ArrayList<>();
     public final static String VSM_BINARY = "Binary";
     public final static String VSM_TF = "TF";
     public final static String VSM_TFIDF = "TF/IDF";
@@ -36,19 +39,9 @@ public class Evaluation {
     private double nCDG;
 
 
-    Double[][] precision_matrix = new Double[1000][100];
-    Double[][] recall_matrix = new Double[1000][100];
-    Double[][] F1_matrix = new Double[1000][100];
-    Double[][] ret_rel_matrix = new Double[1000][100];
-    Double[][] notret_notrel_matrix = new Double[1000][100];
-    Double[][] notret_rel_matrix = new Double[1000][100];
-    List<Document> results;
-
-    //Double[][] notret_rel_matrix = new Double[10][10];
-
-    //int[] N = {500, 800, 900, 1000, 1400};
-    //int[] N = {10,20,40, 50};
-    int[] N = {2,3};
+    public Evaluation(List<EvaluationEntity> ee) {
+        this.ee = ee;
+    }
 
     public double getMAP() {
         return MAP;
@@ -148,21 +141,24 @@ public class Evaluation {
 
         //counting relevant document that have been retrieved
         for (Document m : firstN) {
-
             Integer key = m.getId();
             for (Document d : relevant_docs) {
                 Integer keyd = d.getId();
-                if (keyd.equals(key)) ;
-                ret_relevant++;
+                if (keyd.equals(key)) {
+                    ret_relevant++;
+                }
 
             }
         }
         //counting the relevant documents that have not been retrieved
         List<Document> rest = results.subList(n, results.size());
         for (Document l : rest) {
-            int key = l.getId();
+            Integer key = l.getId();
             for (Document d : relevant_docs) {
-                if (d.getId() == key) notret_relevant++;
+                Integer keyd = d.getId();
+                if (keyd.equals(key)) {
+                    notret_relevant++;
+                }
             }
         }
 
@@ -170,8 +166,8 @@ public class Evaluation {
 
         notret_nonrelevant = rest.size() - notret_relevant;
 
-        precision = ret_relevant / ((double) (ret_relevant + ret_nonrelevant));
-        recall = ret_relevant / ((double) (ret_relevant + notret_relevant));
+        precision = ret_relevant / (double) (ret_relevant + ret_nonrelevant);
+        recall = ret_relevant / (double) (ret_relevant + notret_relevant);
         F1 = (2 * precision * recall) / (precision + recall);
 
         listresults.add(precision);
@@ -197,74 +193,66 @@ public class Evaluation {
         });
     }
 
-    public Map<EvaluationEntity, List<Document>> allocateResults(List<EvaluationEntity> ee, String smoothing_version, String vsm_version, String nlp_method, Lemmatizer l, Index index, int ngram, boolean lsiUsed) throws IOException {
+    public Map<EvaluationEntity, List<Document>> allocateResults(String smoothing_version, String vsm_version, String nlp_method, Lemmatizer l, Index index, int ngram, boolean lsiUsed) throws IOException {
         Map<EvaluationEntity, List<Document>> map = new HashMap<EvaluationEntity, List<Document>>();
 
         for (EvaluationEntity e : ee) {
 
             if (ngram > -1) {
-                    List<Document> results = new ArrayList<>();
-                    NGramModel Ngram = new NGramModel(nlp_method, l, index, ngram);
-                    results = Ngram.getRankingScoresNgram(e, nlp_method);
+                List<Document> results = new ArrayList<>();
+                NGramModel Ngram = new NGramModel(nlp_method, l, index, ngram);
+                results = Ngram.getRankingScoresNgram(e, nlp_method);
+                sortResults(results);
+                map.put(e, results);
 
-                    sortResults(results);
-
-                    map.put(e, results);
-
-                } else {
-                    if ("".equals(smoothing_version)) {
-                        if(lsiUsed==false){
+            } else {
+                if ("".equals(smoothing_version)) {
+                    if (lsiUsed == false) {
                         List<Document> results = new ArrayList<>();
                         VectorSpaceModel vsm = new VectorSpaceModel(vsm_version, nlp_method, index);
                         results = vsm.getRankingScoresVSM(e);
-                            sortResults(results);
-                            map.put(e, results);}
-                        else {
-                            List<Document> results = new ArrayList<>();
-                            LSIModel lsi = new LSIModel(vsm_version, index, nlp_method);
-                            results = lsi.getRankingScoresLSI(e);
-                            sortResults(results);
-                            map.put(e, results);
+                        sortResults(results);
+                        map.put(e, results);
+                    } else {
+                        List<Document> results = new ArrayList<>();
+                        LSIModel lsi = new LSIModel(vsm_version, index, nlp_method);
+                        results = lsi.getRankingScoresLSI(e);
+                        sortResults(results);
+                        map.put(e, results);
                             /*System.out.println("Query: " + e.getQuery().getContent());
                             for (Document d : results) {
                                 System.out.println(d.getId() + "->" + d.getContent() + "->" + d.getScore());
                             }*/
-                        }
-
-                   /* if (VSM_BINARY.equals(vsm_version)) {
-                        System.out.println("Query: " + e.getQuery().getContent());
-                        for (Document d : results) {
-                            System.out.println(d.getId() + "->" + d.getContent() + "->" + d.getScore());
-                        }
-
-                    }*/
-                    } else {
-                        List<Document> results = new ArrayList<>();
-                        LanguageModel lm = new LanguageModel(smoothing_version, nlp_method, l, index);
-                        results = lm.getRankingScoresLM(e, smoothing_version);
-                        sortResults(results);
-
-                        map.put(e, results);
-
                     }
+                } else {
+                    List<Document> results = new ArrayList<>();
+                    LanguageModel lm = new LanguageModel(smoothing_version, nlp_method, l, index);
+                    results = lm.getRankingScoresLM(e, smoothing_version);
+                    sortResults(results);
+                    map.put(e, results);
                 }
-
             }
-            return map;
         }
+        return map;
+    }
 
 
-    public void final_evaluation(List<EvaluationEntity> ee, String smoothing_version, String vsm_version, String nlp_method, Lemmatizer l, Index index, int ngram, boolean lsiUsed) throws IOException {
+    public List<Object> retrieve_evaluation_measures(String smoothing_version, String vsm_version, String nlp_method, Lemmatizer l, Index index, int ngram, boolean lsiUsed) throws IOException {
 
-        //int idx_ent = 0;
-        //for (EvaluationEntity e : ee) {
-        Map<EvaluationEntity, List<Document>> mapResults = allocateResults(ee, smoothing_version, vsm_version, nlp_method, l, index, ngram, lsiUsed);
+        List<Object> list_eval = new ArrayList<>();
+
+        Map<EvaluationEntity, List<Document>> mapResults = allocateResults(smoothing_version, vsm_version, nlp_method, l, index, ngram, lsiUsed);
+        Double[][] precision_matrix = new Double[ee.size()][N.length];
+        Double[][] recall_matrix = new Double[ee.size()][N.length];
+        Double[][] F1_matrix = new Double[ee.size()][N.length];
+        Double[][] ret_rel_matrix = new Double[ee.size()][N.length];
+        Double[][] notret_notrel_matrix = new Double[ee.size()][N.length];
+        Double[][] notret_rel_matrix = new Double[ee.size()][N.length];
 
         int idx_ent = 0;
         for (Map.Entry<EvaluationEntity, List<Document>> entry : mapResults.entrySet()) {
             EvaluationEntity e = entry.getKey();
             List<Document> results = entry.getValue();
-
 
             int idx_N = 0;
             for (Integer n : N) {
@@ -279,9 +267,25 @@ public class Evaluation {
                 idx_N++;
             }
             idx_ent++;
-
         }
+        //System.out.println(Arrays.deepToString(precision_matrix));
+        list_eval.add(precision_matrix);
+        list_eval.add(recall_matrix);
+        list_eval.add(F1_matrix);
+        list_eval.add(ret_rel_matrix);
+        list_eval.add(notret_notrel_matrix);
+        list_eval.add(notret_rel_matrix);
+        return list_eval;
+    }
 
+    public void final_evaluation(String smoothing_version, String vsm_version, String nlp_method, Lemmatizer l, Index index, int ngram, boolean lsiUsed) throws IOException {
+        List<Object> list_eval = retrieve_evaluation_measures(smoothing_version, vsm_version, nlp_method, l, index, ngram, lsiUsed);
+        Double[][] precision_matrix = (Double[][]) list_eval.get(0);
+        Double[][] recall_matrix = (Double[][]) list_eval.get(1);
+        Double[][] F1_matrix = (Double[][]) list_eval.get(2);
+        Double[][] ret_rel_matrix = (Double[][]) list_eval.get(3);
+        Double[][] notret_notrel_matrix = (Double[][]) list_eval.get(4);
+        Double[][] notret_rel_matrix = (Double[][]) list_eval.get(5);
         double sum_precision = 0;
         double sum_recall = 0;
         double sum_F1 = 0;
@@ -291,19 +295,24 @@ public class Evaluation {
 
         for (int i = 0; i < ee.size(); i++) {
             for (int j = 0; j < N.length; j++) {
+
                 sum_precision += precision_matrix[i][j];
                 sum_recall += recall_matrix[i][j];
-                //if(!Double.isNaN(recall_matrix[j][i]))
                 sum_F1 += F1_matrix[i][j];
                 sum_retrel += ret_rel_matrix[i][j];
                 sum_notretnotrel += notret_notrel_matrix[i][j];
                 sum_notretrel += notret_rel_matrix[i][j];
-                /*if ((j == 3) && (i == ee.size() - 1)) {
-                    //System.out.println("precision at" + j + "=" + sum_precision);
-                    double macro_average_precision = sum_precision / ee.size();
-                    this.macro_average_precision = macro_average_precision;
-                }*/
+                this.macro_average_precision = macro_average_precision;
+            }
+        }
+        //compute precisions@K
+        double sum_precision_k = 0;
+        for (int j = 0; j < (N.length - 1); j++) {
+            for (int k = 0; k < ee.size(); k++) {
 
+                sum_precision_k += F1_matrix[k][j];
+                //if (k == ee.size() - 1)
+                //  System.out.println("F1 at" + N[j] + "=" + sum_precision_k);
             }
         }
 
@@ -321,13 +330,23 @@ public class Evaluation {
         double micro_average_F1 = (2 * micro_average_precision * micro_average_recall) / (micro_average_precision + micro_average_recall);
         this.micro_average_F1 = micro_average_F1;
 
+    }
 
+    public List<Double> getEvaluationMeasures(String smoothing_version, String vsm_version, String nlp_method, Lemmatizer l, Index index, int ngram, boolean lsiUsed) throws IOException {
+
+        List<Double> evaluationMeasures = new ArrayList<>();
         //compute the mean average precision
-
         double sum_precision_N = 0;
         double total = 0;
         int i = 0;
-        Map<EvaluationEntity, List<Document>> mapresults = allocateResults(ee, smoothing_version, vsm_version, nlp_method, l, index, ngram, lsiUsed);
+        Map<EvaluationEntity, List<Document>> mapresults = allocateResults(smoothing_version, vsm_version, nlp_method, l, index, ngram, lsiUsed);
+        List<Object> list_eval = retrieve_evaluation_measures(smoothing_version, vsm_version, nlp_method, l, index, ngram, lsiUsed);
+        Double[][] precision_matrix = (Double[][]) list_eval.get(0);
+        Double[][] recall_matrix = (Double[][]) list_eval.get(1);
+        Double[][] F1_matrix = (Double[][]) list_eval.get(2);
+        Double[][] ret_rel_matrix = (Double[][]) list_eval.get(3);
+        Double[][] notret_notrel_matrix = (Double[][]) list_eval.get(4);
+        Double[][] notret_rel_matrix = (Double[][]) list_eval.get(5);
 
         for (Map.Entry<EvaluationEntity, List<Document>> entry : mapresults.entrySet()) {
             EvaluationEntity e = entry.getKey();
@@ -345,27 +364,30 @@ public class Evaluation {
             total += sum_precision_N;
             i++;
         }
-
         double MAP = total / (double) mapresults.entrySet().size();
-        this.MAP = MAP;
+        evaluationMeasures.add(MAP);
 
         //compute nCDG
-       /* double sum = 0;
+        double sum = 0;
         for (Map.Entry<EvaluationEntity, List<Document>> entry : mapresults.entrySet()) {
             EvaluationEntity e = entry.getKey();
             List<Document> results = entry.getValue();
             sortResults(results);
-            //for (int n : N) {
-                sum += CDGAtN(e, results,  50) / IdealCDGAtN(results, 50);
-            //}
+            for (int n : N) {
+                sum += CDGAtN(e, results,  n) / IdealCDGAtN(results, N[N.length -1]);
+            }
         }
 
         double nCDG = sum / (double) mapresults.entrySet().size();
-        this.nCDG = nCDG;*/
+       evaluationMeasures.add(nCDG);
+       return evaluationMeasures;
 
     }
 
 }
+
+
+
 
 
 

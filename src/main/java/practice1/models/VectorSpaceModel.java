@@ -100,31 +100,43 @@ public class VectorSpaceModel {
 
         return listIDF;
     }
+
+    public List<Double> dotProduct(List<Double> doc1, List<Double> doc2){
+        List<Double> vect1 = new Vector<>(doc1);
+        List<Double> vect2 = new Vector<>(doc2);
+           List<Double> result = new ArrayList<>();
+
+        for (int k = 0; k < doc1.size(); ++k){
+            Double value =0.0d;
+            value= vect1.get(k) * vect2.get(k) ;
+        result.add(value);}
+        return result;
+
+    }
     //construct the term document matrix
     public double[][] termDocMatrix(String version) throws IOException {
 
         List<String> BOW = index.getBowFor(nlp_method);
         String[] TERMS = BOW.toArray(new String[index.getVocab_size()]);
-        VectorSpaceModel vsm = new VectorSpaceModel(version, nlp_method, index);
 
         List<Document> DOCS = index.getDocuments();
         double[][] TERM_DOC_MATRIX
-                = new double[TERMS.length][DOCS.size()];
+                = new double[BOW.size()][DOCS.size()];
         //documents
         for (int column = 0; column < DOCS.size(); column++) {
             List<Double> indexDoc = new ArrayList<>();
             switch (version) {
                 case VSM_BINARY:
-                    indexDoc = vsm.indexDocument(DOCS.get(column));
+                    indexDoc = indexDocument(DOCS.get(column));
                     break;
                 case VSM_TF:
-                    indexDoc = vsm.getTF(DOCS.get(column), BOW, false);
+                    indexDoc = getTF(DOCS.get(column), BOW, false);
                     break;
                 case VSM_TFIDF:
-                    indexDoc = vsm.getTF(DOCS.get(column), BOW, false);
+                    indexDoc = dotProduct(getTF(DOCS.get(column), BOW, false), getIDF());
                     break;
                 case VSM_BM25:
-                    indexDoc = vsm.getTF(DOCS.get(column), BOW, true);
+                    indexDoc = dotProduct(getTF(DOCS.get(column), BOW, true), getIDF());;
                     break;
             }
 
@@ -156,9 +168,7 @@ public class VectorSpaceModel {
                 List<Double> listDoc =  indexDocument(doc);
                 List<Double> vectDoc = new Vector<>(listDoc);
 
-
                 double sum = 0;
-
                 for (int i = 0; i < vectQuery.size(); i++) {
                     double value = vectDoc.get(i) * vectQuery.get(i);
                     sum = sum + value;
@@ -221,8 +231,9 @@ public class VectorSpaceModel {
 
             List<Double> listQueryTF = getTF(e.getQuery(), index.getBowFor(nlp_method), false);
             List<Double> vectQueryTF = new Vector<>(listQueryTF);
-
+            System.out.println("**********IDF*********");
             List<Double> listIDF = getIDF();
+            System.out.println("********IDF done***********");
             List<Double> vectIDF = new Vector<>(listIDF);
 
             for (Document doc : documents) {

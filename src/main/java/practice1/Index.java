@@ -23,7 +23,7 @@ public class Index {
     public final static String VSM_BM25 = "BM25";
 
     //Versions of smoothing in Language Model
-    public static List<String> nlp_methods = Arrays.asList(LEMMATIZING_NLP_METHOD);
+    public static List<String> nlp_methods = Arrays.asList(STEMMING_NLP_METHOD);
     private int vocab_size;
 
 

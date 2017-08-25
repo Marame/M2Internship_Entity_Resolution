@@ -25,28 +25,31 @@ public class LSIModel extends VectorSpaceModel {
     public LSIModel() {
     }
 
-    public double[] idf_Matrix() throws IOException {
-        List<String> BOW = index.getBowFor(nlp_method);
-        String[] TERMS = BOW.toArray(new String[index.getVocab_size()]);
-        double[] idf_matrix
-                = new double[index.getVocab_size()];
+    public double[][]  transpose (double[][] array) {
+        if (array == null || array.length == 0)//empty or unset array, nothing do to here
+            return array;
 
-        List<Double> listIDF = getIDF();
+        int width = array.length;
+        int height = array[0].length;
 
-        for (int row = 0; row < BOW.size() - 1; row++) {
-            idf_matrix[row] = listIDF.get(row);
+       double[][] array_new = new double[height][width];
+
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                array_new[y][x] = array[x][y];
+            }
         }
-        return idf_matrix;
+        return array_new;
     }
 
     //construct the query matrix
     public double[] query_doc_Matrix(Document query, String vsm_version) throws IOException {
         List<String> BOW = index.getBowFor(nlp_method);
-        String[] TERMS = BOW.toArray(new String[index.getVocab_size()]);
+       // String[] TERMS = BOW.toArray(new String[index.getVocab_size()]);
 
 
         double[] query_matrix
-                = new double[TERMS.length];
+                = new double[BOW.size()];
         List<Double> vectQuery = new ArrayList<>();
         switch (vsm_version) {
             case VSM_BINARY:
@@ -59,7 +62,7 @@ public class LSIModel extends VectorSpaceModel {
                 vectQuery = getTF(query, BOW, false);
                 break;
             case VSM_BM25:
-                vectQuery = getTF(query, BOW, true);
+                vectQuery = getTF(query, BOW, false);
                 break;
         }
 
@@ -73,13 +76,12 @@ public class LSIModel extends VectorSpaceModel {
 
     public double[]  vect_mat_Product (double vect[], double mat[][])
     {
-        int row, col;
-        double productArray[]=new double[index.getDocuments().size()];
-        for (row =0;  row<mat.length ; row++)
-        {
-            for(col=0; col< NUM_FACTORS; col++)
-            {
-                productArray[row]=mat[row][col] * vect[row];
+
+        double productArray[]=new double[mat[0].length];
+
+        for(int i = 0; i < mat[0].length; i++) {
+            for (int k = 0; k < vect.length; k++) {
+                productArray[i] += mat[k][i] * vect[k];
             }
         }
         return productArray;
@@ -124,7 +126,7 @@ public class LSIModel extends VectorSpaceModel {
         System.out.println("SVD matrix");
 
         SvdMatrix matrix
-                = SvdMatrix.svd(termDocMatrix(VSM_BM25),
+                = SvdMatrix.svd(transpose(termDocMatrix(VSM_BM25)),
                 NUM_FACTORS,
                 featureInit,
                 initialLearningRate,
@@ -140,7 +142,14 @@ public class LSIModel extends VectorSpaceModel {
         double[][] V = matrix.leftSingularVectors();
 
         double[][] U = matrix.rightSingularVectors();
-        System.out.println("SVD done");
+
+        int row = V.length;
+        int col = V[0].length;
+
+        int row1 = termDocMatrix(VSM_BM25).length;
+        int col1 = termDocMatrix(VSM_BM25)[0].length;
+        System.out.println("rows of U:"+row+"cols of U:"+col);
+
         this.parametersSVD.add(U);
         this.parametersSVD.add(S);
         this.parametersSVD.add(V);
@@ -153,31 +162,21 @@ public class LSIModel extends VectorSpaceModel {
     public double dotProduct(double[] query, double[] doc){
 
         double sum = 0.0;
-        for (int k = 0; k < query.length; ++k)
-            sum += query[k] * doc[k] ;
+        for (int k = 0; k < query.length; ++k){
+            sum += query[k] * doc[k] ;}
         return sum;
 
     }
-    public double dotProductIDF(double[] query, double[] doc, double[] idf){
 
-        double sum = 0.0;
-        for (int k = 0; k < query.length; ++k)
-            sum += query[k] * doc[k]*idf[k] ;
-        return sum;
-
-    }
 
     public List<Document> getRankingScoresLSI(EvaluationEntity e) throws IOException{
         StringUtilities su = new StringUtilities();
         List<Document> dotProduct = new ArrayList<>();
         List<Document> DOCS = index.getDocuments();
 
-
         double[][] U = (double[][])parametersSVD.get(0);
         double[] S = (double[])parametersSVD.get(1);
         double[][] V = (double[][])parametersSVD.get(2);
-
-
 
     if(VSM_BINARY.equals(version)) {
         double[] queryMat = reduceQuery(query_doc_Matrix(e.getQuery(),VSM_BINARY), U, S);
@@ -222,7 +221,7 @@ public class LSIModel extends VectorSpaceModel {
     else if(VSM_TFIDF.equals(version)) {
 
         double[] queryMat = reduceQuery(query_doc_Matrix(e.getQuery(),VSM_TFIDF), U, S);
-        double[] idfMat = reduceQuery(idf_Matrix(),U, S);
+        //double[] idfMat = reduceQuery(idf_Matrix(),U, S);
         int indexDoc = 0;
         for (Document doc : DOCS) {
             Document resultdoc = new Document();
@@ -233,16 +232,16 @@ public class LSIModel extends VectorSpaceModel {
             resultdoc.setContent(doc.getContent());
 
            double[] docMat  = reduceDoc(V,indexDoc);
-            Double score = dotProductIDF(queryMat, docMat,idfMat);
+            Double score = dotProduct(queryMat, docMat);
             resultdoc.setScore(score);
             dotProduct.add(resultdoc);
         }
         indexDoc ++;
     }
     else if(VSM_BM25.equals(version)) {
-
          double[] queryMat = reduceQuery(query_doc_Matrix(e.getQuery(),VSM_BM25), U, S);
-        double[] idfMat = reduceQuery(idf_Matrix(),U, S);
+
+        //double[] idfMat = reduceQuery(idf_Matrix(),U, S);
         int indexDoc = 0;
         for (Document doc : DOCS) {
             Document resultdoc = new Document();
@@ -252,12 +251,15 @@ public class LSIModel extends VectorSpaceModel {
             }
             resultdoc.setContent(doc.getContent());
 
-            double[] docMat = reduceDoc(V,indexDoc);
-            Double score = dotProductIDF(queryMat, docMat,idfMat);
+            double[] docMat = reduceQuery(query_doc_Matrix(doc,VSM_BM25), U, S);
+            //System.out.println(Arrays.toString(docMat));
+            double score = dotProduct(queryMat, docMat);
             resultdoc.setScore(score);
+           // System.out.println(score);
             dotProduct.add(resultdoc);
+            indexDoc ++;
         }
-        indexDoc ++;
+
     }
     else {
         System.out.println("Something wrong dude!");
