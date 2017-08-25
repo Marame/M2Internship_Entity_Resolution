@@ -116,7 +116,7 @@ public class LanguageModel {
             double freq = (double) Collections.frequency(wordsDoc, resword);
             //double prob = freq / (double) doc.getContent().length();
             double probC = probWordCollection(resword);
-            if (smoothing_version.equals(Main.JELINEK_SMOOTHING)) {
+            if (smoothing_version.equals(JELINEK_SMOOTHING)) {
                 smoothedProb = (((1 - lambda) / lambda) * freq) / probC;
 
 
@@ -129,10 +129,10 @@ public class LanguageModel {
             double freq = (double) Collections.frequency(wordsDoc, resword);
             //double prob = freq / (double) doc.getContent().length();
             double probC = probWordCollection(resword);
-            if (smoothing_version.equals(Main.JELINEK_SMOOTHING)) {
+            if (smoothing_version.equals(JELINEK_SMOOTHING)) {
                 smoothedProb = (((1 - lambda) / lambda) * freq) / probC;
 
-            } else if (smoothing_version.equals(Main.DIRICHLET_SMOOTHING)) {
+            } else if (smoothing_version.equals(DIRICHLET_SMOOTHING)) {
                 smoothedProb = freq /(mu * probC);
 
             }
@@ -140,10 +140,10 @@ public class LanguageModel {
         else {
             double freq = (double) Collections.frequency(wordsDoc, word);
             double probC = probWordCollection(word);
-            if (smoothing_version.equals(Main.JELINEK_SMOOTHING)) {
+            if (smoothing_version.equals(JELINEK_SMOOTHING)) {
                 smoothedProb = (((1 - lambda) / lambda) * freq) / probC;
 
-            } else if (smoothing_version.equals(Main.DIRICHLET_SMOOTHING)) {
+            } else if (smoothing_version.equals(DIRICHLET_SMOOTHING)) {
                 smoothedProb = freq /(mu * probC);
 
             }
@@ -178,7 +178,7 @@ public class LanguageModel {
                             doc.setContent(su.getAcronym(doc.getContent()));
                             sum_jmdp += freqWordQuery * Math.log(1 + probWord(word, doc, smoothing_version));
                         }
-                        if (smoothing_version.equals(Main.DIRICHLET_SMOOTHING)) {
+                        if (smoothing_version.equals(DIRICHLET_SMOOTHING)) {
                             double smooth_factor = listwordsQuery.size() * (mu / (mu + docWords(doc).size()));
                             sum_jmdp += smooth_factor;
                         }
