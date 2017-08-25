@@ -38,14 +38,6 @@ public class LanguageModel {
     }
 
 
-    public LanguageModel(String smoothing_version, String nlp_method, Index index) {
-        this.smoothing_version = smoothing_version;
-        this.nlp_method = nlp_method;
-        this.index = index;
-    }
-
-
-
     public List<String> docWords(Document s) {
         List<String> words = new ArrayList<>();
         StringTokenizer st = new StringTokenizer(s.getContent());
@@ -159,7 +151,7 @@ public class LanguageModel {
         return smoothedProb;
     }
 
-    public List<Document> getRankingScoresLM(EvaluationEntity e, String smoothing_version) {
+    public List<Document> getRankingScoresLM(EvaluationEntity e) {
 
         StringUtilities su = new StringUtilities();
         final List<Document> documents = index.getDocuments();

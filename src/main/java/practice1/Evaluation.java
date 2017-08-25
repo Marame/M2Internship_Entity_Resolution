@@ -165,7 +165,7 @@ public class Evaluation {
 
                 } else {
                     LanguageModel lm = new LanguageModel(smoothing_version, nlp_method, l, index);
-                    results = lm.getRankingScoresLM(e, smoothing_version);
+                    results = lm.getRankingScoresLM(e);
                 }
             }
             sortResults(results);

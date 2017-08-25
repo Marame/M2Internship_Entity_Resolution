@@ -4,10 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import practice1.entities.Document;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
+import java.lang.reflect.Array;
 import java.util.*;
 
 /**
@@ -25,7 +23,7 @@ public class Index {
     public final static String VSM_TF = "TF";
     public final static String VSM_TFIDF = "TF/IDF";
     public final static String VSM_BM25 = "BM25";
-    private String stopWordsFile;
+    public List<String> stopWords = new ArrayList<>();
 
     //Versions of smoothing in Language Model
     public static List<String> nlp_methods = Arrays.asList(NO_NLP_METHOD, STEMMING_NLP_METHOD, LEMMATIZING_NLP_METHOD);
@@ -35,6 +33,7 @@ public class Index {
     private Map<String, List<String>> bow = new HashMap<>();
 
     public Index() {
+        stopWords = readStopWords();
     }
 
     public Map<String, Map<String, List<Integer>>> getWordToDocument() {
@@ -52,10 +51,6 @@ public class Index {
     public double avgDocsLength;
     private String version;
     private String nlp_method;
-
-    public void setStopWordsFile(String stopWordsFile) {
-        this.stopWordsFile = stopWordsFile;
-    }
 
     public int getVocab_size() {
         return vocab_size;
@@ -120,33 +115,28 @@ public class Index {
         }
         return wordToDocs;
     }
-    public String[] readStopWords(String stopWordsFilename) throws FileNotFoundException
-    {
-        String[] stopWords =new String[1000000];
+
+    public List<String> readStopWords() {
+        List<String> stopWords = new ArrayList<>();
+        
         BufferedReader br = null;
-        FileReader fr = null;
-
+        InputStreamReader fr = null;
+        
         try {
-
-            //br = new BufferedReader(new FileReader(FILENAME));
-            fr = new FileReader(stopWordsFilename);
+            fr = new InputStreamReader(this.getClass().getResourceAsStream("/stop_word_list.txt"));
             br = new BufferedReader(fr);
 
             String sCurrentLine;
-            int i =0;
+            int i = 0;
             while ((sCurrentLine = br.readLine()) != null) {
-                stopWords[i]=sCurrentLine.toString().replaceAll("\\s+","");
+                stopWords.add(sCurrentLine.trim());
                 i++;
             }
-
         } catch (IOException e) {
-
             e.printStackTrace();
-
         } finally {
 
             try {
-
                 if (br != null)
                     br.close();
 
@@ -154,9 +144,7 @@ public class Index {
                     fr.close();
 
             } catch (IOException ex) {
-
                 ex.printStackTrace();
-
             }
 
         }
@@ -164,10 +152,9 @@ public class Index {
     }
 
 
-    public List<String> bagOfWords(String nlp_method) throws FileNotFoundException{
+    public List<String> bagOfWords(String nlp_method) throws FileNotFoundException {
 
         Set<String> bagOfWord = new HashSet<>();
-        List<String> stopWords = new ArrayList<>(Arrays.asList(readStopWords(stopWordsFile)));
         int num_tokens = 0;
         for (Document d : documents) {
             final List<String> tokens = tokeniser.tokenise(d.getContent(), nlp_method);
