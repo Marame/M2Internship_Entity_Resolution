@@ -31,7 +31,7 @@ public class ParseCorpus {
         this.nlpUsed = nlpUsed;
     }
 
-    public List<Document> retrieveDocuments(String filenameDocs, String nlpUsed) throws FileNotFoundException, IOException, SystemException {
+    public List<Document> parseDocuments(String filenameDocs) throws IOException, SystemException {
 
         List<Document> docs = new ArrayList<>();
         frd = new FileReader(filenameDocs);
@@ -55,11 +55,11 @@ public class ParseCorpus {
         return docs;
     }
 
-    public List<EvaluationEntity> parseArgs(String filenameQueries, String filenameDocs, String nlpUsed)throws IOException {
+    public List<EvaluationEntity> parseQueries(String filename)throws IOException {
 
         try {
 
-            fr = new FileReader(filenameQueries);
+            fr = new FileReader(filename);
             Iterable<CSVRecord> records = null;
             try {
                 CSVFormat csvFormat = CSVFormat.EXCEL.withHeader().withDelimiter(',');

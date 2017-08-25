@@ -34,17 +34,16 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
         Main main = new Main();
-        main.startTesting(args[0], args[1], args[2], args[3], args[4]);
-
+        main.startTesting(args[0], args[1], args[2]);
     }
 
 
-    public void startTesting(String newfilenameQueries, String filenameDocs, String Ngram, String newFile, String nlpUsed) throws IOException {
+    public void startTesting(String queryFile, String documentFile, String Ngram) throws IOException {
 
 
       /*practice1.Aggregating aggregate = new practice1.Aggregating();
 
-      aggregate.aggregate(newfilenameQueries, filenameDocs, newFile);
+      aggregate.aggregate(queryFile, documentFile, newFile);
         System.out.println("finishing");*/
         //Our initial Evaluation entities
 
@@ -55,17 +54,15 @@ public class Main {
         final Tokenizer tokeniser = new Tokenizer(lem, porterStemmer);
 
         Index index = new Index(tokeniser);
-        List<Document> documents = pf.retrieveDocuments(filenameDocs, nlpUsed);
+        List<Document> documents = pf.parseDocuments(documentFile);
        /* for (Document doc: documents) {
             System.out.println("id"+"\t"+doc.getId()+"content"+"\t"+doc.getContent());
         }*/
         index.setDocuments(documents);
         index.indexAll();
 
-        List<EvaluationEntity> ee = pf.parseArgs(newfilenameQueries, filenameDocs, nlpUsed);
+        List<EvaluationEntity> ee = pf.parseQueries(queryFile);
 
-
-        pf.setNlpUsed(nlpUsed);
         int ngram = Integer.parseInt(Ngram);
         boolean lsiUsed = true;
         System.out.println("$$$$$$$$$$$$ Results for LSI Model $$$$$$$$$$$$$");
@@ -94,7 +91,7 @@ public class Main {
            //List<Double> evalMeasures =  eval2.getEvaluationMeasures("", version, STEMMING_NLP_METHOD, lem, index, -1, true);
 
 
-          sb.append("************** MAP values ***************" + "\n");
+            sb.append("************** MAP values ***************" + "\n");
            // sb.append(String.format("%-20s%-20s", version, evalMeasures.get(0) + "\n"));
            //sb.append(String.format("%-20s%-20s", version, evalMeasures.get(1) + "\n"));
 
@@ -113,10 +110,10 @@ public class Main {
             sb.append("***********nCDG**************" + "\n");
             sb.append(String.format("%-20s%-20s%-20s%-20s", version, eval.getnCDG() + "||", eval1.getnCDG() + "||", eval2.getnCDG() + "\n"));*/
 
-       }
+        }
        // System.out.println(sb.toString());
 
-       System.out.println("$$$$$$$$$$$$ Results for Vector Space Model $$$$$$$$$$$$$");
+        System.out.println("$$$$$$$$$$$$ Results for Vector Space Model $$$$$$$$$$$$$");
 
         StringBuilder sb1 = new StringBuilder();
         sb.append(String.format("%-10s%-20s%-20s%-20s", "version", "MAP:nothing", "MAP:Stemming", "MAP:Lemmatizing" + "\n"));
@@ -132,16 +129,15 @@ public class Main {
 
             eval1.final_evaluation(ee, "", version, STEMMING_NLP_METHOD, lem, index, -1, false);*/
 
-           Evaluation eval2 = new Evaluation(ee);
+            Evaluation eval2 = new Evaluation(ee);
 
            List<Double> evalMeasures =  eval2.getEvaluationMeasures("", version, STEMMING_NLP_METHOD, lem, index, -1, false);
 
 
             sb1.append("************** MAP values ***************" + "\n");
-            sb1.append(String.format("%-20s%-20s", version, evalMeasures.get(0) +  "\n"));
+            sb1.append(String.format("%-20s%-20s", version, evalMeasures.get(0) + "\n"));
             sb1.append("***********nCDG**************" + "\n");
             sb1.append(String.format("%-20s%-20s", version, evalMeasures.get(1) +  "\n"));
-
 
            /* sb.append("************** Micro average precision values ***************" + "\n");
             sb.append(String.format("%-20s%-20s%-20s%-20s", version, eval.getMicro_average_precision() + "||", eval1.getMicro_average_precision() + "||", eval2.getMicro_average_precision() + "\n"));
