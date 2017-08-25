@@ -18,50 +18,12 @@ public class Evaluation {
     int[] N = {10, 20, 30, 40, 50};
     private List<EvaluationEntity> ee = new ArrayList<>();
 
-
     private double precision;
     private double recall;
     private double F1;
-    private double MAP;
-    private double micro_average_precision;
-    private double macro_average_precision;
-    private double micro_average_recall;
-    private double macro_average_recall;
-    private double micro_average_F1;
-    private double macro_average_F1;
-    private double nCDG;
 
-
-    public double getMAP() {
-        return MAP;
-    }
-
-    public double getMicro_average_precision() {
-        return micro_average_precision;
-    }
-
-    public double getMacro_average_precision() {
-        return macro_average_precision;
-    }
-
-    public double getMicro_average_recall() {
-        return micro_average_recall;
-    }
-
-    public double getMacro_average_recall() {
-        return macro_average_recall;
-    }
-
-    public double getMicro_average_F1() {
-        return micro_average_F1;
-    }
-
-    public double getMacro_average_F1() {
-        return macro_average_F1;
-    }
-
-    public double getnCDG() {
-        return nCDG;
+    public void setEe(List<EvaluationEntity> ee) {
+        this.ee = ee;
     }
 
     public double reward(Document result, List<Document> relevant_docs) {
@@ -259,14 +221,16 @@ public class Evaluation {
         return list_eval;
     }
 
-    public void final_evaluation(String smoothing_version, String vsm_version, String nlp_method, Lemmatizer l, Index index, int ngram, boolean lsiUsed) throws IOException {
+    public List<Double> getEvaluationMeasures(String smoothing_version, String vsm_version, String nlp_method, Lemmatizer l, Index index, int ngram, boolean lsiUsed) throws IOException {
+
+        List<Double> evaluationMeasures = new ArrayList<>();
         List<Double[][]> list_eval = retrieve_evaluation_measures(smoothing_version, vsm_version, nlp_method, l, index, ngram, lsiUsed);
-        Double[][] precision_matrix = (Double[][]) list_eval.get(0);
-        Double[][] recall_matrix = (Double[][]) list_eval.get(1);
-        Double[][] F1_matrix = (Double[][]) list_eval.get(2);
-        Double[][] ret_rel_matrix = (Double[][]) list_eval.get(3);
-        Double[][] notret_notrel_matrix = (Double[][]) list_eval.get(4);
-        Double[][] notret_rel_matrix = (Double[][]) list_eval.get(5);
+        Double[][] precision_matrix =  list_eval.get(0);
+        Double[][] recall_matrix =  list_eval.get(1);
+        Double[][] F1_matrix =  list_eval.get(2);
+        Double[][] ret_rel_matrix =  list_eval.get(3);
+        Double[][] notret_notrel_matrix =  list_eval.get(4);
+        Double[][] notret_rel_matrix =  list_eval.get(5);
         double sum_precision = 0;
         double sum_recall = 0;
         double sum_F1 = 0;
@@ -283,7 +247,6 @@ public class Evaluation {
                 sum_retrel += ret_rel_matrix[i][j];
                 sum_notretnotrel += notret_notrel_matrix[i][j];
                 sum_notretrel += notret_rel_matrix[i][j];
-                this.macro_average_precision = macro_average_precision;
             }
         }
         //compute precisions@K
@@ -299,42 +262,27 @@ public class Evaluation {
 
 
         double macro_average_precision = sum_precision / N.length;
-        this.macro_average_precision = macro_average_precision;
+
         double macro_average_recall = sum_recall / N.length;
-        this.macro_average_recall = macro_average_recall;
+
         double macro_average_F1 = sum_F1 / N.length;
-        this.macro_average_F1 = macro_average_F1;
+
         double micro_average_precision = sum_retrel / (sum_retrel + sum_notretrel);
-        this.micro_average_precision = micro_average_precision;
+
         double micro_average_recall = sum_retrel / (sum_retrel + sum_notretnotrel);
-        this.micro_average_recall = micro_average_recall;
+
         double micro_average_F1 = (2 * micro_average_precision * micro_average_recall) / (micro_average_precision + micro_average_recall);
-        this.micro_average_F1 = micro_average_F1;
 
-    }
 
-    public List<Double> getEvaluationMeasures(String smoothing_version, String vsm_version, String nlp_method, Lemmatizer l, Index index, int ngram, boolean lsiUsed) throws IOException {
 
-        List<Double> evaluationMeasures = new ArrayList<>();
         //compute the mean average precision
-        double sum_precision_N = 0;
         double total = 0;
-        int i = 0;
-        Map<EvaluationEntity, List<Document>> mapresults = allocateResults(smoothing_version, vsm_version, nlp_method, l, index, ngram, lsiUsed);
-        List<Double[][]> list_eval = retrieve_evaluation_measures(smoothing_version, vsm_version, nlp_method, l, index, ngram, lsiUsed);
-        Double[][] precision_matrix = list_eval.get(0);
-        Double[][] recall_matrix = list_eval.get(1);
-        Double[][] F1_matrix = list_eval.get(2);
-        Double[][] ret_rel_matrix = list_eval.get(3);
-        Double[][] notret_notrel_matrix = list_eval.get(4);
-        Double[][] notret_rel_matrix = list_eval.get(5);
+        int i=0;
+        for (EvaluationEntity e: ee) {
+            double sum_precision_N = 0;
 
-        for (Map.Entry<EvaluationEntity, List<Document>> entry : mapresults.entrySet()) {
-            EvaluationEntity e = entry.getKey();
-            List<Document> results = entry.getValue();
-            sortResults(results);
             for (int j = 0; j < N.length; j++) {
-                double numrel = numRel(results, e.getRelevant_documents(), N[N.length - 1]);
+                double numrel = numRel(e.getResults(), e.getRelevant_documents(), N[N.length - 1]);
 
                 if (j == 0)
                     sum_precision_N += (1 / (numrel + 1)) * (precision_matrix[i][j] * recall_matrix[i][0]);
@@ -345,27 +293,35 @@ public class Evaluation {
             total += sum_precision_N;
             i++;
         }
-        double MAP = total / (double) mapresults.entrySet().size();
+        double MAP = total / (double) ee.size();
         evaluationMeasures.add(MAP);
 
         //compute nCDG
         double sum = 0;
-        for (Map.Entry<EvaluationEntity, List<Document>> entry : mapresults.entrySet()) {
-            EvaluationEntity e = entry.getKey();
-            List<Document> results = entry.getValue();
-            sortResults(results);
+        for (EvaluationEntity e: ee) {
             for (int n : N) {
-                sum += CDGAtN(e, results, n) / IdealCDGAtN(results, N[N.length - 1]);
+                sum += CDGAtN(e, e.getResults(), n) / IdealCDGAtN(e.getResults(), N[N.length - 1]);
             }
         }
 
-        double nCDG = sum / (double) mapresults.entrySet().size();
+        double nCDG = sum / (double) ee.size();
         evaluationMeasures.add(nCDG);
+
+        evaluationMeasures.add(micro_average_precision);
+        evaluationMeasures.add(micro_average_recall);
+        evaluationMeasures.add(micro_average_F1);
+        evaluationMeasures.add(macro_average_precision);
+        evaluationMeasures.add(macro_average_recall);
+        evaluationMeasures.add(micro_average_F1);
         return evaluationMeasures;
 
     }
 
     public void printEvaluation(List<EvaluationEntity> ee) {
+        //List<Double> measures =
+       // StringBuilder sb = new StringBuilder();
+        //sb.append("**********MAP********"+"\t"+);
+        //sb.append()
 
     }
 }

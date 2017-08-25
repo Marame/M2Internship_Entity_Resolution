@@ -37,9 +37,11 @@ public class LanguageModel {
         this.index = index;
     }
 
-    public LanguageModel(String smoothing_version, String nlp_method) {
+
+    public LanguageModel(String smoothing_version, String nlp_method, Index index) {
         this.smoothing_version = smoothing_version;
         this.nlp_method = nlp_method;
+        this.index = index;
     }
 
 
