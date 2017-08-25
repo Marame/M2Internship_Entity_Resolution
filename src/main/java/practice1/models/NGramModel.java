@@ -52,7 +52,6 @@ public class NGramModel {
     }
 
 
-
     public int computeIntersection(String querySample, String docSample) {
 
         List<String> ngramsQuery = ngrams(querySample);
@@ -70,7 +69,7 @@ public class NGramModel {
             }
         }
 
-            inter = listIntersect.size();
+        inter = listIntersect.size();
         return inter;
     }
 
@@ -97,16 +96,17 @@ public class NGramModel {
 
         int intersect = computeIntersection(querySample, docSample);
         int union = computeUnion(querySample, docSample);
-        double jaccard =  intersect / (double) union;
+        double jaccard = intersect / (double) union;
 
         return jaccard;
-     }
+    }
+
     public double computeDice(String querySample, String docSample) {
 
         int intersect = computeIntersection(querySample, docSample);
-        String[]tokensq =  querySample.split(" ");
-        String[]tokensd =  querySample.split(" ");
-        double jaccard =  intersect / (double) (tokensq.length +tokensd.length);
+        String[] tokensq = querySample.split(" ");
+        String[] tokensd = querySample.split(" ");
+        double jaccard = intersect / (double) (tokensq.length + tokensd.length);
 
         return jaccard;
     }
@@ -160,7 +160,7 @@ public class NGramModel {
         return nGramsFeatures;
     }*/
 
-    public List<Document> getRankingScoresNgram(EvaluationEntity e, String similarity) throws IOException {
+    public List<Document> getRankingScoresNgram(EvaluationEntity e) throws IOException {
 
         //Map<Document, Map<String, Double>> nGramsFeatures = computeFeatures(e, "Jaccard");
         StringUtilities su = new StringUtilities();
@@ -170,20 +170,18 @@ public class NGramModel {
             resultdoc.setId(st.getId());
             resultdoc.setContent(st.getContent());
             Document newQuery = index.nlpToDoc(e.getQuery(), nlp_method);
-            if(su.hasOneToken(e.getQuery().getContent())==true){
-            score = computeJaccard(newQuery.getContent(), su.getAcronym(st.getContent()));
+            if (su.hasOneToken(e.getQuery().getContent()) == true) {
+                score = computeJaccard(newQuery.getContent(), su.getAcronym(st.getContent()));
+            } else {
+                score = computeJaccard(newQuery.getContent(), st.getContent());
             }
-                else
-            {
-                score = computeJaccard(newQuery.getContent(),st.getContent());
-          }
             //if(Double.isNaN(score)) score = 0.0;
             resultdoc.setScore(score);
             resultList.add(resultdoc);
             //System.out.println("average:" + "\t" + average);
 
         }
-        return  resultList;
+        return resultList;
 
 
     }

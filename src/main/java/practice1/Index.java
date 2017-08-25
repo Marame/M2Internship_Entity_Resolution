@@ -23,7 +23,7 @@ public class Index {
     public final static String VSM_BM25 = "BM25";
 
     //Versions of smoothing in Language Model
-    public static List<String> nlp_methods = Arrays.asList(STEMMING_NLP_METHOD);
+    public static List<String> nlp_methods = Arrays.asList(NO_NLP_METHOD, STEMMING_NLP_METHOD, LEMMATIZING_NLP_METHOD);
     private int vocab_size;
 
 
@@ -89,15 +89,15 @@ public class Index {
     }
 
 
-    public void getAvgLength(List<Document> docs){
-        double avg =0;
+    public void getAvgLength(List<Document> docs) {
+        double avg = 0;
         double average;
-        for (Document doc:documents) {
+        for (Document doc : documents) {
             String[] tokens = doc.getContent().split(" ");
-            avg+=tokens.length;
+            avg += tokens.length;
 
         }
-        average = avg/(double)docs.size();
+        average = avg / (double) docs.size();
         this.avgDocsLength = average;
 
     }
@@ -109,15 +109,12 @@ public class Index {
             int nbDocs = 0;
             for (Document document : documents) {
                 List<String> tokens = tokeniser.tokenise(document.getContent(), method);
-                if (document.getContent().indexOf(word) !=-1) {
+                if (tokens.contains(word)) {
                     if (wordToDocs.get(word) == null) {
-
                         wordToDocs.put(word, new ArrayList<Integer>());
                     }
-                     wordToDocs.get(word).add(document.getId());
-                }
-
-               else  wordToDocs.put(word, new ArrayList<Integer>());
+                    wordToDocs.get(word).add(document.getId());
+                } else wordToDocs.put(word, new ArrayList<Integer>());
             }
 
         }
@@ -125,12 +122,9 @@ public class Index {
     }
 
 
-
-
-
     public List<String> bagOfWords(String nlp_method) {
 
-        List<String> bagOfWord = new ArrayList<>();
+        Set<String> bagOfWord = new HashSet<>();
         List<String> stopWords = new ArrayList<>(Arrays.asList(STOP_WORDS));
         int num_tokens = 0;
         for (Document d : documents) {
@@ -146,40 +140,38 @@ public class Index {
             }
         }
         this.vocab_size = num_tokens;
-        return bagOfWord;
+        return new ArrayList<>(bagOfWord);
 
     }
 
-    public List<Document> nlpToDocs(List<Document> documents, String nlp_method){
+    public List<Document> nlpToDocs(List<Document> documents, String nlp_method) {
         List<Document> newDocs = new ArrayList<>();
 
-        for(Document d: documents){
-            final List<String> tokens= tokeniser.tokenise(d.getContent(), nlp_method);
+        for (Document d : documents) {
+            final List<String> tokens = tokeniser.tokenise(d.getContent(), nlp_method);
             Iterator<String> iter = tokens.iterator();
             StringBuilder builder = new StringBuilder(iter.next());
-            while( iter.hasNext() )
-            {
+            while (iter.hasNext()) {
                 builder.append(" ").append(iter.next());
             }
             d.setContent(builder.toString());
             newDocs.add(d);
         }
-        return  newDocs;
+        return newDocs;
     }
 
-    public Document nlpToDoc(Document doc, String nlp_method){
+    public Document nlpToDoc(Document doc, String nlp_method) {
 
-        final List<String> tokens= tokeniser.tokenise(doc.getContent(), nlp_method);
+        final List<String> tokens = tokeniser.tokenise(doc.getContent(), nlp_method);
         Iterator<String> iter = tokens.iterator();
         StringBuilder builder = new StringBuilder(iter.next());
-        while( iter.hasNext() )
-        {
+        while (iter.hasNext()) {
             builder.append(" ").append(iter.next());
         }
         doc.setContent(builder.toString());
 
 
-        return  doc;
+        return doc;
     }
 
 

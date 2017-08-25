@@ -11,9 +11,7 @@ import java.util.List;
 public class EvaluationEntity {
     private Document query;
     private List<Document>  relevant_documents;
-
-
-
+    private List<Document> results;
 
 
     public void setRelevant_documents(List<Document> relevant_documents) {
@@ -45,5 +43,13 @@ public class EvaluationEntity {
 
     public EvaluationEntity() {
 
+    }
+
+    public void setResults(List<Document> results) {
+        this.results = results;
+    }
+
+    public List<Document> getResults() {
+        return results;
     }
 }

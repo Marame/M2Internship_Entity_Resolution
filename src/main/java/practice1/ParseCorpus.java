@@ -22,10 +22,10 @@ public class ParseCorpus {
     private FileReader fr = null;
     private FileReader frq = null;
     private FileReader frd = null;
-    String nlpUsed ;
+    String nlpUsed;
     private List<EvaluationEntity> ee = new ArrayList<>();
     List<Document> documents;
-    int vocab_size =0;
+    int vocab_size = 0;
 
     public void setNlpUsed(String nlpUsed) {
         this.nlpUsed = nlpUsed;
@@ -46,16 +46,16 @@ public class ParseCorpus {
 
         for (CSVRecord record : records) {
             Document doc = new Document();
-            doc.setId(Integer.parseInt(record.get(1)));
-            System.out.println(record.get(1));
-            doc.setContent(record.get(0));
+            doc.setId(Integer.parseInt(record.get(0)));
+//            System.out.println(record.get(1));
+            doc.setContent(record.get(1));
             docs.add(doc);
         }
-      this.documents = docs;
+        this.documents = docs;
         return docs;
     }
 
-    public List<EvaluationEntity> parseQueries(String filename)throws IOException {
+    public List<EvaluationEntity> parseQueries(String filename) throws IOException {
 
         try {
 
@@ -111,7 +111,7 @@ public class ParseCorpus {
                 if (fr != null)
                     fr.close();
 
-                if(frd != null)
+                if (frd != null)
                     frd.close();
 
             } catch (IOException ex) {
@@ -125,8 +125,7 @@ public class ParseCorpus {
     }
 
 
-
-    public List<Document> retrieveQueries(String filenameQueries) throws FileNotFoundException, IOException{
+    public List<Document> retrieveQueries(String filenameQueries) throws FileNotFoundException, IOException {
 
         List<Document> queries = new ArrayList<>();
         frq = new FileReader(filenameQueries);

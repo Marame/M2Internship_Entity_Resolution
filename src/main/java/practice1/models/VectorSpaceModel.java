@@ -40,7 +40,6 @@ public class VectorSpaceModel {
         List<String> documentTokens = index.getTokeniser().tokenise(d.getContent(), nlp_method);
         List<String> bow = index.getBowFor(nlp_method);
 
-
         for (String value : bow) {
             if (documentTokens.contains(value)) {
                 vector.add(1.0);
@@ -231,9 +230,9 @@ public class VectorSpaceModel {
 
             List<Double> listQueryTF = getTF(e.getQuery(), index.getBowFor(nlp_method), false);
             List<Double> vectQueryTF = new Vector<>(listQueryTF);
-            System.out.println("**********IDF*********");
+//            System.out.println("**********IDF*********");
             List<Double> listIDF = getIDF();
-            System.out.println("********IDF done***********");
+//            System.out.println("********IDF done***********");
             List<Double> vectIDF = new Vector<>(listIDF);
 
             for (Document doc : documents) {

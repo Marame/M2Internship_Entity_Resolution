@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static practice1.Index.LEMMATIZING_NLP_METHOD;
 import static practice1.Index.STEMMING_NLP_METHOD;
 
@@ -14,11 +15,12 @@ public class Tokenizer {
     private Lemmatizer lem;
     private PorterStemmer stemmer;
 
+    public static final String punctuations = " •*,:;?.!";
+
     public Tokenizer(Lemmatizer lem, PorterStemmer stemmer) {
         this.lem = lem;
         this.stemmer = stemmer;
     }
-
 
     public List<String> tokenise(String input, String nlp_method) {
         List<String> tokenised = new ArrayList<>();
@@ -35,7 +37,11 @@ public class Tokenizer {
                     tokenised.add(st_lem);
                 }
             } else {
-                tokenised.add(st.nextToken());
+                String token = st.nextToken();
+                String cleanToken = token.replaceAll(punctuations, "");
+                if(isNotEmpty(cleanToken)) {
+                    tokenised.add(cleanToken);
+                }
             }
         }
         return tokenised;
