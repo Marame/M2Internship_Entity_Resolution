@@ -4,35 +4,29 @@ package practice1;
 import org.tartarus.snowball.ext.PorterStemmer;
 import practice1.entities.Document;
 import practice1.entities.EvaluationEntity;
-import practice1.models.LSIModel;
 import practice1.models.LanguageModel;
 import practice1.models.NGramModel;
 import practice1.models.VectorSpaceModel;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
-import static practice1.Index.*;
+import static practice1.Index.NO_NLP_METHOD;
+import static practice1.models.LanguageModel.DIRICHLET_SMOOTHING;
+import static practice1.models.LanguageModel.JELINEK_SMOOTHING;
+import static practice1.models.VectorSpaceModel.VSM_BM25;
 
 /**
  * Created by romdhane on 07/07/17.
  */
 
 public class Main {
-    public final static String VSM_BINARY = "Binary";
-    public final static String VSM_TF = "TF";
-    public final static String VSM_TFIDF = "TF/IDF";
-    public final static String VSM_BM25 = "BM25";
-
-
-    public final static String JELINEK_SMOOTHING = "jelinek-mercer";
-    public final static String DIRICHLET_SMOOTHING = "dirichlet-prior";
 
     // versions of VSM,
     List<String> vsm_versions = Arrays.asList(VSM_BM25);
-
-    //Versions of smoothing in Language Model
-    List<String> smoothing_versions = Arrays.asList(JELINEK_SMOOTHING, DIRICHLET_SMOOTHING);
 
     public static void main(String[] args) throws IOException {
         Main main = new Main();
@@ -61,14 +55,14 @@ public class Main {
         index.setDocuments(documents);
         index.indexAll();
 
-        Evaluation evaluator= new Evaluation();
+        Evaluation evaluator = new Evaluation();
 
         List<EvaluationEntity> ee = pf.parseQueries(queryFile, documents);
 
 
         // VSM - Binary
         VectorSpaceModel vsm = new VectorSpaceModel(VectorSpaceModel.VSM_BINARY, NO_NLP_METHOD, index);
-        for(EvaluationEntity e : ee) {
+        for (EvaluationEntity e : ee) {
             List<Document> results = vsm.getRankingScoresVSM(e);
             sortResults(results);
             e.setResults(results);
@@ -78,7 +72,7 @@ public class Main {
         // VSM - TF
         removeScores(ee);
         vsm = new VectorSpaceModel(VectorSpaceModel.VSM_TF, NO_NLP_METHOD, index);
-        for(EvaluationEntity e : ee) {
+        for (EvaluationEntity e : ee) {
             List<Document> results = vsm.getRankingScoresVSM(e);
             sortResults(results);
             e.setResults(results);
@@ -88,7 +82,7 @@ public class Main {
         // VSM - TF-IDF
         removeScores(ee);
         vsm = new VectorSpaceModel(VectorSpaceModel.VSM_TFIDF, NO_NLP_METHOD, index);
-        for(EvaluationEntity e : ee) {
+        for (EvaluationEntity e : ee) {
             List<Document> results = vsm.getRankingScoresVSM(e);
             sortResults(results);
             e.setResults(results);
@@ -97,8 +91,8 @@ public class Main {
 
         // VSM - BM25
         removeScores(ee);
-        vsm = new VectorSpaceModel(VectorSpaceModel.VSM_BM25, NO_NLP_METHOD, index);
-        for(EvaluationEntity e : ee) {
+        vsm = new VectorSpaceModel(VSM_BM25, NO_NLP_METHOD, index);
+        for (EvaluationEntity e : ee) {
             List<Document> results = vsm.getRankingScoresVSM(e);
             sortResults(results);
             e.setResults(results);
@@ -111,7 +105,7 @@ public class Main {
 
         removeScores(ee);       // a bit crap, but the most efficient way
         NGramModel nGramModel = new NGramModel(NO_NLP_METHOD, lem, index, ngram);
-        for(EvaluationEntity e : ee) {
+        for (EvaluationEntity e : ee) {
             List<Document> results = nGramModel.getRankingScoresNgram(e);
             sortResults(results);
             e.setResults(results);
@@ -122,7 +116,7 @@ public class Main {
         //Language Model (Jelinek smoothing)
         removeScores(ee);       // a bit crap, but the most efficient way
         LanguageModel languageModel1 = new LanguageModel(JELINEK_SMOOTHING, NO_NLP_METHOD, lem, index);
-        for(EvaluationEntity e : ee) {
+        for (EvaluationEntity e : ee) {
             List<Document> results = languageModel1.getRankingScoresLM(e);
             sortResults(results);
             e.setResults(results);
@@ -133,7 +127,7 @@ public class Main {
         //Language Model (Dirichlet smoothing)
         removeScores(ee);       // a bit crap, but the most efficient way
         LanguageModel languageModel2 = new LanguageModel(DIRICHLET_SMOOTHING, NO_NLP_METHOD, lem, index);
-        for(EvaluationEntity e : ee) {
+        for (EvaluationEntity e : ee) {
             List<Document> results = languageModel2.getRankingScoresLM(e);
             sortResults(results);
             e.setResults(results);
@@ -289,7 +283,7 @@ public class Main {
     }
 
     private void removeScores(List<EvaluationEntity> ee) {
-        for(EvaluationEntity e : ee) {
+        for (EvaluationEntity e : ee) {
             Collections.emptyList();
             e.setResults(null);
         }

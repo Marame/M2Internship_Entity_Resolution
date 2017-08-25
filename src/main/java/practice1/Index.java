@@ -19,10 +19,6 @@ public class Index {
     public final static String STEMMING_NLP_METHOD = "stemming";
     public final static String LEMMATIZING_NLP_METHOD = "lemmatizing";
 
-    public final static String VSM_BINARY = "Binary";
-    public final static String VSM_TF = "TF";
-    public final static String VSM_TFIDF = "TF/IDF";
-    public final static String VSM_BM25 = "BM25";
     public List<String> stopWords = new ArrayList<>();
 
     //Versions of smoothing in Language Model
