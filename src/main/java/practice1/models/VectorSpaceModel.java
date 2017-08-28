@@ -164,7 +164,9 @@ public class VectorSpaceModel {
                 resultDoc.setContent(doc.getContent());
 
                 if (su.hasOneToken(e.getQuery().getContent()) == true) {
-                    doc.setContent(su.getAcronym(e.getQuery().getContent()));}
+                    doc.setContent(su.getAcronym(e.getQuery().getContent()));
+                }
+
                 List<Double> listDoc =  indexDocument(doc);
                 List<Double> vectDoc = new Vector<>(listDoc);
 

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import static com.sun.tools.javac.util.StringUtils.toLowerCase;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static practice1.Index.LEMMATIZING_NLP_METHOD;
 import static practice1.Index.STEMMING_NLP_METHOD;
@@ -40,7 +41,7 @@ public class Tokenizer {
                 String token = st.nextToken();
                 String cleanToken = token.replaceAll(punctuations, "");
                 if(isNotEmpty(cleanToken)) {
-                    tokenised.add(cleanToken);
+                    tokenised.add(toLowerCase(cleanToken));
                 }
             }
         }

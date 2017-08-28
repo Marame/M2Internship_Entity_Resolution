@@ -56,24 +56,23 @@ public class Main {
 
         Evaluation evaluator = new Evaluation();
 
-
         List<EvaluationEntity> ee = pf.parseQueries(queryFile, documents);
 
-
         // VSM - BM25
+/*        removeScores(ee);
         VectorSpaceModel vsm25 = new VectorSpaceModel(VectorSpaceModel.VSM_BM25, NO_NLP_METHOD, index);
         for (EvaluationEntity e : ee) {
             List<Document> results = vsm25.getRankingScoresVSM(e);
             sortResults(results);
             e.setResults(results);
         }
+
         System.out.println("VSM-BM25");
-        evaluator.printEvaluation(ee);
+        printRanking(ee);
+        evaluator.printEvaluation(ee);*/
 
-        // List<EvaluationEntity> ee = pf.parseQueries(queryFile, documents);
-
-        removeScores(ee);
         // VSM - Binary
+        /*removeScores(ee);
         VectorSpaceModel vsmbin = new VectorSpaceModel(VectorSpaceModel.VSM_BINARY, NO_NLP_METHOD, index);
         for (EvaluationEntity e : ee) {
             List<Document> results = vsmbin.getRankingScoresVSM(e);
@@ -81,10 +80,11 @@ public class Main {
             e.setResults(results);
         }
         System.out.println("Binary");
-        evaluator.printEvaluation(ee);
+        printRanking(ee);
+        evaluator.printEvaluation(ee);*/
 
         // VSM - TF
-        removeScores(ee);
+/*        removeScores(ee);
         VectorSpaceModel vsmtf = new VectorSpaceModel(VectorSpaceModel.VSM_TF, NO_NLP_METHOD, index);
         for (EvaluationEntity e : ee) {
             List<Document> results = vsmtf.getRankingScoresVSM(e);
@@ -92,12 +92,11 @@ public class Main {
             e.setResults(results);
         }
 
-        System.out.println("VSM-TFIDF");
-        //evaluator.getEvaluationMeasures();
-        evaluator.printEvaluation(ee);
+        System.out.println("VSM-TF");
+        evaluator.printEvaluation(ee);*/
 
-        // VSM - TF
-        removeScores(ee);
+        // VSM - TF-IDF
+/*        removeScores(ee);
         VectorSpaceModel vsmtfidf = new VectorSpaceModel(VectorSpaceModel.VSM_TFIDF, NO_NLP_METHOD, index);
         for (EvaluationEntity e : ee) {
             List<Document> results = vsmtfidf.getRankingScoresVSM(e);
@@ -105,9 +104,9 @@ public class Main {
             e.setResults(results);
         }
 
-        System.out.println("VSM-TFIDF");
-        //evaluator.getEvaluationMeasures();
-        evaluator.printEvaluation(ee);
+        System.out.println("VSM-BM25");
+        evaluator.printEvaluation(ee);*/
+
 
         //  LSI
        /* LSIModel lsi = new LSIModel(VectorSpaceModel.VSM_BM25, NO_NLP_METHOD, index);
@@ -123,7 +122,7 @@ public class Main {
         evaluator.printEvaluation();*/
 
         // Language Model
-        removeScores(ee);
+/*        removeScores(ee);
         LanguageModel lm = new LanguageModel(JELINEK_SMOOTHING, NO_NLP_METHOD, lem, index);
         for (EvaluationEntity e : ee) {
             List<Document> results = lm.getRankingScoresLM(e);
@@ -132,11 +131,11 @@ public class Main {
         }
         System.out.println("Language Model: jelinek");
 
-        evaluator.printEvaluation(ee);
+        evaluator.printEvaluation(ee);*/
 
 
         //Language Model (Dirichlet smoothing)
-        removeScores(ee);       // a bit crap, but the most efficient way
+/*        removeScores(ee);       // a bit crap, but the most efficient way
         LanguageModel languageModel2 = new LanguageModel(DIRICHLET_SMOOTHING, NO_NLP_METHOD, lem, index);
         for (EvaluationEntity e : ee) {
             List<Document> results = languageModel2.getRankingScoresLM(e);
@@ -144,7 +143,7 @@ public class Main {
             e.setResults(results);
         }
         System.out.println("Language model: dirichlet");
-        evaluator.printEvaluation(ee);
+        evaluator.printEvaluation(ee);*/
 
 
         //NGRAM
@@ -153,18 +152,28 @@ public class Main {
         removeScores(ee);       // a bit crap, but the most efficient way
         NGramModel nGramModel = new NGramModel(NO_NLP_METHOD, lem, index, ngram);
 
-
         for (EvaluationEntity e : ee) {
             List<Document> results = nGramModel.getRankingScoresNgram(e);
             sortResults(results);
             e.setResults(results);
         }
 
+        printRanking(ee);
         System.out.println("NGRAM");
-
         evaluator.printEvaluation(ee);
 
 
+    }
+
+    private void printRanking(List<EvaluationEntity> ee) {
+
+        for (EvaluationEntity e : ee) {
+            System.out.println("Query: " + e.getQuery());
+            List<Document> sublist = e.getResults().subList(0, 15);
+            for (Document doc : sublist) {
+                System.out.println(doc);
+            }
+        }
     }
 
     private void removeScores(List<EvaluationEntity> ee) {
@@ -181,8 +190,8 @@ public class Main {
             public int compare(Document o1, Document o2) {
                 final double document1 = o1.getScore();
                 final double document2 = o2.getScore();
-                return document1 < document2 ? 1
-                        : document1 > document2 ? -1 : 0;
+
+                return document1 < document2 ? 1 : document1 > document2 ? -1 : 0;
             }
         });
     }
