@@ -36,7 +36,7 @@ public class Document {
         return score;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
@@ -45,14 +45,18 @@ public class Document {
     }
 
     @Override
-    public int hashCode() {
-        return super.hashCode();
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Document)) return false;
+
+        Document document = (Document) o;
+
+        return getId() != null ? getId().equals(document.getId()) : document.getId() == null;
     }
 
-    public boolean equals(String s) {
-        if (this.name.toLowerCase().equals(s.toLowerCase())) return true;
-        else return false;
-
+    @Override
+    public int hashCode() {
+        return getId() != null ? getId().hashCode() : 0;
     }
 
     public String toString() {

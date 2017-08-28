@@ -25,14 +25,14 @@ public class LSIModel extends VectorSpaceModel {
     public LSIModel() {
     }
 
-    public double[][]  transpose (double[][] array) {
+    public double[][] transpose(double[][] array) {
         if (array == null || array.length == 0)//empty or unset array, nothing do to here
             return array;
 
         int width = array.length;
         int height = array[0].length;
 
-       double[][] array_new = new double[height][width];
+        double[][] array_new = new double[height][width];
 
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
@@ -45,7 +45,7 @@ public class LSIModel extends VectorSpaceModel {
     //construct the query matrix
     public double[] query_doc_Matrix(Document query, String vsm_version) throws IOException {
         List<String> BOW = index.getBowFor(nlp_method);
-       // String[] TERMS = BOW.toArray(new String[index.getVocab_size()]);
+        // String[] TERMS = BOW.toArray(new String[index.getVocab_size()]);
 
 
         double[] query_matrix
@@ -74,12 +74,11 @@ public class LSIModel extends VectorSpaceModel {
     }
 
 
-    public double[]  vect_mat_Product (double vect[], double mat[][])
-    {
+    public double[] vect_mat_Product(double vect[], double mat[][]) {
 
-        double productArray[]=new double[mat[0].length];
+        double productArray[] = new double[mat[0].length];
 
-        for(int i = 0; i < mat[0].length; i++) {
+        for (int i = 0; i < mat[0].length; i++) {
             //for (int k = 0; k < vect.length; k++) {
             for (int k = 0; k < mat.length; k++) {
                 productArray[i] += mat[k][i] * vect[k];
@@ -87,20 +86,20 @@ public class LSIModel extends VectorSpaceModel {
         }
         return productArray;
     }
-    public double[] vectProduct(double a[], double b[]){
-      double[] c = new double[NUM_FACTORS];
-      for(int i = 0; i < NUM_FACTORS; i++){
+
+    public double[] vectProduct(double a[], double b[]) {
+        double[] c = new double[NUM_FACTORS];
+        for (int i = 0; i < NUM_FACTORS; i++) {
             c[i] = a[i] * b[i];
-          }
-       return c;
+        }
+        return c;
     }
 
-    public double[] reduceDoc(double[][] V, int index){
+    public double[] reduceDoc(double[][] V, int index) {
         double[] vect = new double[NUM_FACTORS];
 
-        for(int col =0; col<NUM_FACTORS; col++)
-        {
-            vect[col]=V[col][index];
+        for (int col = 0; col < NUM_FACTORS; col++) {
+            vect[col] = V[col][index];
         }
         return vect;
 
@@ -149,7 +148,7 @@ public class LSIModel extends VectorSpaceModel {
 
         int row1 = termDocMatrix(VSM_BM25).length;
         int col1 = termDocMatrix(VSM_BM25)[0].length;
-        System.out.println("rows of U:"+row+"cols of U:"+col);
+        System.out.println("rows of U:" + row + "cols of U:" + col);
 
         this.parametersSVD.add(U);
         this.parametersSVD.add(S);
@@ -160,16 +159,17 @@ public class LSIModel extends VectorSpaceModel {
     }
 
 
-    public double dotProduct(double[] query, double[] doc){
+    public double dotProduct(double[] query, double[] doc) {
 
         double sum = 0.0;
-        for (int k = 0; k < query.length; ++k){
-            sum += query[k] * doc[k] ;}
+        for (int k = 0; k < query.length; ++k) {
+            sum += query[k] * doc[k];
+        }
         return sum;
 
     }
 
-    public List<Document> getRankingScoresLSI(EvaluationEntity e) throws IOException{
+    public List<Document> getRankingScoresLSI(EvaluationEntity e) throws IOException {
 
 
         StringUtilities su = new StringUtilities();
@@ -177,111 +177,106 @@ public class LSIModel extends VectorSpaceModel {
         List<Document> DOCS = index.getDocuments();
         int indexDoc = 0;
 
-        double[][] U = (double[][])parametersSVD.get(0);
-        double[] S = (double[])parametersSVD.get(1);
-        double[][] V = (double[][])parametersSVD.get(2);
+        double[][] U = (double[][]) parametersSVD.get(0);
+        double[] S = (double[]) parametersSVD.get(1);
+        double[][] V = (double[][]) parametersSVD.get(2);
 
-    if(VSM_BINARY.equals(version)) {
-        double[] queryMat = reduceQuery(query_doc_Matrix(e.getQuery(),VSM_BINARY), U, S);
-        //System.out.println("finish");
+        if (VSM_BINARY.equals(version)) {
+            double[] queryMat = reduceQuery(query_doc_Matrix(e.getQuery(), VSM_BINARY), U, S);
+            //System.out.println("finish");
 
-        for (Document doc : DOCS) {
-            Document resultdoc = new Document();
-            resultdoc.setId(doc.getId());
-            if (su.hasOneToken(e.getQuery().getContent()) == true) {
-                doc.setContent(su.getAcronym(e.getQuery().getContent()));
-            }
-            resultdoc.setContent(doc.getContent());
+            for (Document doc : DOCS) {
+                Document resultdoc = new Document();
+                resultdoc.setId(doc.getId());
+                if (su.hasOneToken(e.getQuery().getContent()) == true) {
+                    doc.setContent(su.getAcronym(e.getQuery().getContent()));
+                }
+                resultdoc.setContent(doc.getContent());
 
-            double[] docMat = reduceDoc(V,indexDoc );
-            Double score = dotProduct(queryMat, docMat);
-            resultdoc.setScore(score);
-            dotProduct.add(resultdoc);
-        }
-        indexDoc ++;
-    }
-
-        else if(VSM_TF.equals(version)) {
-
-        double[] queryMat = reduceQuery(query_doc_Matrix(e.getQuery(),VSM_TF), U, S);
-
-
-        for (Document doc : DOCS) {
-            Document resultdoc = new Document();
-            resultdoc.setId(doc.getId());
-            if (su.hasOneToken(e.getQuery().getContent()) == true) {
-                doc.setContent(su.getAcronym(e.getQuery().getContent()));
-            }
-            resultdoc.setContent(doc.getContent());
-
-            double[] docMat = reduceDoc(V,indexDoc);
-            Double score = dotProduct(queryMat, docMat);
-            resultdoc.setScore(score);
-            dotProduct.add(resultdoc);
-        }
-        indexDoc ++;
-    }
-    else if(VSM_TFIDF.equals(version)) {
-
-        double[] queryMat = reduceQuery(query_doc_Matrix(e.getQuery(),VSM_TFIDF), U, S);
-
-        for (Document doc : DOCS) {
-            Document resultdoc = new Document();
-            resultdoc.setId(doc.getId());
-            if (su.hasOneToken(e.getQuery().getContent()) == true) {
-                doc.setContent(su.getAcronym(e.getQuery().getContent()));
-            }
-            resultdoc.setContent(doc.getContent());
-
-           double[] docMat  = reduceDoc(V,indexDoc);
-            Double score = dotProduct(queryMat, docMat);
-            resultdoc.setScore(score);
-            dotProduct.add(resultdoc);
-        }
-        indexDoc ++;
-    }
-    else if(VSM_BM25.equals(version)) {
-
-        double[] queryMat = reduceQuery(query_doc_Matrix(e.getQuery(),VSM_BM25), U, S);
-
-        for (Document doc : DOCS) {
-            Document resultdoc = new Document();
-            resultdoc.setId(doc.getId());
-            resultdoc.setContent(doc.getContent());
-            if (su.hasOneToken(e.getQuery().getContent()) == true) {
-                Document newdoc = new Document();
-                newdoc.setId(doc.getId());
-                newdoc.setContent(su.getAcronym(doc.getContent()));
-                double[] docMat = reduceQuery(query_doc_Matrix(newdoc,VSM_BM25), U, S);
-
-                double score = dotProduct(queryMat, docMat);
+                double[] docMat = reduceDoc(V, indexDoc);
+                Double score = dotProduct(queryMat, docMat);
                 resultdoc.setScore(score);
-
                 dotProduct.add(resultdoc);
-                indexDoc++;
             }
-            else{
+            indexDoc++;
+        } else if (VSM_TF.equals(version)) {
+
+            double[] queryMat = reduceQuery(query_doc_Matrix(e.getQuery(), VSM_TF), U, S);
+
+
+            for (Document doc : DOCS) {
+                Document resultdoc = new Document();
+                resultdoc.setId(doc.getId());
+//            if (su.hasOneToken(e.getQuery().getContent()) == true) {
+//                doc.setContent(su.getAcronym(e.getQuery().getContent()));
+//            }
+                resultdoc.setContent(doc.getContent());
+
+                double[] docMat = reduceDoc(V, indexDoc);
+                Double score = dotProduct(queryMat, docMat);
+                resultdoc.setScore(score);
+                dotProduct.add(resultdoc);
+            }
+            indexDoc++;
+        } else if (VSM_TFIDF.equals(version)) {
+
+            double[] queryMat = reduceQuery(query_doc_Matrix(e.getQuery(), VSM_TFIDF), U, S);
+
+            for (Document doc : DOCS) {
+                Document resultdoc = new Document();
+                resultdoc.setId(doc.getId());
+//            if (su.hasOneToken(e.getQuery().getContent()) == true) {
+//                doc.setContent(su.getAcronym(e.getQuery().getContent()));
+//            }
+                resultdoc.setContent(doc.getContent());
+
+                double[] docMat = reduceDoc(V, indexDoc);
+                Double score = dotProduct(queryMat, docMat);
+                resultdoc.setScore(score);
+                dotProduct.add(resultdoc);
+            }
+            indexDoc++;
+        } else if (VSM_BM25.equals(version)) {
+
+            double[] queryMat = reduceQuery(query_doc_Matrix(e.getQuery(), VSM_BM25), U, S);
+
+            for (Document doc : DOCS) {
+                Document resultdoc = new Document();
+                resultdoc.setId(doc.getId());
+                resultdoc.setContent(doc.getContent());
+//            if (su.hasOneToken(e.getQuery().getContent()) == true) {
+//                Document newdoc = new Document();
+//                newdoc.setId(doc.getId());
+//                newdoc.setContent(su.getAcronym(doc.getContent()));
+//                double[] docMat = reduceQuery(query_doc_Matrix(newdoc,VSM_BM25), U, S);
+//
+//                double score = dotProduct(queryMat, docMat);
+//                resultdoc.setScore(score);
+//
+//                dotProduct.add(resultdoc);
+//                indexDoc++;
+//            }
+//            else{
                 //double[] docMat = reduceQuery(query_doc_Matrix(doc, VSM_BM25), U, S);
-             double[] docMat = reduceDoc(transpose(V), indexDoc);
+                double[] docMat = reduceDoc(transpose(V), indexDoc);
 
                 double score = dotProduct(queryMat, docMat);
                 resultdoc.setScore(score);
 
                 dotProduct.add(resultdoc);
                 indexDoc++;
+//            }
             }
-        }
 
-    }
-    else {
-        System.out.println("Something wrong dude!");
-    }
+        } else {
+            System.out.println("Something wrong dude!");
+        }
 
         return dotProduct;
 
     }
 
-    }
+}
 
 
 

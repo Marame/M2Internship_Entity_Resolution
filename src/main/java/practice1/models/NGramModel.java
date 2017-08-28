@@ -172,15 +172,15 @@ public class NGramModel {
             resultdoc.setContent(doc.getContent());
 
 
-            if (su.hasOneToken(e.getQuery().getContent()) == true) {
-                Document newdoc = new Document();
-                newdoc.setId(doc.getId());
-                newdoc.setContent(su.getAcronym(doc.getContent()));
+//            if (su.hasOneToken(e.getQuery().getContent()) == true) {
+//                Document newdoc = new Document();
+//                newdoc.setId(doc.getId());
+//                newdoc.setContent(su.getAcronym(doc.getContent()));
                //think about Dice as well ;)
-                score = computeJaccard(newQuery.getContent(), newdoc.getContent());
-            } else {
+//                score = computeJaccard(newQuery.getContent(), newdoc.getContent());
+//            } else {
                 score = computeJaccard(newQuery.getContent(), doc.getContent());
-            }
+//            }
 
             resultdoc.setScore(score);
             resultList.add(resultdoc);

@@ -169,27 +169,27 @@ public class LanguageModel {
                 double freqWordQuery = (double) Collections.frequency(listwordsQuery, word);
 
                 if (doc.getContent().toLowerCase().indexOf(word.toLowerCase()) != -1) {
-                    if (su.hasOneToken(e.getQuery().getContent()) == false) {
+//                    if (su.hasOneToken(e.getQuery().getContent()) == false) {
                         if (Double.isNaN(probWord(word, doc, smoothing_version))) continue;
                         sum_jmdp += freqWordQuery * Math.log(1 + probWord(word, doc, smoothing_version));
-                    } else {
-                        Document newdoc = new Document();
-                        newdoc.setId(doc.getId());
-                        newdoc.setContent(su.getAcronym(doc.getContent()));
-                        sum_jmdp += freqWordQuery * Math.log(1 + probWord(word, newdoc, smoothing_version));
-                    }
+//                    } else {
+//                        Document newdoc = new Document();
+//                        newdoc.setId(doc.getId());
+//                        newdoc.setContent(su.getAcronym(doc.getContent()));
+//                        sum_jmdp += freqWordQuery * Math.log(1 + probWord(word, newdoc, smoothing_version));
+//                    }
                     if (smoothing_version.equals(JELINEK_SMOOTHING
                     )) {
                         Document newdoc = new Document();
                         newdoc.setId(doc.getId());
                         newdoc.setContent(su.getAcronym(doc.getContent()));
-                        if (su.hasOneToken(e.getQuery().getContent()) == false) {
+//                        if (su.hasOneToken(e.getQuery().getContent()) == false) {
                             if (Double.isNaN(probWord(word, doc, smoothing_version))) continue;
                             sum_jmdp += freqWordQuery * Math.log(1 + probWord(word, doc, smoothing_version));
-                        } else {
-                            doc.setContent(su.getAcronym(doc.getContent()));
-                            sum_jmdp += freqWordQuery * Math.log(1 + probWord(word, doc, smoothing_version));
-                        }
+//                        } else {
+//                            doc.setContent(su.getAcronym(doc.getContent()));
+//                            sum_jmdp += freqWordQuery * Math.log(1 + probWord(word, doc, smoothing_version));
+//                        }
                         if (smoothing_version.equals(DIRICHLET_SMOOTHING)) {
                             double smooth_factor = listwordsQuery.size() * (mu / (mu + docWords(doc).size()));
                             sum_jmdp += smooth_factor;

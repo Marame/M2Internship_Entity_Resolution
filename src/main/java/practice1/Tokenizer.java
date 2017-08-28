@@ -16,7 +16,7 @@ public class Tokenizer {
     private Lemmatizer lem;
     private PorterStemmer stemmer;
 
-    public static final String punctuations = " •*,:;?.!";
+    public static final String punctuations = "[ •*,:;?.!]+";
 
     public Tokenizer(Lemmatizer lem, PorterStemmer stemmer) {
         this.lem = lem;
