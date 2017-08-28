@@ -162,6 +162,10 @@ public class NGramModel {
 
     public List<Document> getRankingScoresNgram(EvaluationEntity e) throws IOException {
         List<Document> resultList = new ArrayList<>();
+<<<<<<< HEAD
+=======
+
+>>>>>>> 6ec9fcc4541979468428f957dcaeb3b850c9f3c8
         StringUtilities su = new StringUtilities();
         Document newQuery = index.nlpToDoc(e.getQuery(), nlp_method);
         for (Document doc : index.getDocuments()) {
@@ -170,6 +174,7 @@ public class NGramModel {
             resultdoc.setId(doc.getId());
             resultdoc.setContent(doc.getContent());
 
+<<<<<<< HEAD
             if (su.hasOneToken(e.getQuery().getContent()) == true) {
                 Document newdoc = new Document();
                 newdoc.setId(doc.getId());
@@ -179,13 +184,23 @@ public class NGramModel {
             } else {
                 score = computeJaccard(newQuery.getContent(), doc.getContent());
             }
+=======
+//            if (su.hasOneToken(e.getQuery().getContent()) == true) {
+//                Document newdoc = new Document();
+//                newdoc.setId(doc.getId());
+//                newdoc.setContent(su.getAcronym(doc.getContent()));
+//               //think about Dice as well ;)
+//                score = computeJaccard(newQuery.getContent(), newdoc.getContent());
+//            } else {
+                score = computeJaccard(newQuery.getContent(), doc.getContent());
+//            }
+
+>>>>>>> 6ec9fcc4541979468428f957dcaeb3b850c9f3c8
             resultdoc.setScore(score);
             resultList.add(resultdoc);
 
-
         }
         return resultList;
-
 
     }
 

@@ -15,7 +15,6 @@ import java.util.List;
  * Created by romdhane on 19/07/17.
  */
 public class ParseCorpus {
-    private List<EvaluationEntity> ee = new ArrayList<>();
 
     public List<Document> parseDocuments(String filenameDocs) {
         List<Document> docs = new ArrayList<>();
@@ -47,18 +46,22 @@ public class ParseCorpus {
             }
         }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 6ec9fcc4541979468428f957dcaeb3b850c9f3c8
         return docs;
     }
 
     public List<EvaluationEntity> parseQueries(String filename, List<Document> documents) throws IOException {
+        List<EvaluationEntity> ee = new ArrayList<>();
 
         FileReader fr = null;
         try {
             fr = new FileReader(filename);
             Iterable<CSVRecord> records = null;
 
-            CSVFormat csvFormat = CSVFormat.EXCEL.withHeader().withDelimiter(',');
+            CSVFormat csvFormat = CSVFormat.EXCEL.withDelimiter(',');
             records = csvFormat.parse(fr);
 
 

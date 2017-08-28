@@ -54,4 +54,8 @@ public class Document {
         else return false;
 
     }
+
+    public String toString() {
+        return this.getId() + ", " + this.getContent() + ", " + this.getScore();
+    }
 }

@@ -1,5 +1,6 @@
 package practice1;
 
+import org.apache.commons.lang3.StringUtils;
 import org.tartarus.snowball.ext.PorterStemmer;
 
 import java.util.ArrayList;
@@ -40,7 +41,7 @@ public class Tokenizer {
                 String token = st.nextToken();
                 String cleanToken = token.replaceAll(punctuations, "");
                 if(isNotEmpty(cleanToken)) {
-                    tokenised.add(cleanToken);
+                    tokenised.add(StringUtils.lowerCase(cleanToken));
                 }
             }
         }
