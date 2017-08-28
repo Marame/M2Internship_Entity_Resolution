@@ -4,8 +4,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import practice1.entities.Document;
 
-import java.io.*;
-import java.lang.reflect.Array;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.*;
 
 /**
@@ -22,11 +24,8 @@ public class Index {
     public List<String> stopWords = new ArrayList<>();
 
     //Versions of smoothing in Language Model
-<<<<<<< HEAD
-    public static List<String> nlp_methods = Arrays.asList(NO_NLP_METHOD, STEMMING_NLP_METHOD);
-=======
+    //public static List<String> nlp_methods = Arrays.asList(NO_NLP_METHOD, STEMMING_NLP_METHOD);
     public static List<String> nlp_methods = Arrays.asList(NO_NLP_METHOD);
->>>>>>> 508e40c4bbe3b7607d8e6a0e1958038cdd36f8b7
     private int vocab_size;
 
 
