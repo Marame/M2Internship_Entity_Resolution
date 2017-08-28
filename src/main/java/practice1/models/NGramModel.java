@@ -16,7 +16,7 @@ import java.util.List;
  */
 public class NGramModel {
     static LinkedList<Document> sentences = new LinkedList<>();
-    private List<Document> resultList = new ArrayList<>();
+
     private Lemmatizer lem;
     private String nlp_method;
     private Index index;
@@ -161,7 +161,7 @@ public class NGramModel {
     }*/
 
     public List<Document> getRankingScoresNgram(EvaluationEntity e) throws IOException {
-
+        List<Document> resultList = new ArrayList<>();
         StringUtilities su = new StringUtilities();
         Document newQuery = index.nlpToDoc(e.getQuery(), nlp_method);
         for (Document doc : index.getDocuments()) {
@@ -171,7 +171,6 @@ public class NGramModel {
             resultdoc.setContent(doc.getContent());
 
             if (su.hasOneToken(e.getQuery().getContent()) == true) {
-                System.out.println(doc.getContent());
                 Document newdoc = new Document();
                 newdoc.setId(doc.getId());
                 newdoc.setContent(su.getAcronym(doc.getContent()));
@@ -180,7 +179,6 @@ public class NGramModel {
             } else {
                 score = computeJaccard(newQuery.getContent(), doc.getContent());
             }
-
             resultdoc.setScore(score);
             resultList.add(resultdoc);
 

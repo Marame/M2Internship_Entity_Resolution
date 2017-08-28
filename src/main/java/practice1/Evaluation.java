@@ -15,13 +15,8 @@ import java.util.List;
 public class Evaluation {
 
     //int[] N = {10, 20,50};
-    int[] N = {10, 20,50,100, 150,200,300,500,800};
+    int[] N = {10, 20,50,100};
    // private List<EvaluationEntity> ee = new ArrayList<>();
-
-    private double precision;
-    private double recall;
-    private double F1;
-
 
 
     public double reward(Document result, List<Document> relevant_docs) {
@@ -79,6 +74,11 @@ public class Evaluation {
     public List<Double> evaluate(List<Document> results, List<Document> relevant_docs, int n) {
 
         List<Double> listresults = new ArrayList<>();
+        double precision = 0;
+        double recall = 0;
+        double F1 = 0;
+
+
 
         List<Document> firstN = results.subList(0, n);
 
@@ -193,48 +193,56 @@ public class Evaluation {
         Double[][] ret_rel_matrix =  list_eval.get(3);
         Double[][] notret_notrel_matrix =  list_eval.get(4);
         Double[][] notret_rel_matrix =  list_eval.get(5);
-        double sum_precision = 0;
-        double sum_recall = 0;
-        double sum_F1 = 0;
-        double sum_retrel = 0;
-        double sum_notretrel = 0;
-        double sum_notretnotrel = 0;
 
-        for (int i = 0; i < ee.size(); i++) {
-            for (int j = 0; j < N.length; j++) {
 
-                sum_precision += precision_matrix[i][j];
-                sum_recall += recall_matrix[i][j];
-                if(!Double.isNaN(F1_matrix[i][j]))
-                {sum_F1 += F1_matrix[i][j];}
-                sum_retrel += ret_rel_matrix[i][j];
-                sum_notretnotrel += notret_notrel_matrix[i][j];
-                sum_notretrel += notret_rel_matrix[i][j];
-            }
-        }
-        //compute precisions@K
-        double sum_precision_k = 0;
         for (int j = 0; j < N.length; j++) {
+            double sum_precision_k = 0;
+            double sum_recall_k = 0;
+            double sum_F1_k = 0;
+            double sum_retrel_k = 0;
+            double sum_notretrel_k = 0;
+            double sum_notretnotrel_k = 0;
+
+            //Macro measures
             for (int k = 0; k < ee.size(); k++) {
+                //if(!Double.isNaN(F1_matrix[k][j]))
+                sum_precision_k += precision_matrix[k][j];
+                if (k == ee.size()-1)
+                 System.out.println(" Macro Average Precision at" +"\t"+ N[j] +"\t"+ "=" +"\t"+sum_precision_k);
+
+                sum_recall_k += recall_matrix[k][j];
+                if (k == ee.size()-1)
+                    System.out.println(" Macro Average Recall at" +"\t"+ N[j] +"\t"+ "=" +"\t"+ sum_recall_k);
+
                 if(!Double.isNaN(F1_matrix[k][j]))
-                {sum_precision_k += F1_matrix[k][j];}
-                //if (k == ee.size()-1)
-                  //System.out.println("f1 at" + N[j] + "=" + sum_precision_k);
+                {
+                    sum_F1_k+= F1_matrix[k][j];
+                    if (k == ee.size()-1)
+                        System.out.println(" Macro Average F1 at" +"\t"+ N[j] +"\t"+ "=" +"\t"+ sum_F1_k);
+                }
+
+               //Micro measures
+
+                sum_retrel_k+= ret_rel_matrix[k][j];
+                sum_notretrel_k+= notret_rel_matrix[k][j];
+                sum_notretnotrel_k+= notret_notrel_matrix[k][j];
+                 double micro_average_precision =0;
+                double micro_average_recall =0;
+                double micro_average_F1 =0;
+
+
+                if (k == ee.size()-1)
+                    micro_average_precision = sum_retrel_k / (sum_retrel_k + sum_notretrel_k);
+                    micro_average_recall = sum_retrel_k / (sum_retrel_k + sum_notretnotrel_k);
+                    micro_average_F1 = (2*micro_average_precision*micro_average_recall)/(micro_average_precision + micro_average_recall);
+
+                System.out.println(" Micro Average Precision at" +"\t"+N[j] +"\t"+"="+"\t"+ micro_average_precision);
+                System.out.println(" Micro Average Recall at" +"\t"+ N[j] +"\t"+ "=" +"\t"+ micro_average_recall);
+                System.out.println(" Micro Average F1 at" +"\t"+ N[j] +"\t"+ "=" +"\t"+micro_average_F1);
+
             }
         }
 
-
-        double macro_average_precision = sum_precision / N.length;
-
-        double macro_average_recall = sum_recall / N.length;
-
-        double macro_average_F1 = (2*macro_average_precision*macro_average_recall)/(macro_average_precision + macro_average_recall);
-
-        double micro_average_precision = sum_retrel / (sum_retrel + sum_notretrel);
-
-        double micro_average_recall = sum_retrel / (sum_retrel + sum_notretnotrel);
-
-        double micro_average_F1 = (2 * micro_average_precision * micro_average_recall) / (micro_average_precision + micro_average_recall);
 
 
 
@@ -270,12 +278,12 @@ public class Evaluation {
         double nCDG = sum / (double) ee.size();
         evaluationMeasures.add(nCDG);
 
-        evaluationMeasures.add(micro_average_precision);
+       /* evaluationMeasures.add(micro_average_precision);
         evaluationMeasures.add(micro_average_recall);
         evaluationMeasures.add(micro_average_F1);
         evaluationMeasures.add(macro_average_precision);
         evaluationMeasures.add(macro_average_recall);
-        evaluationMeasures.add(macro_average_F1);
+        evaluationMeasures.add(macro_average_F1);*/
         return evaluationMeasures;
 
     }
@@ -285,12 +293,12 @@ public class Evaluation {
         StringBuilder sb = new StringBuilder();
         sb.append("MAP"+"\t"+measures.get(0)+"\n");
         sb.append("nCDG"+"\t"+measures.get(1)+"\n");
-        sb.append("Micro Average Precision"+"\t"+measures.get(2)+"\n");
+        /*sb.append("Micro Average Precision"+"\t"+measures.get(2)+"\n");
         sb.append("Micro Average Recall"+"\t"+measures.get(3)+"\n");
         sb.append("Micro Average F1"+"\t"+measures.get(4)+"\n");
         sb.append("Macro Average Precision"+"\t"+measures.get(5)+"\n");
         sb.append("Macro Average Recall"+"\t"+measures.get(6)+"\n");
-        sb.append("Macro Average F1"+"\t"+measures.get(7)+"\n");
+        sb.append("Macro Average F1"+"\t"+measures.get(7)+"\n");*/
         System.out.println(sb.toString());
 
     }

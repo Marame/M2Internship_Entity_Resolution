@@ -31,8 +31,8 @@ public class ParseCorpus {
 
             for (CSVRecord record : records) {
                 Document doc = new Document();
-                doc.setId(Integer.parseInt(record.get(0)));
-                doc.setContent(record.get(1));
+                doc.setId(Integer.parseInt(record.get(1)));
+                doc.setContent(record.get(0));
                 docs.add(doc);
             }
 
@@ -47,13 +47,6 @@ public class ParseCorpus {
             }
         }
 
-        for (CSVRecord record : records) {
-            Document doc = new Document();
-            doc.setId(Integer.parseInt(record.get(1)));
-            doc.setContent(record.get(0));
-            docs.add(doc);
-        }
-        //this.documents = docs;
 
         return docs;
     }

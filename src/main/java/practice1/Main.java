@@ -4,9 +4,7 @@ package practice1;
 import org.tartarus.snowball.ext.PorterStemmer;
 import practice1.entities.Document;
 import practice1.entities.EvaluationEntity;
-import practice1.models.LanguageModel;
 import practice1.models.NGramModel;
-import practice1.models.VectorSpaceModel;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -15,8 +13,6 @@ import java.util.Comparator;
 import java.util.List;
 
 import static practice1.Index.NO_NLP_METHOD;
-import static practice1.models.LanguageModel.DIRICHLET_SMOOTHING;
-import static practice1.models.LanguageModel.JELINEK_SMOOTHING;
 import static practice1.models.VectorSpaceModel.VSM_BM25;
 
 /**
@@ -61,6 +57,7 @@ public class Main {
 
 
         // VSM - BM25
+       /* removeScores(ee);
         VectorSpaceModel vsm25 = new VectorSpaceModel(VectorSpaceModel.VSM_BM25, NO_NLP_METHOD, index);
         for (EvaluationEntity e : ee) {
             List<Document> results = vsm25.getRankingScoresVSM(e);
@@ -68,11 +65,11 @@ public class Main {
             e.setResults(results);
         }
         System.out.println("VSM-BM25");
-        evaluator.printEvaluation(ee);
+        evaluator.printEvaluation(ee);*/
 
         // List<EvaluationEntity> ee = pf.parseQueries(queryFile, documents);
 
-        removeScores(ee);
+       /* removeScores(ee);
         // VSM - Binary
         VectorSpaceModel vsmbin = new VectorSpaceModel(VectorSpaceModel.VSM_BINARY, NO_NLP_METHOD, index);
         for (EvaluationEntity e : ee) {
@@ -123,7 +120,7 @@ public class Main {
         evaluator.printEvaluation();*/
 
         // Language Model
-        removeScores(ee);
+       /* removeScores(ee);
         LanguageModel lm = new LanguageModel(JELINEK_SMOOTHING, NO_NLP_METHOD, lem, index);
         for (EvaluationEntity e : ee) {
             List<Document> results = lm.getRankingScoresLM(e);
@@ -144,7 +141,7 @@ public class Main {
             e.setResults(results);
         }
         System.out.println("Language model: dirichlet");
-        evaluator.printEvaluation(ee);
+        evaluator.printEvaluation(ee);*/
 
 
         //NGRAM
