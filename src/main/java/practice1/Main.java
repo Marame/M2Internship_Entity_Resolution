@@ -55,7 +55,7 @@ public class Main {
         List<EvaluationEntity> ee = pf.parseQueries(queryFile, documents);
 
         // VSM - BM25
-<<<<<<< HEAD
+
        /* removeScores(ee);
 =======
 /*        removeScores(ee);
@@ -66,17 +66,16 @@ public class Main {
             sortResults(results);
             e.setResults(results);
         }
-<<<<<<< HEAD
-        System.out.println("VSM-BM25");
-        evaluator.printEvaluation(ee);*/
-=======
->>>>>>> 6ec9fcc4541979468428f957dcaeb3b850c9f3c8
+
+
+
+
 
         System.out.println("VSM-BM25");
         printRanking(ee);
         evaluator.printEvaluation(ee);*/
 
-<<<<<<< HEAD
+
        /* removeScores(ee);
 =======
 >>>>>>> 6ec9fcc4541979468428f957dcaeb3b850c9f3c8
@@ -131,11 +130,10 @@ public class Main {
         evaluator.printEvaluation();*/
 
         // Language Model
-<<<<<<< HEAD
        /* removeScores(ee);
-=======
+
 /*        removeScores(ee);
->>>>>>> 6ec9fcc4541979468428f957dcaeb3b850c9f3c8
+
         LanguageModel lm = new LanguageModel(JELINEK_SMOOTHING, NO_NLP_METHOD, lem, index);
         for (EvaluationEntity e : ee) {
             List<Document> results = lm.getRankingScoresLM(e);

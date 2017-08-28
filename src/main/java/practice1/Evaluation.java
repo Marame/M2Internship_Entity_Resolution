@@ -74,17 +74,14 @@ public class Evaluation {
     public List<Double> evaluate(List<Document> results, List<Document> relevant_docs, int n) {
 
         List<Double> listresults = new ArrayList<>();
-<<<<<<< HEAD
         double precision = 0;
         double recall = 0;
         double F1 = 0;
 
 
-=======
         if(n < results.size()) {
             n = results.size();
         }
->>>>>>> 6ec9fcc4541979468428f957dcaeb3b850c9f3c8
 
         List<Document> firstN = results.subList(0, n);
 

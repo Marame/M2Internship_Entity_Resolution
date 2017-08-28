@@ -46,10 +46,6 @@ public class ParseCorpus {
             }
         }
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 6ec9fcc4541979468428f957dcaeb3b850c9f3c8
         return docs;
     }
 
