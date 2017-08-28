@@ -11,11 +11,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LSIModel extends VectorSpaceModel {
-    static final int NUM_FACTORS = 2;
+    static final int NUM_FACTORS = 17;
     static final List<Object> parametersSVD = new ArrayList<>();
 
 
-    public LSIModel(String version, Index index, String nlp_method) {
+    public LSIModel(String version, String nlp_method, Index index) {
         this.version = version;
         this.index = index;
         this.nlp_method = nlp_method;
@@ -80,7 +80,8 @@ public class LSIModel extends VectorSpaceModel {
         double productArray[]=new double[mat[0].length];
 
         for(int i = 0; i < mat[0].length; i++) {
-            for (int k = 0; k < vect.length; k++) {
+            //for (int k = 0; k < vect.length; k++) {
+            for (int k = 0; k < mat.length; k++) {
                 productArray[i] += mat[k][i] * vect[k];
             }
         }
@@ -99,7 +100,7 @@ public class LSIModel extends VectorSpaceModel {
 
         for(int col =0; col<NUM_FACTORS; col++)
         {
-            vect[col]=V[index][col];
+            vect[col]=V[col][index];
         }
         return vect;
 
@@ -168,11 +169,13 @@ public class LSIModel extends VectorSpaceModel {
 
     }
 
-
     public List<Document> getRankingScoresLSI(EvaluationEntity e) throws IOException{
+
+
         StringUtilities su = new StringUtilities();
         List<Document> dotProduct = new ArrayList<>();
         List<Document> DOCS = index.getDocuments();
+        int indexDoc = 0;
 
         double[][] U = (double[][])parametersSVD.get(0);
         double[] S = (double[])parametersSVD.get(1);
@@ -181,7 +184,7 @@ public class LSIModel extends VectorSpaceModel {
     if(VSM_BINARY.equals(version)) {
         double[] queryMat = reduceQuery(query_doc_Matrix(e.getQuery(),VSM_BINARY), U, S);
         //System.out.println("finish");
-        int indexDoc = 0;
+
         for (Document doc : DOCS) {
             Document resultdoc = new Document();
             resultdoc.setId(doc.getId());
@@ -202,7 +205,7 @@ public class LSIModel extends VectorSpaceModel {
 
         double[] queryMat = reduceQuery(query_doc_Matrix(e.getQuery(),VSM_TF), U, S);
 
-        int indexDoc = 0;
+
         for (Document doc : DOCS) {
             Document resultdoc = new Document();
             resultdoc.setId(doc.getId());
@@ -221,8 +224,7 @@ public class LSIModel extends VectorSpaceModel {
     else if(VSM_TFIDF.equals(version)) {
 
         double[] queryMat = reduceQuery(query_doc_Matrix(e.getQuery(),VSM_TFIDF), U, S);
-        //double[] idfMat = reduceQuery(idf_Matrix(),U, S);
-        int indexDoc = 0;
+
         for (Document doc : DOCS) {
             Document resultdoc = new Document();
             resultdoc.setId(doc.getId());
@@ -239,25 +241,35 @@ public class LSIModel extends VectorSpaceModel {
         indexDoc ++;
     }
     else if(VSM_BM25.equals(version)) {
-         double[] queryMat = reduceQuery(query_doc_Matrix(e.getQuery(),VSM_BM25), U, S);
 
-        //double[] idfMat = reduceQuery(idf_Matrix(),U, S);
-        int indexDoc = 0;
+        double[] queryMat = reduceQuery(query_doc_Matrix(e.getQuery(),VSM_BM25), U, S);
+
         for (Document doc : DOCS) {
             Document resultdoc = new Document();
             resultdoc.setId(doc.getId());
-            if (su.hasOneToken(e.getQuery().getContent()) == true) {
-                doc.setContent(su.getAcronym(e.getQuery().getContent()));
-            }
             resultdoc.setContent(doc.getContent());
+            if (su.hasOneToken(e.getQuery().getContent()) == true) {
+                Document newdoc = new Document();
+                newdoc.setId(doc.getId());
+                newdoc.setContent(su.getAcronym(doc.getContent()));
+                double[] docMat = reduceQuery(query_doc_Matrix(newdoc,VSM_BM25), U, S);
 
-            double[] docMat = reduceQuery(query_doc_Matrix(doc,VSM_BM25), U, S);
-            //System.out.println(Arrays.toString(docMat));
-            double score = dotProduct(queryMat, docMat);
-            resultdoc.setScore(score);
-           // System.out.println(score);
-            dotProduct.add(resultdoc);
-            indexDoc ++;
+                double score = dotProduct(queryMat, docMat);
+                resultdoc.setScore(score);
+
+                dotProduct.add(resultdoc);
+                indexDoc++;
+            }
+            else{
+                //double[] docMat = reduceQuery(query_doc_Matrix(doc, VSM_BM25), U, S);
+             double[] docMat = reduceDoc(transpose(V), indexDoc);
+
+                double score = dotProduct(queryMat, docMat);
+                resultdoc.setScore(score);
+
+                dotProduct.add(resultdoc);
+                indexDoc++;
+            }
         }
 
     }

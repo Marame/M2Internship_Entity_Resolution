@@ -14,7 +14,7 @@ public class Lemmatizer {
 
 
         // Create StanfordCoreNLP object properties, with POS tagging
-        private StanfordCoreNLP pipeline;
+    private StanfordCoreNLP pipeline;
 
      public void initializeCoreNLP() {
         Properties props = new Properties();

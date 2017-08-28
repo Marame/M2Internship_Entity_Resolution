@@ -35,19 +35,20 @@ public class NGramModel {
         this.ngram = n;
     }
 
-    public List<String> ngrams(String str) {
-        List<String> ngrams = new ArrayList<String>();
-        String[] words = str.split(" ");
-        for (int i = 0; i < words.length - ngram + 1; i++)
-            ngrams.add(concat(words, i, i + ngram));
 
-        return ngrams;
+    public  List<String> ngrams(String str) {
+        char[] chars = str.toCharArray();
+        final int resultCount = chars.length - ngram + 1;
+        List<String> result = new ArrayList<>();
+        for (int i = 0; i < resultCount; i++) {
+            result.add(new String(chars, i, ngram));
+        }
+        return result;
     }
-
-    public static String concat(String[] words, int start, int end) {
+    public static String concat(List<Character> words, int start, int end) {
         StringBuilder sb = new StringBuilder();
         for (int i = start; i < end; i++)
-            sb.append((i > start ? " " : "") + words[i]);
+            sb.append(words);
         return sb.toString();
     }
 
@@ -55,19 +56,18 @@ public class NGramModel {
     public int computeIntersection(String querySample, String docSample) {
 
         List<String> ngramsQuery = ngrams(querySample);
-        final List<String> ngramsDoc = ngrams(docSample);
+
+        List<String> ngramsDoc = ngrams(docSample);
         List<String> listIntersect = new ArrayList<>();
         int inter = 0;
         for (String q : ngramsQuery) {
             for (String d : ngramsDoc) {
-                String[] tokens_d = d.split(" ");
-                for (String st : tokens_d) {
 
-                    if ((q.toLowerCase().indexOf(st.toLowerCase()) != -1) && (!listIntersect.contains(d)))
-                        listIntersect.add(d);
-                }
+                if ((q.toLowerCase().indexOf(d.toLowerCase()) != -1) && (!listIntersect.contains(d)))
+
+                {listIntersect.add(d);}
+              }
             }
-        }
 
         inter = listIntersect.size();
         return inter;
@@ -76,7 +76,7 @@ public class NGramModel {
     public int computeUnion(String querySample, String docSample) {
 
         List<String> ngramsQuery = ngrams(querySample);
-        List<String> ngramsDoc = ngrams(docSample);
+        List<String> ngramsDoc =ngrams(docSample);
         List<String> listUnion = new ArrayList<>();
         int union = 0;
         for (String q : ngramsQuery) {
@@ -162,23 +162,28 @@ public class NGramModel {
 
     public List<Document> getRankingScoresNgram(EvaluationEntity e) throws IOException {
 
-        //Map<Document, Map<String, Double>> nGramsFeatures = computeFeatures(e, "Jaccard");
         StringUtilities su = new StringUtilities();
-        for (Document st : index.nlpToDocs(index.getDocuments(), nlp_method)) {
+        Document newQuery = index.nlpToDoc(e.getQuery(), nlp_method);
+        for (Document doc : index.getDocuments()) {
             double score = 0.0;
             Document resultdoc = new Document();
-            resultdoc.setId(st.getId());
-            resultdoc.setContent(st.getContent());
-            Document newQuery = index.nlpToDoc(e.getQuery(), nlp_method);
+            resultdoc.setId(doc.getId());
+            resultdoc.setContent(doc.getContent());
+
             if (su.hasOneToken(e.getQuery().getContent()) == true) {
-                score = computeJaccard(newQuery.getContent(), su.getAcronym(st.getContent()));
+                System.out.println(doc.getContent());
+                Document newdoc = new Document();
+                newdoc.setId(doc.getId());
+                newdoc.setContent(su.getAcronym(doc.getContent()));
+               //think about Dice as well ;)
+                score = computeJaccard(newQuery.getContent(), newdoc.getContent());
             } else {
-                score = computeJaccard(newQuery.getContent(), st.getContent());
+                score = computeJaccard(newQuery.getContent(), doc.getContent());
             }
-            //if(Double.isNaN(score)) score = 0.0;
+
             resultdoc.setScore(score);
             resultList.add(resultdoc);
-            //System.out.println("average:" + "\t" + average);
+
 
         }
         return resultList;

@@ -5,7 +5,7 @@ package practice1.utilities;
  */
 public class StringUtilities {
     public boolean hasOneToken(String str){
-        String[]  tokens =  str.split("\\s");
+        String[]  tokens =  str.split("\\s+");
         if(tokens.length>1) return false;
         else
             return true;
@@ -18,7 +18,7 @@ public class StringUtilities {
 
         c1 = new Character('[');
 
-        String[]  tokens =  str.split("\\s");
+        String[]  tokens =  str.split("\\s+");
         for (String s : tokens){
             c2 = new Character(s.charAt(0));
             if(c1.compareTo(c2)!=0)

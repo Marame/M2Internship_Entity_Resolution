@@ -28,7 +28,7 @@ public class Index {
     private String stopWordsFile;
 
     //Versions of smoothing in Language Model
-    public static List<String> nlp_methods = Arrays.asList(NO_NLP_METHOD, STEMMING_NLP_METHOD, LEMMATIZING_NLP_METHOD);
+    public static List<String> nlp_methods = Arrays.asList(NO_NLP_METHOD, STEMMING_NLP_METHOD);
     private int vocab_size;
 
 

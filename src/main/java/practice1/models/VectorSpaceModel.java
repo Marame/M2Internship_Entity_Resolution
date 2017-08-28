@@ -144,6 +144,7 @@ public class VectorSpaceModel {
 
             }
         }
+        System.out.println("term doc done");
         return TERM_DOC_MATRIX;
     }
 
@@ -230,9 +231,8 @@ public class VectorSpaceModel {
 
             List<Double> listQueryTF = getTF(e.getQuery(), index.getBowFor(nlp_method), false);
             List<Double> vectQueryTF = new Vector<>(listQueryTF);
-//            System.out.println("**********IDF*********");
             List<Double> listIDF = getIDF();
-//            System.out.println("********IDF done***********");
+
             List<Double> vectIDF = new Vector<>(listIDF);
 
             for (Document doc : documents) {
@@ -241,22 +241,36 @@ public class VectorSpaceModel {
                 resultdoc.setContent(doc.getContent());
 
                 if (su.hasOneToken(e.getQuery().getContent()) == true) {
-                    doc.setContent(su.getAcronym(e.getQuery().getContent()));}
-                List<Double> listDocTF =  getTF(doc, index.getBowFor(nlp_method), true);
-                List<Double> vectDocTF = new Vector<>(listDocTF);
+                    Document newdoc = new Document();
+                    newdoc.setId(doc.getId());
+                    newdoc.setContent(su.getAcronym(doc.getContent()));
+                    List<Double> listDocTF = getTF(newdoc, index.getBowFor(nlp_method), true);
+                    List<Double> vectDocTF = new Vector<>(listDocTF);
+
+                    double sum = 0;
+                    for (int i = 0; i < vectQueryTF.size(); i++) {
+                        Double value = vectQueryTF.get(i) * vectDocTF.get(i) * vectIDF.get(i);
+                        sum += value;
+                    }
+                    resultdoc.setScore(sum);
+                    dotProduct.add(resultdoc);
+
+                } else {
+                    List<Double> listDocTF = getTF(doc, index.getBowFor(nlp_method), true);
+                    List<Double> vectDocTF = new Vector<>(listDocTF);
 
 
-                double sum = 0;
-                for (int i = 0; i < vectQueryTF.size(); i++) {
-                    Double value = vectQueryTF.get(i) * vectDocTF.get(i) * vectIDF.get(i);
-                    sum += value;
+                    double sum = 0;
+                    for (int i = 0; i < vectQueryTF.size(); i++) {
+                        Double value = vectQueryTF.get(i) * vectDocTF.get(i) * vectIDF.get(i);
+                        sum += value;
+                    }
+
+                    resultdoc.setScore(sum);
+                    dotProduct.add(resultdoc);
                 }
-
-                resultdoc.setScore(sum);
-                dotProduct.add(resultdoc);
-
             }
-        } else {
+        }else {
             System.out.println("Something wrong dude!");
         }
 

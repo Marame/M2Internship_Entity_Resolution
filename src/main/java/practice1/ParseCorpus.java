@@ -38,7 +38,7 @@ public class ParseCorpus {
 
         Iterable<CSVRecord> records = null;
         try {
-            CSVFormat csvFormat = CSVFormat.EXCEL.withHeader().withDelimiter(',');
+            CSVFormat csvFormat = CSVFormat.EXCEL.withDelimiter(',');
             records = csvFormat.parse(frd);
         } catch (IOException e) {
             System.out.println("cannot read csv file");
@@ -46,9 +46,8 @@ public class ParseCorpus {
 
         for (CSVRecord record : records) {
             Document doc = new Document();
-            doc.setId(Integer.parseInt(record.get(0)));
-//            System.out.println(record.get(1));
-            doc.setContent(record.get(1));
+            doc.setId(Integer.parseInt(record.get(1)));
+            doc.setContent(record.get(0));
             docs.add(doc);
         }
         this.documents = docs;
@@ -82,6 +81,7 @@ public class ParseCorpus {
 
                 // if contained, the current document is relevant
                 for (String relId : queryReleventIds) {
+
                     int valId = Integer.parseInt(relId);
 
                     for (Document Doc : documents) {

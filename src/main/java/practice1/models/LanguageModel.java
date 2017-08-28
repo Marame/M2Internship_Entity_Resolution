@@ -106,7 +106,6 @@ public class LanguageModel {
         }
 
         double prob = sumfreq / sumsize;
-        //if(DIRICHLET_SMOOTHING.equals(smoothing_version)) System.out.println(prob);
 
         return prob;
     }
@@ -168,35 +167,40 @@ public class LanguageModel {
 
         for (Document doc : index.nlpToDocs(documents, nlp_method)) {
 
-            Document resultdoc = new Document();
-            resultdoc.setId(doc.getId());
-            resultdoc.setContent(doc.getContent());
+        Document resultdoc = new Document();
+        resultdoc.setId(doc.getId());
+        resultdoc.setContent(doc.getContent());
 
-            double sum_jmdp = 0.0;
+        double sum_jmdp = 0.0;
 
-                for (String word : listwordsQuery) {
-                    double freqWordQuery = (double) Collections.frequency(listwordsQuery, word);
+            for (String word : listwordsQuery) {
+                double freqWordQuery = (double) Collections.frequency(listwordsQuery, word);
 
-                    if (doc.getContent().toLowerCase().indexOf(word.toLowerCase()) != -1) {
-                        if(su.hasOneToken(e.getQuery().getContent())==false) {
-                           if(Double.isNaN(probWord(word, doc, smoothing_version))) continue;
-                            sum_jmdp += freqWordQuery * Math.log(1 + probWord(word, doc, smoothing_version));
-                        }
-                        else {
-                            doc.setContent(su.getAcronym(doc.getContent()));
-                            sum_jmdp += freqWordQuery * Math.log(1 + probWord(word, doc, smoothing_version));
-                        }
-                        if (smoothing_version.equals(Main.DIRICHLET_SMOOTHING)) {
-                            double smooth_factor = listwordsQuery.size() * (mu / (mu + docWords(doc).size()));
-                            sum_jmdp += smooth_factor;
-                        }
-                    } else continue;
-                }
-                resultdoc.setScore(sum_jmdp);
-                listRankingResults.add(resultdoc);
+                if (doc.getContent().toLowerCase().indexOf(word.toLowerCase()) != -1) {
+                    if(su.hasOneToken(e.getQuery().getContent())==false) {
+                       if(Double.isNaN(probWord(word, doc, smoothing_version))) continue;
+                        sum_jmdp += freqWordQuery * Math.log(1 + probWord(word, doc, smoothing_version));
+                    }
+                    else {
+                        Document newdoc = new Document();
+                        newdoc.setId(doc.getId());
+                        newdoc.setContent(su.getAcronym(doc.getContent()));
+                        sum_jmdp += freqWordQuery * Math.log(1 + probWord(word, newdoc, smoothing_version));
+                    }
+                    if (smoothing_version.equals(Main.DIRICHLET_SMOOTHING)) {
+                        Document newdoc = new Document();
+                        newdoc.setId(doc.getId());
+                        newdoc.setContent(su.getAcronym(doc.getContent()));
+                        double smooth_factor = listwordsQuery.size() * (mu / (mu + docWords(newdoc).size()));
+                        sum_jmdp += smooth_factor;
+                    }
+                } else continue;
             }
-
-            return listRankingResults;
+            resultdoc.setScore(sum_jmdp);
+            listRankingResults.add(resultdoc);
         }
 
+        return listRankingResults;
     }
+
+}

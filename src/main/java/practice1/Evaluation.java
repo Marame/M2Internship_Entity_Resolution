@@ -14,8 +14,9 @@ import java.util.*;
  * Created by romdhane on 14/06/17.
  */
 public class Evaluation {
-    private Index index;
-    int[] N = {10, 20, 30, 40, 50};
+
+    //int[] N = {10, 20,50};
+    int[] N = {10, 20,50,100, 150,200,300,500,800};
     private List<EvaluationEntity> ee = new ArrayList<>();
 
     private double precision;
@@ -122,6 +123,7 @@ public class Evaluation {
         F1 = (2 * precision * recall) / (precision + recall);
 
         listresults.add(precision);
+
         listresults.add(recall);
         listresults.add(F1);
         listresults.add((double) ret_relevant);
@@ -159,7 +161,7 @@ public class Evaluation {
                         VectorSpaceModel vsm = new VectorSpaceModel(vsm_version, nlp_method, index);
                         results = vsm.getRankingScoresVSM(e);
                     } else {
-                        LSIModel lsi = new LSIModel(vsm_version, index, nlp_method);
+                        LSIModel lsi = new LSIModel(vsm_version, nlp_method, index);
                         results = lsi.getRankingScoresLSI(e);
                     }
 
@@ -170,21 +172,15 @@ public class Evaluation {
             }
             sortResults(results);
             map.put(e, results);
-
-//            System.out.println("Query: " + e.getQuery().getId() + ", " + e.getQuery().getContent());
-//            for (Document result : results.subList(0, 15)) {
-//                System.out.println(result.getId() + ", " + result.getContent() + ", " + result.getScore());
-//            }
         }
         return map;
     }
 
 
-    public List<Double[][]> retrieve_evaluation_measures(String smoothing_version, String vsm_version, String nlp_method, Lemmatizer l, Index index, int ngram, boolean lsiUsed) throws IOException {
+    public List<Double[][]> retrieve_evaluation_measures() throws IOException {
 
         List<Double[][]> list_eval = new ArrayList<>();
 
-        Map<EvaluationEntity, List<Document>> mapResults = allocateResults(smoothing_version, vsm_version, nlp_method, l, index, ngram, lsiUsed);
         Double[][] precision_matrix = new Double[ee.size()][N.length];
         Double[][] recall_matrix = new Double[ee.size()][N.length];
         Double[][] F1_matrix = new Double[ee.size()][N.length];
@@ -193,9 +189,9 @@ public class Evaluation {
         Double[][] notret_rel_matrix = new Double[ee.size()][N.length];
 
         int idx_ent = 0;
-        for (Map.Entry<EvaluationEntity, List<Document>> entry : mapResults.entrySet()) {
-            EvaluationEntity e = entry.getKey();
-            List<Document> results = entry.getValue();
+        for (EvaluationEntity e: ee) {
+
+            List<Document> results = e.getResults();
 
             int idx_N = 0;
             for (Integer n : N) {
@@ -211,7 +207,7 @@ public class Evaluation {
             }
             idx_ent++;
         }
-        //System.out.println(Arrays.deepToString(precision_matrix));
+       //System.out.println(Arrays.deepToString(precision_matrix));
         list_eval.add(precision_matrix);
         list_eval.add(recall_matrix);
         list_eval.add(F1_matrix);
@@ -221,10 +217,9 @@ public class Evaluation {
         return list_eval;
     }
 
-    public List<Double> getEvaluationMeasures(String smoothing_version, String vsm_version, String nlp_method, Lemmatizer l, Index index, int ngram, boolean lsiUsed) throws IOException {
-
+    public List<Double> getEvaluationMeasures() throws IOException{
         List<Double> evaluationMeasures = new ArrayList<>();
-        List<Double[][]> list_eval = retrieve_evaluation_measures(smoothing_version, vsm_version, nlp_method, l, index, ngram, lsiUsed);
+        List<Double[][]> list_eval = retrieve_evaluation_measures();
         Double[][] precision_matrix =  list_eval.get(0);
         Double[][] recall_matrix =  list_eval.get(1);
         Double[][] F1_matrix =  list_eval.get(2);
@@ -243,7 +238,8 @@ public class Evaluation {
 
                 sum_precision += precision_matrix[i][j];
                 sum_recall += recall_matrix[i][j];
-                sum_F1 += F1_matrix[i][j];
+                if(!Double.isNaN(F1_matrix[i][j]))
+                {sum_F1 += F1_matrix[i][j];}
                 sum_retrel += ret_rel_matrix[i][j];
                 sum_notretnotrel += notret_notrel_matrix[i][j];
                 sum_notretrel += notret_rel_matrix[i][j];
@@ -251,12 +247,12 @@ public class Evaluation {
         }
         //compute precisions@K
         double sum_precision_k = 0;
-        for (int j = 0; j < (N.length - 1); j++) {
+        for (int j = 0; j < N.length; j++) {
             for (int k = 0; k < ee.size(); k++) {
-
-                sum_precision_k += F1_matrix[k][j];
-                //if (k == ee.size() - 1)
-                //  System.out.println("F1 at" + N[j] + "=" + sum_precision_k);
+                if(!Double.isNaN(F1_matrix[k][j]))
+                {sum_precision_k += F1_matrix[k][j];}
+                //if (k == ee.size()-1)
+                  //System.out.println("f1 at" + N[j] + "=" + sum_precision_k);
             }
         }
 
@@ -265,7 +261,7 @@ public class Evaluation {
 
         double macro_average_recall = sum_recall / N.length;
 
-        double macro_average_F1 = sum_F1 / N.length;
+        double macro_average_F1 = (2*macro_average_precision*macro_average_recall)/(macro_average_precision + macro_average_recall);
 
         double micro_average_precision = sum_retrel / (sum_retrel + sum_notretrel);
 
@@ -312,16 +308,23 @@ public class Evaluation {
         evaluationMeasures.add(micro_average_F1);
         evaluationMeasures.add(macro_average_precision);
         evaluationMeasures.add(macro_average_recall);
-        evaluationMeasures.add(micro_average_F1);
+        evaluationMeasures.add(macro_average_F1);
         return evaluationMeasures;
 
     }
 
-    public void printEvaluation(List<EvaluationEntity> ee) {
-        //List<Double> measures =
-       // StringBuilder sb = new StringBuilder();
-        //sb.append("**********MAP********"+"\t"+);
-        //sb.append()
+    public void printEvaluation() throws IOException {
+        List<Double> measures = getEvaluationMeasures();
+        StringBuilder sb = new StringBuilder();
+        sb.append("MAP"+"\t"+measures.get(0)+"\n");
+        sb.append("nCDG"+"\t"+measures.get(1)+"\n");
+        sb.append("Micro Average Precision"+"\t"+measures.get(2)+"\n");
+        sb.append("Micro Average Recall"+"\t"+measures.get(3)+"\n");
+        sb.append("Micro Average F1"+"\t"+measures.get(4)+"\n");
+        sb.append("Macro Average Precision"+"\t"+measures.get(5)+"\n");
+        sb.append("Macro Average Recall"+"\t"+measures.get(6)+"\n");
+        sb.append("Macro Average F1"+"\t"+measures.get(7)+"\n");
+        System.out.println(sb.toString());
 
     }
 }
