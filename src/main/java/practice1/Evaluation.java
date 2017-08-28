@@ -15,7 +15,7 @@ import java.util.List;
 public class Evaluation {
 
     //int[] N = {10, 20,50};
-    int[] N = {10, 20,50,100};
+    int[] N = {10, 20};
    // private List<EvaluationEntity> ee = new ArrayList<>();
 
 
@@ -208,20 +208,19 @@ public class Evaluation {
 
             //Macro measures
             for (int k = 0; k < ee.size(); k++) {
-                //if(!Double.isNaN(F1_matrix[k][j]))
                 sum_precision_k += precision_matrix[k][j];
                 if (k == ee.size()-1)
-                 System.out.println(" Macro Average Precision at" +"\t"+ N[j] +"\t"+ "=" +"\t"+sum_precision_k);
+                 System.out.println(" Macro Average Precision at" +"\t"+ N[j] +"\t"+ "=" +"\t"+ sum_precision_k/ee.size());
 
                 sum_recall_k += recall_matrix[k][j];
                 if (k == ee.size()-1)
-                    System.out.println(" Macro Average Recall at" +"\t"+ N[j] +"\t"+ "=" +"\t"+ sum_recall_k);
+                    System.out.println(" Macro Average Recall at" +"\t"+ N[j] +"\t"+ "=" +"\t"+ sum_recall_k/ee.size());
 
                 if(!Double.isNaN(F1_matrix[k][j]))
                 {
                     sum_F1_k+= F1_matrix[k][j];
                     if (k == ee.size()-1)
-                        System.out.println(" Macro Average F1 at" +"\t"+ N[j] +"\t"+ "=" +"\t"+ sum_F1_k);
+                        System.out.println(" Macro Average F1 at" +"\t"+ N[j] +"\t"+ "=" +"\t"+ sum_F1_k/ee.size());
                 }
 
                //Micro measures
@@ -235,13 +234,13 @@ public class Evaluation {
 
 
                 if (k == ee.size()-1)
-                    micro_average_precision = sum_retrel_k / (sum_retrel_k + sum_notretrel_k);
+                { micro_average_precision = sum_retrel_k / (sum_retrel_k + sum_notretrel_k);
                     micro_average_recall = sum_retrel_k / (sum_retrel_k + sum_notretnotrel_k);
                     micro_average_F1 = (2*micro_average_precision*micro_average_recall)/(micro_average_precision + micro_average_recall);
 
                 System.out.println(" Micro Average Precision at" +"\t"+N[j] +"\t"+"="+"\t"+ micro_average_precision);
                 System.out.println(" Micro Average Recall at" +"\t"+ N[j] +"\t"+ "=" +"\t"+ micro_average_recall);
-                System.out.println(" Micro Average F1 at" +"\t"+ N[j] +"\t"+ "=" +"\t"+micro_average_F1);
+                System.out.println(" Micro Average F1 at" +"\t"+ N[j] +"\t"+ "=" +"\t"+micro_average_F1);}
 
             }
         }

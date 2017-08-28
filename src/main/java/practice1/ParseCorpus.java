@@ -30,8 +30,8 @@ public class ParseCorpus {
 
             for (CSVRecord record : records) {
                 Document doc = new Document();
-                doc.setId(Integer.parseInt(record.get(1)));
-                doc.setContent(record.get(0));
+                doc.setId(Integer.parseInt(record.get(0)));
+                doc.setContent(record.get(1));
                 docs.add(doc);
             }
 
