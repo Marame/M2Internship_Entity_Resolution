@@ -1,14 +1,11 @@
 package practice1;
 
 
-import com.opencsv.CSVReader;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
-import org.omg.CORBA.SystemException;
 import practice1.entities.Document;
 import practice1.entities.EvaluationEntity;
 
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -18,32 +15,41 @@ import java.util.List;
  * Created by romdhane on 19/07/17.
  */
 public class ParseCorpus {
-
-    private FileReader fr = null;
-    private FileReader frq = null;
-    private FileReader frd = null;
-    String nlpUsed;
     private List<EvaluationEntity> ee = new ArrayList<>();
-    List<Document> documents;
-    int vocab_size = 0;
 
-    public void setNlpUsed(String nlpUsed) {
-        this.nlpUsed = nlpUsed;
-    }
-
-    public List<Document> parseDocuments(String filenameDocs) throws IOException, SystemException {
-
+    public List<Document> parseDocuments(String filenameDocs) {
         List<Document> docs = new ArrayList<>();
-        frd = new FileReader(filenameDocs);
-
         Iterable<CSVRecord> records = null;
+        FileReader frd = null;
         try {
+<<<<<<< HEAD
             CSVFormat csvFormat = CSVFormat.EXCEL.withDelimiter(',');
+=======
+            frd = new FileReader(filenameDocs);
+
+            CSVFormat csvFormat = CSVFormat.EXCEL.withHeader().withDelimiter(',');
+>>>>>>> 508e40c4bbe3b7607d8e6a0e1958038cdd36f8b7
             records = csvFormat.parse(frd);
+
+            for (CSVRecord record : records) {
+                Document doc = new Document();
+                doc.setId(Integer.parseInt(record.get(0)));
+                doc.setContent(record.get(1));
+                docs.add(doc);
+            }
+
         } catch (IOException e) {
             System.out.println("cannot read csv file");
+        } finally {
+            try {
+                if (frd != null)
+                    frd.close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
         }
 
+<<<<<<< HEAD
         for (CSVRecord record : records) {
             Document doc = new Document();
             doc.setId(Integer.parseInt(record.get(1)));
@@ -51,21 +57,22 @@ public class ParseCorpus {
             docs.add(doc);
         }
         this.documents = docs;
+=======
+
+>>>>>>> 508e40c4bbe3b7607d8e6a0e1958038cdd36f8b7
         return docs;
     }
 
-    public List<EvaluationEntity> parseQueries(String filename) throws IOException {
+    public List<EvaluationEntity> parseQueries(String filename, List<Document> documents) throws IOException {
 
+        FileReader fr = null;
         try {
-
             fr = new FileReader(filename);
             Iterable<CSVRecord> records = null;
-            try {
-                CSVFormat csvFormat = CSVFormat.EXCEL.withHeader().withDelimiter(',');
-                records = csvFormat.parse(fr);
-            } catch (IOException e) {
-                System.out.println("cannot read csv file");
-            }
+
+            CSVFormat csvFormat = CSVFormat.EXCEL.withHeader().withDelimiter(',');
+            records = csvFormat.parse(fr);
+
 
             for (CSVRecord record : records) {
                 EvaluationEntity e = new EvaluationEntity();
@@ -101,47 +108,17 @@ public class ParseCorpus {
 
             }
 
-
         } catch (IOException e) {
-
             e.printStackTrace();
 
         } finally {
             try {
                 if (fr != null)
                     fr.close();
-
-                if (frd != null)
-                    frd.close();
-
             } catch (IOException ex) {
-
                 ex.printStackTrace();
-
             }
-
         }
         return ee;
     }
-
-
-    public List<Document> retrieveQueries(String filenameQueries) throws FileNotFoundException, IOException {
-
-        List<Document> queries = new ArrayList<>();
-        frq = new FileReader(filenameQueries);
-        CSVReader brd = new CSVReader(frq);
-        String[] lineq = null;
-        while ((lineq = brd.readNext()) != null) {
-
-            Document query = new Document();
-            int queryId = Integer.parseInt(lineq[0]);
-            query.setId(queryId);
-
-            query.setContent(lineq[1]);
-            queries.add(query);
-        }
-
-        return queries;
-    }
-
 }
