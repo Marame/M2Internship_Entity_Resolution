@@ -3,12 +3,12 @@ package practice1.models;
 import org.tartarus.snowball.ext.PorterStemmer;
 import practice1.Index;
 import practice1.Lemmatizer;
-import practice1.Main;
 import practice1.entities.Document;
 import practice1.entities.EvaluationEntity;
 import practice1.utilities.StringUtilities;
 
 import java.util.*;
+
 import static practice1.Index.LEMMATIZING_NLP_METHOD;
 import static practice1.Index.STEMMING_NLP_METHOD;
 
@@ -26,7 +26,7 @@ public class LanguageModel {
     private double lambda = 0.4;
     private double mu = 2;
 
-  
+
     public Lemmatizer lem;
     private Index index;
 
@@ -55,9 +55,9 @@ public class LanguageModel {
                 for (String st_lem : lem.lemmatize(st.nextToken())) {
                     words.add(st_lem);
                 }
+            } else {
+                words.add(st.nextToken());
             }
-            else {
-            words.add(st.nextToken());}
         }
         return words;
     }
@@ -87,8 +87,7 @@ public class LanguageModel {
                 sumfreq += freq;
                 sumsize += (double) doc.getContent().length();
             }
-        }
-        else{
+        } else {
             for (Document doc : documents) {
                 List<String> wordsDoc = docWords(doc);
                 double freq = (double) Collections.frequency(wordsDoc, word);
@@ -121,7 +120,7 @@ public class LanguageModel {
 
 
             } else if (smoothing_version.equals(DIRICHLET_SMOOTHING)) {
-                smoothedProb = freq /(mu * probC);
+                smoothedProb = freq / (mu * probC);
             }
         } else if (nlp_method.equals(LEMMATIZING_NLP_METHOD)) {
 
@@ -133,18 +132,17 @@ public class LanguageModel {
                 smoothedProb = (((1 - lambda) / lambda) * freq) / probC;
 
             } else if (smoothing_version.equals(DIRICHLET_SMOOTHING)) {
-                smoothedProb = freq /(mu * probC);
+                smoothedProb = freq / (mu * probC);
 
             }
-        }
-        else {
+        } else {
             double freq = (double) Collections.frequency(wordsDoc, word);
             double probC = probWordCollection(word);
             if (smoothing_version.equals(JELINEK_SMOOTHING)) {
                 smoothedProb = (((1 - lambda) / lambda) * freq) / probC;
 
             } else if (smoothing_version.equals(DIRICHLET_SMOOTHING)) {
-                smoothedProb = freq /(mu * probC);
+                smoothedProb = freq / (mu * probC);
 
             }
         }
@@ -166,29 +164,28 @@ public class LanguageModel {
 
             double sum_jmdp = 0.0;
 
-                for (String word : listwordsQuery) {
-                    double freqWordQuery = (double) Collections.frequency(listwordsQuery, word);
+            for (String word : listwordsQuery) {
+                double freqWordQuery = (double) Collections.frequency(listwordsQuery, word);
 
-                    if (doc.getContent().toLowerCase().indexOf(word.toLowerCase()) != -1) {
-                        if(su.hasOneToken(e.getQuery().getContent())==false) {
-                           if(Double.isNaN(probWord(word, doc, smoothing_version))) continue;
-                            sum_jmdp += freqWordQuery * Math.log(1 + probWord(word, doc, smoothing_version));
-                        }
-                        else {
-                            doc.setContent(su.getAcronym(doc.getContent()));
-                            sum_jmdp += freqWordQuery * Math.log(1 + probWord(word, doc, smoothing_version));
-                        }
-                        if (smoothing_version.equals(DIRICHLET_SMOOTHING)) {
-                            double smooth_factor = listwordsQuery.size() * (mu / (mu + docWords(doc).size()));
-                            sum_jmdp += smooth_factor;
-                        }
-                    } else continue;
-                }
-                resultdoc.setScore(sum_jmdp);
-                listRankingResults.add(resultdoc);
+                if (doc.getContent().toLowerCase().indexOf(word.toLowerCase()) != -1) {
+                    if (su.hasOneToken(e.getQuery().getContent()) == false) {
+                        if (Double.isNaN(probWord(word, doc, smoothing_version))) continue;
+                        sum_jmdp += freqWordQuery * Math.log(1 + probWord(word, doc, smoothing_version));
+                    } else {
+                        doc.setContent(su.getAcronym(doc.getContent()));
+                        sum_jmdp += freqWordQuery * Math.log(1 + probWord(word, doc, smoothing_version));
+                    }
+                    if (smoothing_version.equals(DIRICHLET_SMOOTHING)) {
+                        double smooth_factor = listwordsQuery.size() * (mu / (mu + docWords(doc).size()));
+                        sum_jmdp += smooth_factor;
+                    }
+                } else continue;
             }
-
-            return listRankingResults;
+            resultdoc.setScore(sum_jmdp);
+            listRankingResults.add(resultdoc);
         }
 
+        return listRankingResults;
     }
+
+}
