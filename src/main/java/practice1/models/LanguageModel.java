@@ -157,60 +157,52 @@ public class LanguageModel {
 
         for (Document doc : index.nlpToDocs(documents, nlp_method)) {
 
-<<<<<<< HEAD
-        Document resultdoc = new Document();
-        resultdoc.setId(doc.getId());
-        resultdoc.setContent(doc.getContent());
 
-        double sum_jmdp = 0.0;
-=======
             Document resultdoc = new Document();
             resultdoc.setId(doc.getId());
             resultdoc.setContent(doc.getContent());
 
+
             double sum_jmdp = 0.0;
->>>>>>> 508e40c4bbe3b7607d8e6a0e1958038cdd36f8b7
 
             for (String word : listwordsQuery) {
                 double freqWordQuery = (double) Collections.frequency(listwordsQuery, word);
 
                 if (doc.getContent().toLowerCase().indexOf(word.toLowerCase()) != -1) {
-<<<<<<< HEAD
-                    if(su.hasOneToken(e.getQuery().getContent())==false) {
-                       if(Double.isNaN(probWord(word, doc, smoothing_version))) continue;
+                    if (su.hasOneToken(e.getQuery().getContent()) == false) {
+                        if (Double.isNaN(probWord(word, doc, smoothing_version))) continue;
                         sum_jmdp += freqWordQuery * Math.log(1 + probWord(word, doc, smoothing_version));
-                    }
-                    else {
+                    } else {
                         Document newdoc = new Document();
                         newdoc.setId(doc.getId());
                         newdoc.setContent(su.getAcronym(doc.getContent()));
                         sum_jmdp += freqWordQuery * Math.log(1 + probWord(word, newdoc, smoothing_version));
                     }
-                    if (smoothing_version.equals(Main.DIRICHLET_SMOOTHING)) {
+                    if (smoothing_version.equals(JELINEK_SMOOTHING
+                    )) {
                         Document newdoc = new Document();
                         newdoc.setId(doc.getId());
                         newdoc.setContent(su.getAcronym(doc.getContent()));
-                        double smooth_factor = listwordsQuery.size() * (mu / (mu + docWords(newdoc).size()));
-=======
-                    if (su.hasOneToken(e.getQuery().getContent()) == false) {
-                        if (Double.isNaN(probWord(word, doc, smoothing_version))) continue;
-                        sum_jmdp += freqWordQuery * Math.log(1 + probWord(word, doc, smoothing_version));
-                    } else {
-                        doc.setContent(su.getAcronym(doc.getContent()));
-                        sum_jmdp += freqWordQuery * Math.log(1 + probWord(word, doc, smoothing_version));
-                    }
-                    if (smoothing_version.equals(DIRICHLET_SMOOTHING)) {
-                        double smooth_factor = listwordsQuery.size() * (mu / (mu + docWords(doc).size()));
->>>>>>> 508e40c4bbe3b7607d8e6a0e1958038cdd36f8b7
-                        sum_jmdp += smooth_factor;
-                    }
-                } else continue;
+                        if (su.hasOneToken(e.getQuery().getContent()) == false) {
+                            if (Double.isNaN(probWord(word, doc, smoothing_version))) continue;
+                            sum_jmdp += freqWordQuery * Math.log(1 + probWord(word, doc, smoothing_version));
+                        } else {
+                            doc.setContent(su.getAcronym(doc.getContent()));
+                            sum_jmdp += freqWordQuery * Math.log(1 + probWord(word, doc, smoothing_version));
+                        }
+                        if (smoothing_version.equals(DIRICHLET_SMOOTHING)) {
+                            double smooth_factor = listwordsQuery.size() * (mu / (mu + docWords(doc).size()));
+                            sum_jmdp += smooth_factor;
+                        }
+                    } else continue;
+                }
+                resultdoc.setScore(sum_jmdp);
+                listRankingResults.add(resultdoc);
             }
-            resultdoc.setScore(sum_jmdp);
-            listRankingResults.add(resultdoc);
+
+
         }
-
         return listRankingResults;
-    }
 
+    }
 }

@@ -2,13 +2,12 @@ package practice1;
 
 import practice1.entities.Document;
 import practice1.entities.EvaluationEntity;
-import practice1.models.LSIModel;
-import practice1.models.LanguageModel;
-import practice1.models.NGramModel;
-import practice1.models.VectorSpaceModel;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * Created by romdhane on 14/06/17.
@@ -17,15 +16,13 @@ public class Evaluation {
 
     //int[] N = {10, 20,50};
     int[] N = {10, 20,50,100, 150,200,300,500,800};
-    private List<EvaluationEntity> ee = new ArrayList<>();
+   // private List<EvaluationEntity> ee = new ArrayList<>();
 
     private double precision;
     private double recall;
     private double F1;
 
-    public void setEe(List<EvaluationEntity> ee) {
-        this.ee = ee;
-    }
+
 
     public double reward(Document result, List<Document> relevant_docs) {
         Double reward = 0.0;
@@ -79,7 +76,7 @@ public class Evaluation {
     }
 
 
-    public List<Double> evaluateVSM(List<Document> results, List<Document> relevant_docs, int n) {
+    public List<Double> evaluate(List<Document> results, List<Document> relevant_docs, int n) {
 
         List<Double> listresults = new ArrayList<>();
 
@@ -146,38 +143,8 @@ public class Evaluation {
         });
     }
 
-    public Map<EvaluationEntity, List<Document>> allocateResults(String smoothing_version, String vsm_version, String nlp_method, Lemmatizer l, Index index, int ngram, boolean lsiUsed) throws IOException {
-        Map<EvaluationEntity, List<Document>> map = new HashMap<>();
 
-        for (EvaluationEntity e : ee) {
-
-            List<Document> results = new ArrayList<>();
-            if (ngram > -1) {
-                NGramModel Ngram = new NGramModel(nlp_method, l, index, ngram);
-                results = Ngram.getRankingScoresNgram(e);
-            } else {
-                if ("".equals(smoothing_version)) {
-                    if (lsiUsed == false) {
-                        VectorSpaceModel vsm = new VectorSpaceModel(vsm_version, nlp_method, index);
-                        results = vsm.getRankingScoresVSM(e);
-                    } else {
-                        LSIModel lsi = new LSIModel(vsm_version, nlp_method, index);
-                        results = lsi.getRankingScoresLSI(e);
-                    }
-
-                } else {
-                    LanguageModel lm = new LanguageModel(smoothing_version, nlp_method, l, index);
-                    results = lm.getRankingScoresLM(e);
-                }
-            }
-            sortResults(results);
-            map.put(e, results);
-        }
-        return map;
-    }
-
-
-    public List<Double[][]> retrieve_evaluation_measures() throws IOException {
+    public List<Double[][]> retrieve_evaluation_measures(List<EvaluationEntity> ee) throws IOException {
 
         List<Double[][]> list_eval = new ArrayList<>();
 
@@ -195,7 +162,7 @@ public class Evaluation {
 
             int idx_N = 0;
             for (Integer n : N) {
-                List<Double> resultsAtn = evaluateVSM(results, e.getRelevant_documents(), n);
+                List<Double> resultsAtn = evaluate(results, e.getRelevant_documents(), n);
 
                 precision_matrix[idx_ent][idx_N] = resultsAtn.get(0);
                 recall_matrix[idx_ent][idx_N] = resultsAtn.get(1);
@@ -217,9 +184,9 @@ public class Evaluation {
         return list_eval;
     }
 
-    public List<Double> getEvaluationMeasures() throws IOException{
+    public List<Double> getEvaluationMeasures(List<EvaluationEntity> ee) throws IOException{
         List<Double> evaluationMeasures = new ArrayList<>();
-        List<Double[][]> list_eval = retrieve_evaluation_measures();
+        List<Double[][]> list_eval = retrieve_evaluation_measures(ee);
         Double[][] precision_matrix =  list_eval.get(0);
         Double[][] recall_matrix =  list_eval.get(1);
         Double[][] F1_matrix =  list_eval.get(2);
@@ -313,8 +280,8 @@ public class Evaluation {
 
     }
 
-    public void printEvaluation() throws IOException {
-        List<Double> measures = getEvaluationMeasures();
+    public void printEvaluation(List<EvaluationEntity> ee) throws IOException {
+        List<Double> measures = getEvaluationMeasures(ee);
         StringBuilder sb = new StringBuilder();
         sb.append("MAP"+"\t"+measures.get(0)+"\n");
         sb.append("nCDG"+"\t"+measures.get(1)+"\n");

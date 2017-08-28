@@ -22,13 +22,11 @@ public class ParseCorpus {
         Iterable<CSVRecord> records = null;
         FileReader frd = null;
         try {
-<<<<<<< HEAD
+
             CSVFormat csvFormat = CSVFormat.EXCEL.withDelimiter(',');
-=======
             frd = new FileReader(filenameDocs);
 
-            CSVFormat csvFormat = CSVFormat.EXCEL.withHeader().withDelimiter(',');
->>>>>>> 508e40c4bbe3b7607d8e6a0e1958038cdd36f8b7
+
             records = csvFormat.parse(frd);
 
             for (CSVRecord record : records) {
@@ -49,17 +47,14 @@ public class ParseCorpus {
             }
         }
 
-<<<<<<< HEAD
         for (CSVRecord record : records) {
             Document doc = new Document();
             doc.setId(Integer.parseInt(record.get(1)));
             doc.setContent(record.get(0));
             docs.add(doc);
         }
-        this.documents = docs;
-=======
+        //this.documents = docs;
 
->>>>>>> 508e40c4bbe3b7607d8e6a0e1958038cdd36f8b7
         return docs;
     }
 
